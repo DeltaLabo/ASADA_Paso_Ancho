@@ -123,7 +123,7 @@ int main(void)
       then = now;
 
       /****** Add Modbus requests to send at the polling frequency ******/
-      ForwardVolume_ui32(&mb_handler, &huart1, &huart2);
+      ForwardVolume(&mb_handler, &huart1, &huart2, 32);
     }
 
     /* USER CODE END WHILE */
