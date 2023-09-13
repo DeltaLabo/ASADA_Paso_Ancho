@@ -266,23 +266,42 @@ void VolumeUnit(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UA
 	ModbusReceive(handler, echo_uart, modbus_uart);
 }
 
-void ForwardVolume_double(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart){
+void ForwardVolume(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits){
 
-  handler->LastUsed = FORWARDVOLUME_DOUBLE;
+	if (unsignedValueSizeinBits == 64) {
+		handler->LastUsed = FORWARDVOLUME_DOUBLE;
 
-	handler->TxData[3] = 0x18; // register address low
+		handler->TxData[3] = 0x18; // register address low
 
-	ReadNRegs(handler, modbus_uart, 1, s_uint64);
+		ReadNRegs(handler, modbus_uart, 1, s_uint64);
+	}
+	else { // unsignedValueSizeinBits == 32
+		handler->LastUsed = FORWARDVOLUME_UINT32;
+
+		handler->TxData[3] = 0x36; // register address low
+
+		ReadNRegs(handler, modbus_uart, 1, s_uint32);
+	}
+
 
 	ModbusReceive(handler, echo_uart, modbus_uart);
 }
 
-void ReverseVolume_double(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart){
-  handler->LastUsed = REVERSEVOLUME_DOUBLE;
+void ReverseVolume(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits){
+	if (unsignedValueSizeinBits == 64) {
+		handler->LastUsed = REVERSEVOLUME_DOUBLE;
 
-	handler->TxData[3] = 0x20; // register address low
+		handler->TxData[3] = 0x20; // register address low
 
-	ReadNRegs(handler, modbus_uart, 1, s_uint64);
+		ReadNRegs(handler, modbus_uart, 1, s_uint64);
+	}
+	else { // unsignedValueSizeinBits == 32
+		handler->LastUsed = REVERSEVOLUME_UINT32;
+
+		handler->TxData[3] = 0x3A; // register address low
+
+		ReadNRegs(handler, modbus_uart, 1, s_uint32);
+	}
 
 	ModbusReceive(handler, echo_uart, modbus_uart);
 }
@@ -297,12 +316,21 @@ void ReadVolumeResIndex(struct ModbusHandler *handler, UART_HandleTypeDef *echo_
 	ModbusReceive(handler, echo_uart, modbus_uart);
 }
 
-void CurrentFlow_double(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart){
-  handler->LastUsed = SIGNEDCURRENTFLOW_DOUBLE;
+void SignedCurrentFlow(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits){
+	if (unsignedValueSizeinBits == 64) {
+		handler->LastUsed = SIGNEDCURRENTFLOW_DOUBLE;
 
-	handler->TxData[3] = 0x29; // register address low
+		handler->TxData[3] = 0x29; // register address low
 
-	ReadNRegs(handler, modbus_uart, 1, s_int64);
+		ReadNRegs(handler, modbus_uart, 1, s_uint64);
+	}
+	else { // unsignedValueSizeinBits == 32
+		handler->LastUsed = SIGNEDCURRENTFLOW_INT32;
+
+		handler->TxData[3] = 0x3E; // register address low
+
+		ReadNRegs(handler, modbus_uart, 1, s_uint32);
+	}
 
 	ModbusReceive(handler, echo_uart, modbus_uart);
 }
@@ -357,73 +385,40 @@ void TemperatureUnit(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uar
 	ModbusReceive(handler, echo_uart, modbus_uart);
 }
 
-void ForwardVolume_ui32(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart){
-	handler->LastUsed = FORWARDVOLUME_UI32;
+void NetSignedVolume(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits){
+	if (unsignedValueSizeinBits == 64) {
+		handler->LastUsed = NETSIGNEDVOLUME_DOUBLE;
 
-	handler->TxData[3] = 0x36; // register address low
+		handler->TxData[3] = 0x42; // register address low
 
-	ReadNRegs(handler, modbus_uart, 1, s_uint32);
+		ReadNRegs(handler, modbus_uart, 1, s_uint64);
+	}
+	else { // unsignedValueSizeinBits == 32
+		handler->LastUsed = NETSIGNEDVOLUME_INT32;
 
-	ModbusReceive(handler, echo_uart, modbus_uart);
-}
+		handler->TxData[3] = 0x52; // register address low
 
-void ReverseVolume_ui32(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart){
-	handler->LastUsed = REVERSEVOLUME_UI32;
-
-	handler->TxData[3] = 0x3E; // register address low
-
-	ReadNRegs(handler, modbus_uart, 1, s_uint32);
-
-	ModbusReceive(handler, echo_uart, modbus_uart);
-}
-
-void SignedCurrentFlow_i32(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart){
-	handler->LastUsed = SIGNEDCURRENTFLOW_I32;
-
-	handler->TxData[3] = 0x42; // register address low
-
-	ReadNRegs(handler, modbus_uart, 1, s_int32);
+		ReadNRegs(handler, modbus_uart, 1, s_uint32);
+	}
 
 	ModbusReceive(handler, echo_uart, modbus_uart);
 }
 
-void NetSignedVolume_double(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart){
-	handler->LastUsed = NETSIGNEDVOLUME_DOUBLE;
+void NetUnsignedVolume(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits){
+	if (unsignedValueSizeinBits == 64) {
+		handler->LastUsed = NETUNSIGNEDVOLUME_DOUBLE;
 
-	handler->TxData[3] = 0x46; // register address low
+		handler->TxData[3] = 0x4A; // register address low
 
-	ReadNRegs(handler, modbus_uart, 1, s_int64);
+		ReadNRegs(handler, modbus_uart, 1, s_uint64);
+	}
+	else { // unsignedValueSizeinBits == 32
+		handler->LastUsed = NETUNSIGNEDVOLUME_UINT32;
 
-	ModbusReceive(handler, echo_uart, modbus_uart);
-}
+		handler->TxData[3] = 0x56; // register address low
 
-void NetUnsignedVolume_double(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart){
-	handler->LastUsed = NETUNSIGNEDVOLUME_DOUBLE;
-
-	handler->TxData[3] = 0x4E; // register address low
-
-	ReadNRegs(handler, modbus_uart, 1, s_uint64);
-
-	ModbusReceive(handler, echo_uart, modbus_uart);
-}
-
-void NetSignedVolume_i32(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart){
-	handler->LastUsed = NETSIGNEDVOLUME_I32;
-
-	handler->TxData[3] = 0x56; // register address low
-
-	ReadNRegs(handler, modbus_uart, 1, s_int32);
-
-	ModbusReceive(handler, echo_uart, modbus_uart);
-}
-
-
-void NetUnsignedVolume_ui32(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart){
-	handler->LastUsed = NETUNSIGNEDVOLUME_UI32;
-
-	handler->TxData[3] = 0x5A; // register address low
-
-	WriteSingleReg(handler, modbus_uart);
+		ReadNRegs(handler, modbus_uart, 1, s_uint32);
+	}
 
 	ModbusReceive(handler, echo_uart, modbus_uart);
 }

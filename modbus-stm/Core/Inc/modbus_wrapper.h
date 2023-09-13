@@ -33,13 +33,13 @@ enum {
     FLOWDIRECTION = 0x35,
     TEMPERATUREVALUE = 0x36,
     TEMPERATUREUNIT = 0x37,
-    FORWARDVOLUME_UI32 = 0x38,
-    REVERSEVOLUME_UI32 = 0x39,
-	SIGNEDCURRENTFLOW_I32 = 0x40,
+    FORWARDVOLUME_UINT32 = 0x38,
+    REVERSEVOLUME_UINT32 = 0x39,
+	SIGNEDCURRENTFLOW_INT32 = 0x40,
 	NETSIGNEDVOLUME_DOUBLE = 0x41,
     NETUNSIGNEDVOLUME_DOUBLE = 0x42,
-    NETSIGNEDVOLUME_I32 = 0x43,
-    NETUNSIGNEDVOLUME_UI32 = 0x44,
+    NETSIGNEDVOLUME_INT32 = 0x43,
+    NETUNSIGNEDVOLUME_UINT32 = 0x44,
     WRITEALARMS = 0x45,
     WRITEVOLUMERESINDEX = 0x46,
     WRITEVOLUMEFLOWINDEX = 0x47,
@@ -86,22 +86,17 @@ void ReadYear(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART
 void ReadHours(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
 void ReadMinutes(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
 void VolumeUnit(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
-void ForwardVolume_double(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
-void ReverseVolume_double(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
+void ForwardVolume(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits);
+void ReverseVolume(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits);
 void ReadVolumeResIndex(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
-void CurrentFlow_double(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
+void SignedCurrentFlow(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits);
 void ReadFlowResIndex(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
 void FlowUnits(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
 void FlowDirection(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
 void TemperatureValue(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
 void TemperatureUnit(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
-void ForwardVolume_ui32(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
-void ReverseVolume_ui32(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
-void CurrentFlow_i32(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
-void SignedVolume_double(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
-void UnsignedVolume_double(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
-void SignedVolume_i32(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
-void UnsignedVolume_ui32(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
+void NetUnsignedVolume(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits);
+void NetSignedVolume(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits);
 void WriteAlarms(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
 void WriteVolumeResIndex(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
 void WriteVolumeFlowIndex(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);

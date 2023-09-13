@@ -258,57 +258,39 @@ void ReadMinutes(){
 	BlockingReadRegisters(0x16, 1, 16);
 }
 
-void ForwardVolume(int valueSizeinBits){
-  if (valueSizeinBits == 32) {
-    BlockingReadRegisters(0x36, 1, 32);
-  }
-  else { // valueSizeinBits == 64
-    BlockingReadRegisters(0x18, 1, 64);
-  }
-}
-
-void ReverseVolume(int valueSizeinBits){
-  if (valueSizeinBits == 32) {
-    BlockingReadRegisters(0x3A, 1, 32);
-  }
-  else { // valueSizeinBits == 64
-    BlockingReadRegisters(0x20, 1, 64);
-  }
-}
-
-void SignedCurrentFlow(int valueSizeinBits){
-  if (valueSizeinBits == 32) {
-    BlockingReadRegisters(0x3E, 1, -32);
-  }
-  else { // valueSizeinBits == 64
-    BlockingReadRegisters(0x29, 1, -64);
-  }
-}
-
-void NetSignedVolume(int valueSizeinBits){
-  if (valueSizeinBits == 32) {
-    BlockingReadRegisters(0x52, 1, -32);
-  }
-  else { // valueSizeinBits == 64
-    BlockingReadRegisters(0x42, 1, -64);
-  }
-}
-
-void NetUnsignedVolume(int valueSizeinBits){
-  if (valueSizeinBits == 32) {
-    BlockingReadRegisters(0x56, 1, 32);
-  }
-  else { // valueSizeinBits == 64
-    BlockingReadRegisters(0x4A, 1, 64);
-  }
-}
-
 void VolumeUnit(){
 	BlockingReadRegisters(0x17, 1, 16);
 }
 
+void ForwardVolume(int unsignedValueSizeinBits){
+  if (unsignedValueSizeinBits == 32) {
+    BlockingReadRegisters(0x36, 1, 32);
+  }
+  else { // unsignedValueSizeinBits == 64
+    BlockingReadRegisters(0x18, 1, 64);
+  }
+}
+
+void ReverseVolume(int unsignedValueSizeinBits){
+  if (unsignedValueSizeinBits == 32) {
+    BlockingReadRegisters(0x3A, 1, 32);
+  }
+  else { // unsignedValueSizeinBits == 64
+    BlockingReadRegisters(0x20, 1, 64);
+  }
+}
+
 void ReadVolumeResIndex(){
 	BlockingReadRegisters(0x28, 1, 16);
+}
+
+void SignedCurrentFlow(int unsignedValueSizeinBits){
+  if (unsignedValueSizeinBits == 32) {
+    BlockingReadRegisters(0x3E, 1, -32);
+  }
+  else { // unsignedValueSizeinBits == 64
+    BlockingReadRegisters(0x29, 1, -64);
+  }
 }
 
 void ReadFlowResIndex(){
@@ -329,6 +311,24 @@ void TemperatureValue(){
 
 void TemperatureUnit(){
 	BlockingReadRegisters(0x35, 1, 16);
+}
+
+void NetSignedVolume(int unsignedValueSizeinBits){
+  if (unsignedValueSizeinBits == 32) {
+    BlockingReadRegisters(0x52, 1, -32);
+  }
+  else { // unsignedValueSizeinBits == 64
+    BlockingReadRegisters(0x42, 1, -64);
+  }
+}
+
+void NetUnsignedVolume(int unsignedValueSizeinBits){
+  if (unsignedValueSizeinBits == 32) {
+    BlockingReadRegisters(0x56, 1, 32);
+  }
+  else { // unsignedValueSizeinBits == 64
+    BlockingReadRegisters(0x4A, 1, 64);
+  }
 }
 
 void WriteAlarms(int value){
