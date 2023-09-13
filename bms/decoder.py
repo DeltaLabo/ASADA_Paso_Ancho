@@ -33,7 +33,10 @@ length = int.from_bytes(ser.read(1), 'big')
 print('Length:',length,end='\n')
 vt = int.from_bytes(ser.read(2), 'big') / 100
 print('vt: ', vt, 'V', end='\n')
-it = (65536 - int.from_bytes(ser.read(2), 'big')) / 100
+it = int.from_bytes(ser.read(2), 'big')
+print(it & 0x7FFF)
+if (it>>15) == 1:
+    it = 65536 - it
 print('i: ', it, 'A', end='\n')
 
 rest = ser.readline()
