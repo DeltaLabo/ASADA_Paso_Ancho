@@ -2,7 +2,7 @@
 #define INC_MODBUS_WRAPPER_H_
 
 /****** Modbus settings ******/
-#define SLAVE_ID 03
+#define SLAVE_ID 01
 // 0 to read from Input regs, 1 for Holding regs
 #define ReadFromIreg 0
 // Frequency for sending Modbus requests to the slave
