@@ -8,13 +8,11 @@
 // Frequency for sending Modbus requests to the slave
 #define POLLING_FREQ_MS 1000 // ms
 
-#include "src/ModbusRTUMaster.h"
-
 #include "RS485.h"
+#include "src/ModbusRTUMaster.h"
 
 // Define the ModbusRTUMaster object, using the RS-485 or Serial1 port
 ModbusRTUMaster master((USE_RS485 == 1) ? RS485 : Serial1);
-//ModbusRTUMaster master(RS485);
 
 /****** Parameters for the Modbus requests ******/
 // Number of registers to read for a Modbus request, is 0 for a write request
@@ -45,13 +43,8 @@ void setup() {
 
   // Start the Modbus serial port
   // SERIAL_8N1: 8 bits, no parity, 1 stop bit
-
   if (USE_RS485 == 1) RS485.begin(MODBUS_BAUDRATE, HALFDUPLEX, SERIAL_8N1);
   else Serial1.begin(MODBUS_BAUDRATE, SERIAL_8N1);
-
-  //RS485.begin(MODBUS_BAUDRATE, HALFDUPLEX, SERIAL_8N1);
-
-  //Serial1.begin(MODBUS_BAUDRATE, SERIAL_8N1);
 
   // Start the modbus master object
   master.begin(MODBUS_BAUDRATE);
