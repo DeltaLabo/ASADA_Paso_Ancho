@@ -1,6 +1,6 @@
 // the setup routine runs once when you press reset:
-uint8_t status[] = {0xAA, 0xA5, 0x03, 0x00, 0xFF, 0xFD, 0x77};
-uint8_t buffer[20] = {};
+byte status[] = {0xDD, 0xA5, 0x03, 0x00, 0xFF, 0xFD, 0x77};
+byte recep[50] = {0x00};
 int i = 0;
 
 void setup() {
@@ -17,10 +17,18 @@ void loop() {
   // // print out the value you read:
   // Serial.println(sensorValue);
   Serial1.write(status, sizeof(status));
-  Serial1.readBytesUntil(0x77, buffer, 20);
-  for(i=0; i<sizeof(buffer); i++){
-      Serial.print(buffer[i],HEX);
+  //Serial.write(status, sizeof(status));
+  if(Serial1.available() > 0){
+    Serial1.readBytesUntil(0x77, recep, 50);
+    Serial.print("Datos en serial: ");
+    for(i=0; i<sizeof(recep); i++){
+      Serial.print(recep[i],HEX);
+    }
+    Serial.println(" ");
   }
+  
+
+
 
 
   delay(1000);  // delay in between reads for stability
