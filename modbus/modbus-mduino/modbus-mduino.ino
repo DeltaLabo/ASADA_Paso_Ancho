@@ -1,6 +1,6 @@
 /****** Modbus settings ******/
 // 1 to use the RS485 port for Modbus, 0 for Serial1
-#define USE_RS485 0
+#define USE_RS485 1
 #define SLAVE_ADDRESS 1
 // 1 to read from Input Registers, 0 to read from Holding Regs
 #define READ_FROM_IREGS 0
@@ -8,13 +8,11 @@
 // Frequency for sending Modbus requests to the slave
 #define POLLING_FREQ_MS 1000 // ms
 
-#include "src/ModbusRTUMaster.h"
-
 #include "RS485.h"
+#include "src/ModbusRTUMaster.h"
 
 // Define the ModbusRTUMaster object, using the RS-485 or Serial1 port
 ModbusRTUMaster master((USE_RS485 == 1) ? RS485 : Serial1);
-
 
 /****** Parameters for the Modbus requests ******/
 // Number of registers to read for a Modbus request, is 0 for a write request
@@ -59,17 +57,45 @@ void setup() {
 
 
 void loop() {
+  // Check available responses often
+  if (master.isWaitingResponse()) {
+    ModbusResponse response = master.available();
+
+    if (response) {
+      if (response.hasError()) {
+        // Response failure treatment. You can use response.getErrorCode()
+        // to get the error code.
+        Serial.print("Error ");
+        Serial.println(response.getErrorCode());
+      } else {
+        // Get the discrete inputs values from the response
+        if (response.hasError()) {
+          // Response failure treatment. You can use response.getErrorCode()
+          // to get the error code.
+          Serial.print("Error ");
+          Serial.println(response.getErrorCode());
+        } else {
+          // If there are registers to read, process them
+          if(numRegisterstoRead > 0) {
+            ProcessResponse(&response);
+          }
+          // If there are no registers to read, it was a write request
+          else Serial.println("Done writing.");
+        }
+      }
+    }
+  }
   // Send requests at a certain frequency
-  if (millis() - lastSentTime >= POLLING_FREQ_MS) {
+  else if (millis() - lastSentTime >= POLLING_FREQ_MS) {
     // Update the control variable
     lastSentTime = millis();
     // Toggle the indicator LED at the Modbus polling frequency, for verification purposes 
     digitalWrite(40, !digitalRead(40));
 
     /****** Add Modbus requests to send at the polling frequency ******/
-    ForwardVolume(32);
   }
 }
+
 
 /****** Modbus communication functions ******/
 // Read the Modbus channel in blocking mode until a response is received or an error occurs
@@ -81,36 +107,34 @@ void AwaitResponse(){
   // Check available responses
   ModbusResponse response = master.available();
 
-  // Poll until the master receives a response
-  while(!response){
-    response = master.available();
-  }
-
-  if (response.hasError()) {
-    // Response failure treatment.
-    Serial.print("Error ");
-    Serial.println(response.getErrorCode());
-  } else {
-    // Get the values from the response
+  // If there was a valid response
+  if (response) {
     if (response.hasError()) {
       // Response failure treatment.
       Serial.print("Error ");
       Serial.println(response.getErrorCode());
     } else {
-      // If there are registers to read, process them
-      if(numRegisterstoRead > 0) {
-        ProcessResponse(response);
+      // Get the values from the response
+      if (response.hasError()) {
+        // Response failure treatment.
+        Serial.print("Error ");
+        Serial.println(response.getErrorCode());
+      } else {
+        // If there are registers to read, process them
+        if(numRegisterstoRead > 0) {
+          ProcessResponse(&response);
+        }
+        // If there are no registers to read, it was a write request
+        else Serial.println("Done writing.");
       }
-      // If there are no registers to read, it was a write request
-      else Serial.println("Done writing.");
     }
   }
 }
 
 
 // Processes the raw register values from the slave response and saves them to the buffers
-void ProcessResponse(ModbusResponse response){
-  Serial.print("Register values: ");
+void ProcessResponse(ModbusResponse *response){
+  Serial.println("Register values: ");
 
   if (signedResponseSizeinBits == 16){
     // Loop through the response and print each register
@@ -118,8 +142,8 @@ void ProcessResponse(ModbusResponse response){
       // If the index corresponds to a valid register from the request
       if (i < numRegisterstoRead) {
         // Save the register to the buffer
-        int16Buffer[i] = response.getRegister(i);
-        Serial.print(response.getRegister(i));
+        int16Buffer[i] = response->getRegister(i);
+        Serial.print(response->getRegister(i));
         Serial.print(',');
       }
       // Clear the unused buffer positions
@@ -141,7 +165,7 @@ void ProcessResponse(ModbusResponse response){
 
     if (signedResponseSizeinBits == 32){
       // The value is split into AB CD, combine it into ABCD and save it to the buffer
-      uint32Buffer = response.getRegister(0) << 16 + response.getRegister(1);
+      uint32Buffer = (static_cast<unsigned long>(response->getRegister(0)) << 16) + static_cast<unsigned long>(response->getRegister(1));
       Serial.println(uint32Buffer);
 
       // Clear the unused buffers
@@ -151,7 +175,7 @@ void ProcessResponse(ModbusResponse response){
     }
     else if (signedResponseSizeinBits == -32){
       // The value is split into AB CD, combine it into ABCD and save it to the buffer
-      int32Buffer = response.getRegister(0) << 16 + response.getRegister(1);
+      int32Buffer = (static_cast<unsigned long>(response->getRegister(0)) << 16) + static_cast<unsigned long>(response->getRegister(1));
       Serial.println(int32Buffer);
 
       // Clear the unused buffers
@@ -161,11 +185,11 @@ void ProcessResponse(ModbusResponse response){
     }
     else if (signedResponseSizeinBits == 64) {
       // The value is stored in HG FE DC BA order, rearrange it to ABCDEFGH and save it to the buffer
-      uint64Buffer = ((response.getRegister(3) >> 8) | (response.getRegister(3) << 8)) << 48
-                    + ((response.getRegister(2) >> 8) | (response.getRegister(2) << 8)) << 32
-                    + ((response.getRegister(1) >> 8) | (response.getRegister(1) << 8)) << 16
-                    + ((response.getRegister(0) >> 8) | (response.getRegister(0) << 8));
-      // println() doesn't accept uint64, so convert it to double
+      uint64Buffer = (static_cast<unsigned long long>(((response->getRegister(3) >> 8) | (response->getRegister(3) << 8))) << 48)
+                    + (static_cast<unsigned long long>(( (response->getRegister(2) >> 8) | (response->getRegister(2) << 8))) << 32)
+                    + (static_cast<unsigned long long>(( (response->getRegister(1) >> 8) | (response->getRegister(1) << 8))) << 16)
+                    + ((response->getRegister(0) >> 8) | (response->getRegister(0) << 8));
+      // println() doesn't accept uint64, so convert it to unsigned long long
       Serial.println(static_cast<double>(uint64Buffer));
 
       // Clear the unused buffers
@@ -175,11 +199,11 @@ void ProcessResponse(ModbusResponse response){
     }
     else { // signedResponseSizeinBits == -64
       // The value is stored in HG FE DC BA order, rearrange it to ABCDEFGH and save it to the buffer
-      int64Buffer = ((response.getRegister(3) >> 8) | (response.getRegister(3) << 8)) << 48
-                    + ((response.getRegister(2) >> 8) | (response.getRegister(2) << 8)) << 32
-                    + ((response.getRegister(1) >> 8) | (response.getRegister(1) << 8)) << 16
-                    + ((response.getRegister(0) >> 8) | (response.getRegister(0) << 8));
-      // println() doesn't accept uint64, so convert it to double
+      int64Buffer = (static_cast<unsigned long long>(((response->getRegister(3) >> 8) | (response->getRegister(3) << 8))) << 48)
+                    + (static_cast<unsigned long long>(( (response->getRegister(2) >> 8) | (response->getRegister(2) << 8))) << 32)
+                    + (static_cast<unsigned long long>(( (response->getRegister(1) >> 8) | (response->getRegister(1) << 8))) << 16)
+                    + ((response->getRegister(0) >> 8) | (response->getRegister(0) << 8));
+      // println() doesn't accept uint64, so convert it to unsigned long long
       Serial.println(static_cast<double>(int64Buffer));
 
       // Clear the unused buffers
@@ -188,6 +212,7 @@ void ProcessResponse(ModbusResponse response){
       uint64Buffer = 0;
     }
   }
+  Serial.println();
 }
 
 
@@ -199,16 +224,18 @@ void BlockingReadRegisters(int startMemAddress, int numValues, int signedValueSi
   signedResponseSizeinBits = signedValueSizeinBits;
 
   if (READ_FROM_IREGS == 0) {
-    if (!master.readInputRegisters(SLAVE_ADDRESS, startMemAddress, numRegisterstoRead)) {
-      // Failure treatment
-    }
-  }
-  else { // READ_FROM_IREGS == 0
     if (!master.readHoldingRegisters(SLAVE_ADDRESS, startMemAddress, numRegisterstoRead)) {
       // Failure treatment
+      Serial.println("Can't send request. Modbus master is awaiting a response.");
     }
   }
-  AwaitResponse();
+  else { // READ_FROM_IREGS == 1
+    if (!master.readInputRegisters(SLAVE_ADDRESS, startMemAddress, numRegisterstoRead)) {
+      // Failure treatment
+      Serial.println("Can't send request. Modbus master is awaiting a response.");
+    }
+  }
+  //AwaitResponse();
 }
 
 
@@ -220,8 +247,9 @@ void BlockingWriteSingleRegister(int memAddress, int value){
 
   if (!master.writeSingleRegister(SLAVE_ADDRESS, memAddress, value)) {
     // Failure treatment
+    Serial.println("Can't send request. Modbus master is awaiting a response.");
   }
-  AwaitResponse();
+  //AwaitResponse();
 }
 
 
