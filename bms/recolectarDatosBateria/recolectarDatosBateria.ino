@@ -23,7 +23,7 @@ void pedidoUtil()  {
 
   // Se piden los datos de la batería
   if (Serial.availableForWrite() > 7){
-    Serial.write(Datos, 7); // Envía los 7 bytes en una línea
+    Serial.write(Pedido, 7); // Envía los 7 bytes en una línea
   }
   else{
     Serial.print("No se pueden enviar los datos");
