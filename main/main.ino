@@ -22,6 +22,7 @@ void loop() {
     Serial1.readBytesUntil(0x77, recep, 50);
     Serial.print("Datos en serial: ");
     for(i=0; i<sizeof(recep); i++){
+      if(recep[i] < 16) Serial.print("0");
       Serial.print(recep[i],HEX);
     }
     Serial.println(" ");
