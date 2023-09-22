@@ -1,4 +1,12 @@
 // the setup routine runs once when you press reset:
+#include <RTC.h>
+const int YEAR = 2018;
+const int MONTH = 3;
+const int DAY = 28;
+const int HOUR = 13;
+const int MINUTE = 24;
+const int SECOND = 25;
+
 byte status[] = {0xDD, 0xA5, 0x03, 0x00, 0xFF, 0xFD, 0x77};
 byte recep[50] = {0x00};
 bool one_flag = 0;
@@ -9,6 +17,18 @@ void setup() {
   Serial.begin(9600);
   Serial1.begin(9600);
 
+  Serial.println("Configuring RTC: ");
+  Serial.println();
+  RTC.setYear(YEAR);                      //sets year
+  RTC.setMonth(MONTH);                   //sets month
+  RTC.setMonthDay(DAY);                   //sets day
+  RTC.setHour(HOUR);                      //sets hour
+  RTC.setMinute(MINUTE);                  //sets minute
+  RTC.setSecond(SECOND);                  //sets second
+  //RTC.setTime(TIME);                   //sets UNIX timestamp
+  if(!RTC.write()){                       //RTC.write writes in the RTC memory all that has been set
+    Serial.println("Write date error: Are the switches well placed?");
+  }
   cli();//stop interrupts
 
   //set timer4 interrupt at 1Hz
@@ -36,6 +56,26 @@ void loop() {
   // Serial.println(sensorValue);
   if(one_flag){
     one_flag = 0;
+    if (!RTC.read()) {
+      Serial.println("Read date error: is time set?");
+    } else {
+      Serial.print("Time: ");
+      Serial.print(RTC.getYear());
+      Serial.print("-");
+      Serial.print(RTC.getMonth());
+      Serial.print("-");
+      Serial.print(RTC.getMonthDay());
+      Serial.print(" ");
+      Serial.print(RTC.getHour());
+      Serial.print(":");
+      Serial.print(RTC.getMinute());
+      Serial.print(":");
+      Serial.print(RTC.getSecond());
+      Serial.print(" (");
+      Serial.print(RTC.getTime());
+      Serial.println(")");
+    }
+
     Serial1.write(status, sizeof(status));
     //Serial.write(status, sizeof(status));
     if(Serial1.available() > 0){
