@@ -10,6 +10,8 @@
 
 #include "RS485.h"
 #include "src/ModbusRTUMaster.h"
+#include <fp64lib.h>
+#include <stdint.h>
 
 // Define the ModbusRTUMaster object, using the RS-485 port
 ModbusRTUMaster master(RS485);
@@ -26,9 +28,13 @@ int32_t int32Buffer;
 uint32_t uint32Buffer;
 int64_t int64Buffer;
 uint64_t uint64Buffer;
+float64_t doubleBuffer;
 
 // Control variable for the Modbus polling frequency
 uint32_t lastSentTime = 0UL;
+
+// Data types test counter
+int counter = 0;
 
 
 void setup() {
@@ -92,6 +98,16 @@ void loop() {
     digitalWrite(40, !digitalRead(40));
 
     /****** Add Modbus requests to send at the polling frequency ******/
+    if (counter == 0){
+      Serial.print("FW VOL 64 - ");
+      ForwardVolume(64);
+      counter = 1;
+    }
+    else if (counter == 1) {
+      Serial.print("SIG CURF 64 - ");
+      SignedCurrentFlow(64);
+      counter = 0;
+    }
   }
 }
 
@@ -155,6 +171,7 @@ void ProcessResponse(ModbusResponse *response){
     uint32Buffer = 0;
     int64Buffer = 0;
     uint64Buffer = 0;
+    doubleBuffer = 0.0;
   }
   else {
     // Clear the entire int16 buffer
@@ -171,6 +188,7 @@ void ProcessResponse(ModbusResponse *response){
       int32Buffer = 0;
       int64Buffer = 0;
       uint64Buffer = 0;
+      doubleBuffer = 0.0;
     }
     else if (signedResponseSizeinBits == -32){
       // The value is split into AB CD, combine it into ABCD and save it to the buffer
@@ -181,34 +199,42 @@ void ProcessResponse(ModbusResponse *response){
       uint32Buffer = 0;
       int64Buffer = 0;
       uint64Buffer = 0;
+      doubleBuffer = 0.0;
     }
-    else if (signedResponseSizeinBits == 64) {
+    else { // signedResponseSizeinBits == +-64
+      // It is unclear whether the 64-bit have to be interpreted as uint64, int64 or double, so calculate all three
+
+      // Clear the unused buffers
+      int32Buffer = 0;
+      uint32Buffer = 0;
+
+      doubleBuffer = (static_cast<unsigned long long>(((response->getRegister(3) >> 8) | (response->getRegister(3) << 8))) << 48)
+              + (static_cast<unsigned long long>(( (response->getRegister(2) >> 8) | (response->getRegister(2) << 8))) << 32)
+              + (static_cast<unsigned long long>(( (response->getRegister(1) >> 8) | (response->getRegister(1) << 8))) << 16)
+              + ((response->getRegister(0) >> 8) | (response->getRegister(0) << 8));
+
+      // Convert the 64-bit floating point number to a string, then print it
+      Serial.print("double: ");
+      Serial.println(fp64_to_string(doubleBuffer, 10, 1));
+
       // The value is stored in HG FE DC BA order, rearrange it to ABCDEFGH and save it to the buffer
       uint64Buffer = (static_cast<unsigned long long>(((response->getRegister(3) >> 8) | (response->getRegister(3) << 8))) << 48)
                     + (static_cast<unsigned long long>(( (response->getRegister(2) >> 8) | (response->getRegister(2) << 8))) << 32)
                     + (static_cast<unsigned long long>(( (response->getRegister(1) >> 8) | (response->getRegister(1) << 8))) << 16)
                     + ((response->getRegister(0) >> 8) | (response->getRegister(0) << 8));
-      // println() doesn't accept uint64, so convert it to unsigned long long
-      Serial.println(static_cast<double>(uint64Buffer));
 
-      // Clear the unused buffers
-      int32Buffer = 0;
-      uint32Buffer = 0;
-      int64Buffer = 0;
-    }
-    else { // signedResponseSizeinBits == -64
+
+      Serial.print("uint64: ");
+      Serial.println(str(uint64Buffer));
+
       // The value is stored in HG FE DC BA order, rearrange it to ABCDEFGH and save it to the buffer
       int64Buffer = (static_cast<unsigned long long>(((response->getRegister(3) >> 8) | (response->getRegister(3) << 8))) << 48)
                     + (static_cast<unsigned long long>(( (response->getRegister(2) >> 8) | (response->getRegister(2) << 8))) << 32)
                     + (static_cast<unsigned long long>(( (response->getRegister(1) >> 8) | (response->getRegister(1) << 8))) << 16)
                     + ((response->getRegister(0) >> 8) | (response->getRegister(0) << 8));
-      // println() doesn't accept uint64, so convert it to unsigned long long
-      Serial.println(static_cast<double>(int64Buffer));
 
-      // Clear the unused buffers
-      int32Buffer = 0;
-      uint32Buffer = 0;
-      uint64Buffer = 0;
+      Serial.print("int64: ");
+      Serial.println(str(int64Buffer));
     }
   }
   Serial.println();
@@ -249,6 +275,30 @@ void BlockingWriteSingleRegister(int memAddress, int value){
     Serial.println("Can't send request. Modbus master is awaiting a response.");
   }
   //AwaitResponse();
+}
+
+
+
+/****** Utilities ******/
+
+// Convert uint64 to str to make it Serial-printable
+char* str( uint64_t num ) {
+  static char buf[22];
+  char* p = &buf[sizeof(buf)-1];
+  *p = '\0';
+  do {
+    *--p = '0' + (num%10);
+    num /= 10;
+  } while ( num > 0 );
+  return p;
+}
+
+// Convert int64 to str to make it Serial-printable
+char* str( int64_t num ) {
+    if ( num>=0 ) return str((uint64_t)num);
+    char* p = str((uint64_t)(-num));
+    *--p = '-';
+    return p;    
 }
 
 
