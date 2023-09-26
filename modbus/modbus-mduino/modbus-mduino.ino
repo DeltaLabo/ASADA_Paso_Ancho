@@ -102,32 +102,34 @@ void loop() {
 /****** Modbus communication functions ******/
 // Read the Modbus channel in blocking mode until a response is received or an error occurs
 void AwaitResponse(){
-  while(!master.isWaitingResponse()){
-    // Wait until the master enters receiving mode
-  }
+  // While the master is in receiving mode
+  // (it'll stay in this mode until the timeout set in Modbus.h)
+  while(master.isWaitingResponse()){
+    // Check available responses
+    ModbusResponse response = master.available();
 
-  // Check available responses
-  ModbusResponse response = master.available();
-
-  // If there was a valid response
-  if (response) {
-    if (response.hasError()) {
-      // Response failure treatment.
-      Serial.print("Error ");
-      Serial.println(response.getErrorCode());
-    } else {
-      // Get the values from the response
+    // If there was a valid response
+    if (response) {
       if (response.hasError()) {
-        // Response failure treatment.
+        // Response failure treatment. You can use response.getErrorCode()
+        // to get the error code.
         Serial.print("Error ");
         Serial.println(response.getErrorCode());
       } else {
-        // If there are registers to read, process them
-        if(numRegisterstoRead > 0) {
-          ProcessResponse(&response);
+        // Get the discrete inputs values from the response
+        if (response.hasError()) {
+          // Response failure treatment. You can use response.getErrorCode()
+          // to get the error code.
+          Serial.print("Error ");
+          Serial.println(response.getErrorCode());
+        } else {
+          // If there are registers to read, process them
+          if(numRegisterstoRead > 0) {
+            ProcessResponse(&response);
+          }
+          // If there are no registers to read, it was a write request
+          else Serial.println("Done writing.");
         }
-        // If there are no registers to read, it was a write request
-        else Serial.println("Done writing.");
       }
     }
   }
