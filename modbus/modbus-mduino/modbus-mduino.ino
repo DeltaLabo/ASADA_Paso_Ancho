@@ -33,9 +33,6 @@ float64_t doubleBuffer;
 // Control variable for the Modbus polling frequency
 uint32_t lastSentTime = 0UL;
 
-// Data types test counter
-int counter = 0;
-
 
 void setup() {
   // Set indicator LED pin as output
@@ -98,16 +95,6 @@ void loop() {
     digitalWrite(40, !digitalRead(40));
 
     /****** Add Modbus requests to send at the polling frequency ******/
-    if (counter == 0){
-      Serial.print("FW VOL 64 - ");
-      ForwardVolume(64);
-      counter = 1;
-    }
-    else if (counter == 1) {
-      Serial.print("SIG CURF 64 - ");
-      SignedCurrentFlow(64);
-      counter = 0;
-    }
   }
 }
 
