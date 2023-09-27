@@ -59,42 +59,15 @@ void setup() {
 
 
 void loop() {
-  // Check available responses often
-  if (master.isWaitingResponse()) {
-    ModbusResponse response = master.available();
-
-    if (response) {
-      if (response.hasError()) {
-        // Response failure treatment. You can use response.getErrorCode()
-        // to get the error code.
-        Serial.print("Error ");
-        Serial.println(response.getErrorCode());
-      } else {
-        // Get the discrete inputs values from the response
-        if (response.hasError()) {
-          // Response failure treatment. You can use response.getErrorCode()
-          // to get the error code.
-          Serial.print("Error ");
-          Serial.println(response.getErrorCode());
-        } else {
-          // If there are registers to read, process them
-          if(numRegisterstoRead > 0) {
-            ProcessResponse(&response);
-          }
-          // If there are no registers to read, it was a write request
-          else Serial.println("Done writing.");
-        }
-      }
-    }
-  }
   // Send requests at a certain frequency
-  else if (millis() - lastSentTime >= POLLING_FREQ_MS) {
+  if (millis() - lastSentTime >= POLLING_FREQ_MS) {
     // Update the control variable
     lastSentTime = millis();
     // Toggle the indicator LED at the Modbus polling frequency, for verification purposes 
     digitalWrite(40, !digitalRead(40));
 
     /****** Add Modbus requests to send at the polling frequency ******/
+    ForwardVolume(64);
   }
 }
 
@@ -249,7 +222,7 @@ void BlockingReadRegisters(int startMemAddress, int numValues, int signedValueSi
       Serial.println("Can't send request. Modbus master is awaiting a response.");
     }
   }
-  //AwaitResponse();
+  AwaitResponse();
 }
 
 
@@ -263,7 +236,7 @@ void BlockingWriteSingleRegister(int memAddress, int value){
     // Failure treatment
     Serial.println("Can't send request. Modbus master is awaiting a response.");
   }
-  //AwaitResponse();
+  AwaitResponse();
 }
 
 
