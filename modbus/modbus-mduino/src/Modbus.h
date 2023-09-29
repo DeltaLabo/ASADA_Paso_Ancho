@@ -5,7 +5,7 @@
 
 #define MODBUS_DATA_SIZE				(252) // bytes
 #define MODBUS_PDU_SIZE 				(1 + MODBUS_DATA_SIZE) // PDU = FC (1) + DATA
-#define MODBUS_RESPONSE_TIMEOUT			200
+#define MODBUS_RESPONSE_TIMEOUT			300
 
 class ModbusDevice {
 	public:
