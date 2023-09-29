@@ -2,9 +2,7 @@
 // 1 to use the RS485 port for Modbus, 0 for Serial1
 #define USE_RS485 1
 #define SLAVE_ADDRESS 1
-// 1 to read from Input Registers, 0 to read from Holding Regs
-#define READ_FROM_IREGS 0
-#define MODBUS_BAUDRATE 9600
+#define MODBUS_BAUDRATE 2400
 // Frequency for sending Modbus requests to the slave
 #define POLLING_FREQ_MS 1000 // ms
 
@@ -26,8 +24,6 @@ int signedResponseSizeinBits = 16;
 int int16Buffer[16];
 int32_t int32Buffer;
 uint32_t uint32Buffer;
-int64_t int64Buffer;
-uint64_t uint64Buffer;
 float64_t doubleBuffer;
 
 // Control variable for the Modbus polling frequency
@@ -130,8 +126,6 @@ void ProcessResponse(ModbusResponse *response){
     // Clear the unused buffers
     int32Buffer = 0;
     uint32Buffer = 0;
-    int64Buffer = 0;
-    uint64Buffer = 0;
     doubleBuffer = 0.0;
   }
   else {
@@ -147,8 +141,6 @@ void ProcessResponse(ModbusResponse *response){
 
       // Clear the unused buffers
       int32Buffer = 0;
-      int64Buffer = 0;
-      uint64Buffer = 0;
       doubleBuffer = 0.0;
     }
     else if (signedResponseSizeinBits == -32){
@@ -158,17 +150,15 @@ void ProcessResponse(ModbusResponse *response){
 
       // Clear the unused buffers
       uint32Buffer = 0;
-      int64Buffer = 0;
-      uint64Buffer = 0;
       doubleBuffer = 0.0;
     }
-    else { // signedResponseSizeinBits == +-64
-      // It is unclear whether the 64-bit have to be interpreted as uint64, int64 or double, so calculate all three
+    else { // signedResponseSizeinBits == -64
 
       // Clear the unused buffers
       int32Buffer = 0;
       uint32Buffer = 0;
 
+      // The value is stored in HG FE DC BA order, rearrange it to ABCDEFGH and save it to the buffer
       doubleBuffer = (static_cast<unsigned long long>(((response->getRegister(3) >> 8) | (response->getRegister(3) << 8))) << 48)
               + (static_cast<unsigned long long>(( (response->getRegister(2) >> 8) | (response->getRegister(2) << 8))) << 32)
               + (static_cast<unsigned long long>(( (response->getRegister(1) >> 8) | (response->getRegister(1) << 8))) << 16)
@@ -176,26 +166,7 @@ void ProcessResponse(ModbusResponse *response){
 
       // Convert the 64-bit floating point number to a string, then print it
       Serial.print("double: ");
-      Serial.println(fp64_to_string(doubleBuffer, 10, 1));
-
-      // The value is stored in HG FE DC BA order, rearrange it to ABCDEFGH and save it to the buffer
-      uint64Buffer = (static_cast<unsigned long long>(((response->getRegister(3) >> 8) | (response->getRegister(3) << 8))) << 48)
-                    + (static_cast<unsigned long long>(( (response->getRegister(2) >> 8) | (response->getRegister(2) << 8))) << 32)
-                    + (static_cast<unsigned long long>(( (response->getRegister(1) >> 8) | (response->getRegister(1) << 8))) << 16)
-                    + ((response->getRegister(0) >> 8) | (response->getRegister(0) << 8));
-
-
-      Serial.print("uint64: ");
-      Serial.println(str(uint64Buffer));
-
-      // The value is stored in HG FE DC BA order, rearrange it to ABCDEFGH and save it to the buffer
-      int64Buffer = (static_cast<unsigned long long>(((response->getRegister(3) >> 8) | (response->getRegister(3) << 8))) << 48)
-                    + (static_cast<unsigned long long>(( (response->getRegister(2) >> 8) | (response->getRegister(2) << 8))) << 32)
-                    + (static_cast<unsigned long long>(( (response->getRegister(1) >> 8) | (response->getRegister(1) << 8))) << 16)
-                    + ((response->getRegister(0) >> 8) | (response->getRegister(0) << 8));
-
-      Serial.print("int64: ");
-      Serial.println(str(int64Buffer));
+      Serial.println(fp64_to_string(doubleBuffer, 10, 1)); // char *fp64_to_string(float64_t x, uint8_t max_chars, uint8_t max_zeroes)
     }
   }
   Serial.println();
@@ -209,18 +180,11 @@ void BlockingReadRegisters(int startMemAddress, int numValues, int signedValueSi
   numRegisterstoRead = numValues * abs(signedValueSizeinBits)/16;
   signedResponseSizeinBits = signedValueSizeinBits;
 
-  if (READ_FROM_IREGS == 0) {
-    if (!master.readHoldingRegisters(SLAVE_ADDRESS, startMemAddress, numRegisterstoRead)) {
-      // Failure treatment
-      Serial.println("Can't send request. Modbus master is awaiting a response.");
-    }
+  if (!master.readInputRegisters(SLAVE_ADDRESS, startMemAddress, numRegisterstoRead)) {
+    // Failure treatment
+    Serial.println("Can't send request. Modbus master is awaiting a response.");
   }
-  else { // READ_FROM_IREGS == 1
-    if (!master.readInputRegisters(SLAVE_ADDRESS, startMemAddress, numRegisterstoRead)) {
-      // Failure treatment
-      Serial.println("Can't send request. Modbus master is awaiting a response.");
-    }
-  }
+
   AwaitResponse();
 }
 
@@ -235,6 +199,7 @@ void BlockingWriteSingleRegister(int memAddress, int value){
     // Failure treatment
     Serial.println("Can't send request. Modbus master is awaiting a response.");
   }
+
   AwaitResponse();
 }
 
@@ -304,8 +269,8 @@ void ForwardVolume(int unsignedValueSizeinBits){
   if (unsignedValueSizeinBits == 32) {
     BlockingReadRegisters(0x36, 1, 32);
   }
-  else { // unsignedValueSizeinBits == 64
-    BlockingReadRegisters(0x18, 1, 64);
+  else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
+    BlockingReadRegisters(0x18, 1, -64);
   }
 }
 
@@ -313,8 +278,8 @@ void ReverseVolume(int unsignedValueSizeinBits){
   if (unsignedValueSizeinBits == 32) {
     BlockingReadRegisters(0x3A, 1, 32);
   }
-  else { // unsignedValueSizeinBits == 64
-    BlockingReadRegisters(0x20, 1, 64);
+  else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
+    BlockingReadRegisters(0x20, 1, -64);
   }
 }
 
@@ -326,7 +291,7 @@ void SignedCurrentFlow(int unsignedValueSizeinBits){
   if (unsignedValueSizeinBits == 32) {
     BlockingReadRegisters(0x3E, 1, -32);
   }
-  else { // unsignedValueSizeinBits == 64
+  else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
     BlockingReadRegisters(0x29, 1, -64);
   }
 }
@@ -355,7 +320,7 @@ void NetSignedVolume(int unsignedValueSizeinBits){
   if (unsignedValueSizeinBits == 32) {
     BlockingReadRegisters(0x52, 1, -32);
   }
-  else { // unsignedValueSizeinBits == 64
+  else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
     BlockingReadRegisters(0x42, 1, -64);
   }
 }
@@ -364,9 +329,13 @@ void NetUnsignedVolume(int unsignedValueSizeinBits){
   if (unsignedValueSizeinBits == 32) {
     BlockingReadRegisters(0x56, 1, 32);
   }
-  else { // unsignedValueSizeinBits == 64
-    BlockingReadRegisters(0x4A, 1, 64);
+  else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
+    BlockingReadRegisters(0x4A, 1, -64);
   }
+}
+
+void SystemReset(){
+	BlockingWriteSingleRegister(0x0, 0x1);
 }
 
 void WriteAlarms(int value){
