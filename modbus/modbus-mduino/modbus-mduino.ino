@@ -29,6 +29,9 @@ float64_t doubleBuffer;
 // Control variable for the Modbus polling frequency
 uint32_t lastSentTime = 0UL;
 
+// Control variable to execute Modbus requests only on first loop iteration
+bool isFirstLoopIteration = true;
+
 
 void setup() {
   // Set indicator LED pin as output
@@ -49,14 +52,20 @@ void setup() {
 
   // Wait 500ms for Modbus startup
   delay(500);
-
-  /****** Add Modbus requests to send once ******/
 }
 
 
 void loop() {
+  // Send the selected Modbus requests only on the first loop iteration
+  if (isFirstLoopIteration == true){
+    // Update the control variable so the requests don't get sent again
+    isFirstLoopIteration = false;
+
+    /****** Add Modbus requests to send once ******/
+  }
+
   // Send requests at a certain frequency
-  if (millis() - lastSentTime >= POLLING_FREQ_MS) {
+  else if (millis() - lastSentTime >= POLLING_FREQ_MS) {
     // Update the control variable
     lastSentTime = millis();
     // Toggle the indicator LED at the Modbus polling frequency, for verification purposes 
@@ -70,8 +79,7 @@ void loop() {
 /****** Modbus communication functions ******/
 // Read the Modbus channel in blocking mode until a response is received or an error occurs
 void AwaitResponse(){
-  // While the master is in receiving mode
-  // (it'll stay in this mode until the timeout set in Modbus.h)
+  // While the master is in receiving mode and the timeout hasn't been reached
   while(master.isWaitingResponse()){
     // Check available responses
     ModbusResponse response = master.available();
