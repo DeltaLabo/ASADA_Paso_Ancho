@@ -1,5 +1,7 @@
 void setup() {
+  // initialize serial communication at 9600 bits per second:
   Serial.begin(9600);
+  Serial1.begin(9600);
 }
 
 void loop() {
@@ -8,189 +10,78 @@ void loop() {
 }
 
 void pedidoUtil()  {
-  byte Datos[28];
-  byte Pedido[7];
+  int i=0;
+  byte DatosUtiles[13];
+  byte DatosGeneral[36];//32
+  byte DatosCeldas[15];//10
+  byte PedidoGeneral[7] = {0xDD, 0xA5, 0x03, 0x00, 0xFF, 0xFD, 0x77};
+  byte PedidoCeldas[7] = {0xDD, 0xA5, 0x04, 0x00, 0xFF, 0xFC, 0x77};
 
-  Serial.println("\n #### LECTURA DE DATOS ÚTILES #### \n");
+  Serial.println("#### LECTURA DE DATOS ÚTILES ####");
 
-  Pedido[0] = 0xDD;
-  Pedido[1] = 0xA5;
-  Pedido[2] = 0x03;
-  Pedido[3] = 0x00;
-  Pedido[4] = 0xFF;
-  Pedido[5] = 0xFD;
-  Pedido[6] = 0x77;
+  delay(100); // Add a small delay to allow the data to be sent
+  Serial1.flush(); // Clear the buffer to ensure we read only the response
+  Serial1.write(PedidoGeneral, sizeof(PedidoGeneral));
+  delay(100); // Add a small delay to allow the data to be sent
+  Serial1.flush(); // Clear the buffer to ensure we read only the response
 
-  // Se piden los datos de la batería
-  if (Serial.availableForWrite() > 7){
-    Serial.write(Pedido, 7); // Envía los 7 bytes en una línea
-  }
-  else{
-    Serial.print("No se pueden enviar los datos");
-  }
-
-  // Primeros 2 bytes siempre deberían ser DD 03
-  for (int i = 0; i < 28; i++) {
-    if (Serial.available() > 0){
-      Datos[i] = Serial.read();
-      Serial.print(Datos[i], HEX); // Imprime el byte en hexadecimal
+  //Serial.write(PedidoGeneral, sizeof(PedidoGeneral));
+  if(Serial1.available() > 0){
+    Serial1.readBytesUntil(0xFF, DatosGeneral, 36);
+    Serial.print("Datos Generales: ");
+    for(i=0; i<sizeof(DatosGeneral); i++){
+      if(DatosGeneral[i] < 16) Serial.print("0");
+      Serial.print(DatosGeneral[i],HEX);
       Serial.print(" ");
     }
-    else{
-      Serial.print(" No está disponible ");
-      Serial.print(Serial.available());
+    Serial.println(" ");
+  }
+
+  delay(100); // Add a small delay to allow the data to be sent
+  Serial1.flush(); // Clear the buffer to ensure we read only the response
+  Serial1.write(PedidoCeldas, sizeof(PedidoCeldas));
+  delay(100); // Add a small delay to allow the data to be sent
+  Serial1.flush(); // Clear the buffer to ensure we read only the response
+
+  //Serial.write(PedidoCeldas, sizeof(PedidoCeldas));
+  if(Serial1.available() > 0){
+    Serial1.readBytesUntil(0xFF, DatosCeldas, 15);
+    Serial.print("Datos de Celda: ");
+    for(i=0; i<sizeof(DatosCeldas); i++){
+      if(DatosCeldas[i] < 16) Serial.print("0");
+      Serial.print(DatosCeldas[i],HEX);
+      Serial.print(" ");
     }
+    Serial.println(" ");
   }
 
-  // Se comprueba que haya lectura
-  if (Datos[0] != 0xDD || Datos[1] != 0x03) {
-    Serial.println(" No se pudieron leer los datos generales ");
-    return;
-  }
 
-  // Se lee el Status
-  byte statusGeneral = Serial.read();
-  Datos[2] = statusGeneral;
-  Serial.print("Status: ");
-  if (statusGeneral == 0x00) {
-    Serial.println("OK");
-  } else {
-    Serial.println("FUCK");
-  }
+  Serial.print("Datos seleccionados para transmisión: ");
+  //Voltaje Actual
+  DatosUtiles[0]=DatosGeneral[4];
+  DatosUtiles[1]=DatosGeneral[5];
+  //Corriente Actual
+  DatosUtiles[2]=DatosGeneral[6];
+  DatosUtiles[3]=DatosGeneral[7];
+  //Porcentaje Restante
+  DatosUtiles[4]=DatosGeneral[23];
+  //Voltaje Celda 1
+  DatosUtiles[5]=DatosCeldas[4];
+  DatosUtiles[6]=DatosCeldas[5];
+  //Voltaje Celda 2
+  DatosUtiles[7]=DatosCeldas[6];
+  DatosUtiles[8]=DatosCeldas[7];
+  //Voltaje Celda 3
+  DatosUtiles[9]=DatosCeldas[8];
+  DatosUtiles[10]=DatosCeldas[9];
+  //Voltaje Celda 4
+  DatosUtiles[11]=DatosCeldas[10];
+  DatosUtiles[12]=DatosCeldas[11];
 
-  // Se lee la longitud de los datos
-  Serial.read();
-
-  // Se lee el voltaje total de la batería
-  byte vTotal[2];
-  for (int i = 0; i < 2; i++) {
-    while (!Serial.available()) {}
-    vTotal[i] = Serial.read();
-    Datos[3 + i] = vTotal[i];
-  }
-
-  // Se lee la corriente de la batería (se hace el tratamiento de signo)
-  byte iTotal[2];
-  for (int i = 0; i < 2; i++) {
-    while (!Serial.available()) {}
-    iTotal[i] = Serial.read();
-    Datos[5 + i] = iTotal[i];
-  }
-
-  // Se leen los datos no utilizados
-  for (int i = 0; i < 12; i++) {
-    while (!Serial.available()) {}
-    Serial.read(); // Descartar datos no utilizados
-  }
-
-  // Se lee el status de protección y se decodifica
-  byte protectionStatus[2];
-  for (int i = 0; i < 2; i++) {
-    while (!Serial.available()) {}
-    protectionStatus[i] = Serial.read();
-    Datos[18 + i] = protectionStatus[i];
-  }
-
-  // Se lee la versión del software
-  while (!Serial.available()) {}
-  Serial.read(); // Descartar la versión del software
-
-  // Se lee el porcentaje restante
-  byte RSOC = Serial.read();
-  Datos[20] = RSOC;
-
-  // Se lee el funcionamiento de los MOSFET
-  byte MOSFET = Serial.read();
-  Datos[21] = MOSFET;
-
-  // Se leen los datos no utilizados
-  for (int i = 0; i < 2; i++) {
-    while (!Serial.available()) {}
-    Serial.read(); // Descartar datos no utilizados
-  }
-
-  // Se leen las temperaturas de los NTC
-  for (int i = 0; i < 3; i++) {
-    byte temp[2];
-    for (int j = 0; j < 2; j++) {
-      while (!Serial.available()) {}
-      temp[j] = Serial.read();
-      Datos[22 + (i * 2) + j] = temp[j];
+  for(i=0; i<sizeof(DatosUtiles); i++){
+      if(DatosUtiles[i] < 16) Serial.print("0");
+      Serial.print(DatosUtiles[i],HEX);
+      Serial.print(" ");
     }
-  }
-
-  // Se leen los datos no utilizados
-  for (int i = 0; i < 4; i++) {
-    while (!Serial.available()) {}
-    Serial.read(); // Descartar datos no utilizados
-  }
-
-  // SE EMPIEZA CON LA LECTURA DE TENSIONES
-
-  // Se piden los datos de la batería
-  Serial.write(0xDD);
-  Serial.write(0xA5);
-  Serial.write(0x04);
-  Serial.write(0x00);
-  Serial.write(0xFF);
-  Serial.write(0xFC);
-  Serial.write(0x77);
-
-  // Primeros 2 bytes siempre deberían ser DD 04
-  byte header[2];
-  for (int i = 0; i < 2; i++) {
-    while (!Serial.available()) {}
-    header[i] = Serial.read();
-  }
-
-  // Se comprueba que haya una lectura
-  if (header[0] != 0xDD || header[1] != 0x04) {
-    Serial.println("No se pudo leer las tensiones de las celdas.");
-    return;
-  }
-
-  // Se lee el Status
-  while (!Serial.available()) {}
-  Serial.read(); // Descartar el Status
-
-  // Se lee la longitud de los datos
-  while (!Serial.available()) {}
-  Serial.read(); // Descartar la longitud de los datos
-
-  // Se lee el voltaje de cada celda
-  for (int i = 0; i < 4; i++) {
-    byte VCelda[2];
-    for (int j = 0; j < 2; j++) {
-      while (!Serial.available()) {}
-      VCelda[j] = Serial.read();
-      Datos[24 + (i * 2) + j] = VCelda[j];
-    }
-  }
-
-  // Se leen los datos no utilizados
-  for (int i = 0; i < 4; i++) {
-    while (!Serial.available()) {}
-    Serial.read(); // Descartar datos no utilizados
-  }
-
-  // Calculamos el checksum
-  uint16_t checksum = calcular_checksum(Datos);
-  Datos[26] = (byte)(checksum >> 8); // Byte más significativo
-  Datos[27] = (byte)(checksum & 0xFF); // Byte menos significativo
-
-  // Enviamos los datos al monitor serie
-  for (int i = 0; i < 28; i++) {
-    Serial.print(Datos[i], HEX);
-    Serial.print(" ");
-  }
-  Serial.println();
-}
-
-uint16_t calcular_checksum(byte* datos) {
-  uint32_t suma = 0;
-  for (int i = 0; i < 27; i++) {
-    suma += datos[i];
-  }
-  uint16_t checksum = (~suma) & 0xFFFF;
-  return checksum;
+  Serial.println(" ");
 }
