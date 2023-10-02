@@ -95,16 +95,17 @@ void FlowUnits(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UAR
 void FlowDirection(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
 void TemperatureValue(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
 void TemperatureUnit(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
-void NetUnsignedVolume(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits);
 void NetSignedVolume(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits);
+void NetUnsignedVolume(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, int unsignedValueSizeinBits);
+void SystemReset(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart);
 void WriteAlarms(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
-void WriteVolumeResIndex(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
-void WriteVolumeFlowIndex(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
 void WriteWeekday(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
 void WriteDay(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
 void WriteMonth(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
 void WriteYear(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
 void WriteHours(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
 void WriteMinutes(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
+void WriteVolumeResIndex(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
+void WriteVolumeFlowIndex(struct ModbusHandler *handler, UART_HandleTypeDef *echo_uart, UART_HandleTypeDef *modbus_uart, uint8_t DataLow);
 
 #endif /* INC_MODBUS_WRAPPER_H_ */
