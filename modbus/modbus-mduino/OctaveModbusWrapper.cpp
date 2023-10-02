@@ -1,8 +1,6 @@
 #include "OctaveModbusWrapper.h"
 
-OctaveModbusWrapper::OctaveModbusWrapper(HardwareSerial &modbusSerial, HardwareSerial &logSerial, bool logtoSerial, bool logtoLoRa) {
-    _master = ModbusRTUMaster(modbusSerial);
-    _logSerial = logSerial;
+OctaveModbusWrapper::OctaveModbusWrapper(HardwareSerial &modbusSerial, HardwareSerial &logSerial, bool logtoSerial, bool logtoLoRa) : _master(modbusSerial), _logSerial(logSerial) {
     _logtoSerial = logtoSerial;
     _logtoLoRa = logtoLoRa;
 }

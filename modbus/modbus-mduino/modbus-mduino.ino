@@ -5,7 +5,7 @@
 #include "OctaveModbusWrapper.h"
 
 // Define the OctaveModbusWrapper object, using the RS-485 port for Modbus and Serial0 for logging
-OctaveModbusWrapper octave(R5485, Serial, true, false);
+OctaveModbusWrapper octave(RS485, Serial, true, false);
 
 // Control variable for the Modbus polling frequency
 uint32_t lastSentTime = 0UL;
@@ -29,7 +29,6 @@ void setup() {
   RS485.begin(octave.modbusBaudrate, HALFDUPLEX, SERIAL_8N1);
 
   // Start the Octave Modbus object
-  // Note: This object uses both the RS485 and Serial0 channels
   octave.begin();
 
   // Wait 500ms for Modbus startup

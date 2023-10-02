@@ -14,8 +14,12 @@ class OctaveModbusWrapper {
     public:
         explicit OctaveModbusWrapper(HardwareSerial &modbusSerial, HardwareSerial &logSerial, bool logtoSerial, bool logtoLoRa);
 
-    public:
-        void begin(uint32_t rate = 2400UL);
+        void begin();
+
+        void AwaitResponse();
+        void ProcessResponse(ModbusResponse *response);
+        void BlockingReadRegisters(int startMemAddress, int numValues, int signedValueSizeinBits);
+        void BlockingWriteSingleRegister(int memAddress, int value);
 
         void ReadAlarms();
         void SerialNumber();
@@ -58,7 +62,7 @@ class OctaveModbusWrapper {
     
     private:
         ModbusRTUMaster _master;
-        HardwareSerial _logSerial;
+        HardwareSerial &_logSerial;
         bool _logtoSerial;
         bool _logtoLoRa;
 
