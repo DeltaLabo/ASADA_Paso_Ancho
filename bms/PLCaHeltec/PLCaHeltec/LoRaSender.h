@@ -1,16 +1,5 @@
-#ifndef LoRaSender
-#define LoRaSender
-
 #include <Arduino.h>
-
-void senderStart();
-void send();
-
-#endif
-
 #include <LoRa.h>
-
-uint32_t counter = 0UL;
 
 void senderStart() {
   
@@ -34,16 +23,23 @@ void senderStart() {
   Serial.println("Send started");
 }
 
+void send(byte* DatosUtiles, int longitud) {
+  int i = 0;
 
-void send() {
-  // Send counter as packet payload
-  LoRa.send((uint8_t*) &counter, sizeof(counter));
-  Serial.println("Sending counter...");
+  // Send the data as packet payload
+  LoRa.send(DatosUtiles, longitud);
+  Serial.println("Enviando información por LoRa...");
 
-  // Wait packet to be sent
+  for(i=0; i < longitud; i++){
+      if(DatosUtiles[i] < 16) Serial.print("0");
+      Serial.print(DatosUtiles[i],HEX);
+      Serial.print(" ");
+    }
+  Serial.println(" ");
+
+  // Wait for the packet to be sent
   LoRa.waitPacketSent();
-  Serial.println("Counter sent!");
-
-  // The packet is sent, increment the counter and wait to send the next one
-  ++counter;
+  Serial.println("¡Información enviada!");
 }
+
+
