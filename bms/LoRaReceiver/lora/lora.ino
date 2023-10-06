@@ -75,31 +75,39 @@ void setup() {
 
 void loop() {
 
+  int i=0;
+  byte DatosRecibidos[13];
+  String DatosComoString = "";
+
   int tamanoPaquete = LoRa.parsePacket();  //analizamos paquete
   if (tamanoPaquete) {//Si nos llega paquete de datos
     Serial.print("Paquete recibido ");//Muestra confirmaciÃ³n
 
-    while (LoRa.available()) {//Leemos el paquete
-      DatoLoRa = LoRa.readString();//Guardamos cadena en variable
-      Serial.print(DatoLoRa);//Lo imprimimos en monitor serial
+    while (LoRa.available()) {
+      LoRa.readBytes(DatosRecibidos, 13);
+      for (int i = 0; i < 13; i++) {
+        DatosComoString += String(DatosRecibidos[i], HEX);
+        DatosComoString += " ";
+      }
+      Serial.println(DatosComoString);
     }
 
     int rssi = LoRa.packetRssi();//Esto nos imprime la intensidad de seÃ±al recibida
     Serial.print(" con RSSI ");    
     Serial.println(rssi);
 
-   // Mostramos informaciÃ³n captada
-   display.clearDisplay();
-   display.setCursor(0,0);
-   display.print("Receptor LoRa");//Mensaje
-   display.setCursor(0,20);
-   display.print("Paquete recibido:");//Imprime datos recibidos
-   display.setCursor(0,30);
-   display.print(DatoLoRa);
-   display.setCursor(0,40);
-   display.print("RSSI:");//Imprime intensidad de seÃ±al
-   display.setCursor(30,40);
-   display.print(rssi);
-   display.display();   
+    // Mostramos informaciÃ³n captada
+    display.clearDisplay();
+    display.setCursor(0,0);
+    display.print("Receptor LoRa");//Mensaje
+    display.setCursor(0,20);
+    display.print("Paquete recibido:");//Imprime datos recibidos
+    display.setCursor(0,30);
+    display.print(DatosComoString);
+    display.setCursor(0,50);
+    display.print("RSSI:");//Imprime intensidad de seÃ±al
+    display.setCursor(30,50);
+    display.print(rssi);
+    display.display();   
   }
 }

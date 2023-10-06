@@ -1,15 +1,8 @@
-#ifndef recolectarDatosBateria
-#define recolectarDatosBateria
-
 #include <Arduino.h>
 
-byte* pedidoUtil();
-
-#endif
-
-byte* pedidoUtil()  {
-int i=0;
-  byte DatosUtiles[13];
+void pedidoUtil(byte* DatosUtiles){
+  int i=0;
+  //byte DatosUtiles[13];
   byte DatosGeneral[36];//32
   byte DatosCeldas[15];//10
   byte PedidoGeneral[7] = {0xDD, 0xA5, 0x03, 0x00, 0xFF, 0xFD, 0x77};
@@ -53,7 +46,6 @@ int i=0;
     Serial.println(" ");
   }
 
-
   Serial.print("Datos seleccionados para transmisión: ");
   //Voltaje Actual
   DatosUtiles[0]=DatosGeneral[4];
@@ -76,11 +68,14 @@ int i=0;
   DatosUtiles[11]=DatosCeldas[10];
   DatosUtiles[12]=DatosCeldas[11];
 
-  for(i=0; i<sizeof(DatosUtiles); i++){
+  //Se imprimen los datos que se van a transmitir más tarde
+  for(i=0; i < 13; i++){
       if(DatosUtiles[i] < 16) Serial.print("0");
       Serial.print(DatosUtiles[i],HEX);
       Serial.print(" ");
     }
   Serial.println(" ");
-  return DatosUtiles;
+
+  //Se espera un tiempo para que termine por completo la función
+  delay(100);
 }
