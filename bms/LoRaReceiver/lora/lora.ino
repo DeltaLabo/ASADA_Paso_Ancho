@@ -76,7 +76,7 @@ void setup() {
 void loop() {
 
   int i=0;
-  byte DatosRecibidos[13];
+  byte DatosRecibidos[100];
   String DatosComoString = "";
 
   int tamanoPaquete = LoRa.parsePacket();  //analizamos paquete
@@ -84,8 +84,8 @@ void loop() {
     Serial.print("Paquete recibido ");//Muestra confirmaciÃ³n
 
     while (LoRa.available()) {
-      LoRa.readBytes(DatosRecibidos, 13);
-      for (int i = 0; i < 13; i++) {
+      LoRa.readBytes(DatosRecibidos, 100);
+      for (int i = 0; i < 100; i++) {
         DatosComoString += String(DatosRecibidos[i], HEX);
         DatosComoString += " ";
       }
