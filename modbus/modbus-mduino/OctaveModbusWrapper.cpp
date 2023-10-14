@@ -169,6 +169,26 @@ char* str( int64_t num ) {
     return p;    
 }
 
+// Truncate 64-bit double to 16 bits
+// Only works in the range [-327, 327]
+// TODO: Use a fixed-point library to extend the range
+int16_t truncateDoubleto16Bits(float64_t number){
+  // Scale factor for two decimal places
+  const float64_t scaleFactor = 100.0;
+
+  int16_t truncatedNumber;
+
+  // Check for overflow or underflow
+  if (number > INT16_MAX) truncatedNumber = INT16_MAX;
+  else if (number < INT16_MIN) truncatedNumber = INT16_MIN;
+  else {
+    // Cast to int16 with a safe value
+    truncatedNumber = (int16_t)(number * scaleFactor);
+  }
+
+  return truncatedNumber;
+}
+
 
 /****** Octave Modbus Requests ******/
 void OctaveModbusWrapper::ReadAlarms() {
