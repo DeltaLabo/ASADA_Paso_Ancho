@@ -1,9 +1,6 @@
 #include "OctaveModbusWrapper.h"
 
-OctaveModbusWrapper::OctaveModbusWrapper(HardwareSerial &modbusSerial, HardwareSerial &logSerial, bool logtoSerial, bool logtoLoRa) : _master(modbusSerial), _logSerial(logSerial) {
-    _logtoSerial = logtoSerial;
-    _logtoLoRa = logtoLoRa;
-}
+OctaveModbusWrapper::OctaveModbusWrapper(HardwareSerial &modbusSerial, HardwareSerial &logSerial) : _master(modbusSerial), _logSerial(logSerial) {}
 
 void OctaveModbusWrapper::begin() {
     // Start the modbus _master object
@@ -322,7 +319,7 @@ int truncateDoubleto32bits(float64_t input, int32_t &output){
   }
 }
 
-// Initialize all the name-to-code maps
+// Initialize all name-to-code maps
 void OctaveModbusWrapper::InitMaps() {
     flowUnitNameToCode["Cubic Meters/Hour"] = 0;
     flowUnitNameToCode["Gallons/Minute"] = 1;
@@ -369,6 +366,7 @@ void OctaveModbusWrapper::InitMaps() {
     flowDirectionNameToCode["Forward flow"] = 1;
     flowDirectionNameToCode["Backward flow"] = 2;
 
+    // Format: Modbus function code << 8 + Start Address
     functionNameToCode["ReadAlarms"] = 0x0400;
     functionNameToCode["SerialNumber"] = 0x0401;
     functionNameToCode["ReadWeekday"] = 0x0411;
@@ -403,7 +401,6 @@ void OctaveModbusWrapper::InitMaps() {
     functionNameToCode["WriteMinutes"] = 0x0606;
     functionNameToCode["WriteVolumeResIndex"] = 0x0607;
     functionNameToCode["WriteVolumeFlowIndex"] = 0x0608;
-
 
     // Create the reverse mappings
     for (const auto& entry : flowUnitNameToCode) {

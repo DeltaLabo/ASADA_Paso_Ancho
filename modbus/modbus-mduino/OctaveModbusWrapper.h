@@ -26,7 +26,7 @@ const int alarmsIndices[] = {0, 5, 7, 11, 12, 13};
 
 class OctaveModbusWrapper {
     public:
-        explicit OctaveModbusWrapper(HardwareSerial &modbusSerial, HardwareSerial &logSerial, bool logtoSerial, bool logtoLoRa);
+        explicit OctaveModbusWrapper(HardwareSerial &modbusSerial, HardwareSerial &logSerial);
 
         void begin();
         void InitMaps();
@@ -96,8 +96,6 @@ class OctaveModbusWrapper {
     private:
         ModbusRTUMaster _master;
         HardwareSerial &_logSerial;
-        bool _logtoSerial;
-        bool _logtoLoRa;
 
         /****** Parameters for the Modbus requests ******/
         // Number of registers to read for a Modbus request, is 0 for a write request
