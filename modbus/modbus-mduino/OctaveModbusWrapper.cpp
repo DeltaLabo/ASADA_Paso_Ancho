@@ -13,7 +13,7 @@ void OctaveModbusWrapper::begin() {
 
 /****** Modbus communication functions ******/
 // Read the Modbus channel in blocking mode until a response is received or an error occurs
-void OctaveModbusWrapper::AwaitResponse(){
+int OctaveModbusWrapper::AwaitResponse(){
   // While the _master is in receiving mode and the timeout hasn't been reached
   while(_master.isWaitingResponse()){
     // Check available responses
@@ -26,6 +26,8 @@ void OctaveModbusWrapper::AwaitResponse(){
         // to get the error code.
         _logSerial.print("Error ");
         _logSerial.println(response.getErrorCode());
+        // Error code 2: Response received, contains Modbus error code
+        return 2;
       } else {
         // Get the discrete inputs values from the response
         if (response.hasError()) {
@@ -33,21 +35,33 @@ void OctaveModbusWrapper::AwaitResponse(){
           // to get the error code.
           _logSerial.print("Error ");
           _logSerial.println(response.getErrorCode());
+          // Error code 2: Response received, contains Modbus error code
+          return 2;
         } else {
           // If there are registers to read, process them
           if(_numRegisterstoRead > 0) {
+            // Get error code from called function
             ProcessResponse(&response);
+            // Assume no error occurred while processing
+            return 0;
           }
           // If there are no registers to read, it was a write request
-          else _logSerial.println("Done writing.");
+          else {
+            _logSerial.println("Done writing.");
+            // No error
+            return 0;
+          }
         }
       }
     }
   }
+  // Error code 1: Timeout
+  return 1;
 }
 
 
 // Processes the raw register values from the slave response and saves them to the buffers
+// Returns void because it shouldn't throw any errors
 void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
   _logSerial.println("Register values: ");
 
@@ -117,7 +131,7 @@ void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
 
 
 // Read one or more Modbus registers in blocking mode
-void OctaveModbusWrapper::BlockingReadRegisters(int startMemAddress, int numValues, int signedValueSizeinBits){
+int OctaveModbusWrapper::BlockingReadRegisters(int startMemAddress, int numValues, int signedValueSizeinBits){
   // Calculate the number of registers from the number of values and their size
   // e.g.: 1 32-bit value occupies 2 registers (2 x 16bit)
   _numRegisterstoRead = numValues * abs(signedValueSizeinBits)/16;
@@ -126,14 +140,17 @@ void OctaveModbusWrapper::BlockingReadRegisters(int startMemAddress, int numValu
   if (!_master.readInputRegisters(SLAVE_ADDRESS, startMemAddress, _numRegisterstoRead)) {
     // Failure treatment
     _logSerial.println("Can't send request. Modbus _master is awaiting a response.");
+    // Error code 3: Modbus channel busy
+    return 3;
   }
 
-  AwaitResponse();
+  // Get error code from called funcion
+  return AwaitResponse();
 }
 
 
 // Write a single Modbus register in blocking mode
-void OctaveModbusWrapper::BlockingWriteSingleRegister(int memAddress, int value){
+int OctaveModbusWrapper::BlockingWriteSingleRegister(int memAddress, int value){
   // No registers need to be read for a write request
   _numRegisterstoRead = 0;
   _signedResponseSizeinBits = 16;
@@ -141,9 +158,11 @@ void OctaveModbusWrapper::BlockingWriteSingleRegister(int memAddress, int value)
   if (!_master.writeSingleRegister(SLAVE_ADDRESS, memAddress, value)) {
     // Failure treatment
     _logSerial.println("Can't send request. Modbus _master is awaiting a response.");
+    // Error code 3: Modbus channel busy
+    return 3;
   }
-
-  AwaitResponse();
+  // Get error code from called funcion
+  return AwaitResponse();
 }
 
 
@@ -256,147 +275,147 @@ int truncateDoubleto32bits(float64_t input, int32_t &output){
 
 
 /****** Octave Modbus Requests ******/
-void OctaveModbusWrapper::ReadAlarms() {
-  BlockingReadRegisters(0x0, 1, 16);
+int OctaveModbusWrapper::ReadAlarms() {
+  return BlockingReadRegisters(0x0, 1, 16);
 }
 
-void OctaveModbusWrapper::SerialNumber() {
-  BlockingReadRegisters(0x1, 16, 16);
+int OctaveModbusWrapper::SerialNumber() {
+  return BlockingReadRegisters(0x1, 16, 16);
 }
 
-void OctaveModbusWrapper::ReadWeekday() {
-  BlockingReadRegisters(0x11, 1, 16);
+int OctaveModbusWrapper::ReadWeekday() {
+  return BlockingReadRegisters(0x11, 1, 16);
 }
 
-void OctaveModbusWrapper::ReadDay() {
-  BlockingReadRegisters(0x12, 1, 16);
+int OctaveModbusWrapper::ReadDay() {
+  return BlockingReadRegisters(0x12, 1, 16);
 }
 
-void OctaveModbusWrapper::ReadMonth(){
-	BlockingReadRegisters(0x13, 1, 16);
+int OctaveModbusWrapper::ReadMonth(){
+	return BlockingReadRegisters(0x13, 1, 16);
 }
 
-void OctaveModbusWrapper::ReadYear(){
-	BlockingReadRegisters(0x14, 1, 16);
+int OctaveModbusWrapper::ReadYear(){
+	return BlockingReadRegisters(0x14, 1, 16);
 }
 
-void OctaveModbusWrapper::ReadHours(){
-	BlockingReadRegisters(0x15, 1, 16);
+int OctaveModbusWrapper::ReadHours(){
+	return BlockingReadRegisters(0x15, 1, 16);
 }
 
-void OctaveModbusWrapper::ReadMinutes(){
-	BlockingReadRegisters(0x16, 1, 16);
+int OctaveModbusWrapper::ReadMinutes(){
+	return BlockingReadRegisters(0x16, 1, 16);
 }
 
-void OctaveModbusWrapper::VolumeUnit(){
-	BlockingReadRegisters(0x17, 1, 16);
+int OctaveModbusWrapper::VolumeUnit(){
+	return BlockingReadRegisters(0x17, 1, 16);
 }
 
-void OctaveModbusWrapper::ForwardVolume(int unsignedValueSizeinBits){
+int OctaveModbusWrapper::ForwardVolume(int unsignedValueSizeinBits){
   if (unsignedValueSizeinBits == 32) {
-    BlockingReadRegisters(0x36, 1, 32);
+    return BlockingReadRegisters(0x36, 1, 32);
   }
   else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
-    BlockingReadRegisters(0x18, 1, -64);
+    return BlockingReadRegisters(0x18, 1, -64);
   }
 }
 
-void OctaveModbusWrapper::ReverseVolume(int unsignedValueSizeinBits){
+int OctaveModbusWrapper::ReverseVolume(int unsignedValueSizeinBits){
   if (unsignedValueSizeinBits == 32) {
-    BlockingReadRegisters(0x3A, 1, 32);
+    return BlockingReadRegisters(0x3A, 1, 32);
   }
   else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
-    BlockingReadRegisters(0x20, 1, -64);
+    return BlockingReadRegisters(0x20, 1, -64);
   }
 }
 
-void OctaveModbusWrapper::ReadVolumeResIndex(){
-	BlockingReadRegisters(0x28, 1, 16);
+int OctaveModbusWrapper::ReadVolumeResIndex(){
+	return BlockingReadRegisters(0x28, 1, 16);
 }
 
-void OctaveModbusWrapper::SignedCurrentFlow(int unsignedValueSizeinBits){
+int OctaveModbusWrapper::SignedCurrentFlow(int unsignedValueSizeinBits){
   if (unsignedValueSizeinBits == 32) {
-    BlockingReadRegisters(0x3E, 1, -32);
+    return BlockingReadRegisters(0x3E, 1, -32);
   }
   else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
-    BlockingReadRegisters(0x29, 1, -64);
+    return BlockingReadRegisters(0x29, 1, -64);
   }
 }
 
-void OctaveModbusWrapper::ReadFlowResIndex(){
-	BlockingReadRegisters(0x31, 1, 16);
+int OctaveModbusWrapper::ReadFlowResIndex(){
+	return BlockingReadRegisters(0x31, 1, 16);
 }
 
-void OctaveModbusWrapper::FlowUnits(){
-	BlockingReadRegisters(0x32, 1, 16);
+int OctaveModbusWrapper::FlowUnits(){
+	return BlockingReadRegisters(0x32, 1, 16);
 }
 
-void OctaveModbusWrapper::FlowDirection(){
-	BlockingReadRegisters(0x33, 1, 16);
+int OctaveModbusWrapper::FlowDirection(){
+	return BlockingReadRegisters(0x33, 1, 16);
 }
 
-void OctaveModbusWrapper::TemperatureValue(){
-	BlockingReadRegisters(0x34, 1, 16);
+int OctaveModbusWrapper::TemperatureValue(){
+	return BlockingReadRegisters(0x34, 1, 16);
 }
 
-void OctaveModbusWrapper::TemperatureUnit(){
-	BlockingReadRegisters(0x35, 1, 16);
+int OctaveModbusWrapper::TemperatureUnit(){
+	return BlockingReadRegisters(0x35, 1, 16);
 }
 
-void OctaveModbusWrapper::NetSignedVolume(int unsignedValueSizeinBits){
+int OctaveModbusWrapper::NetSignedVolume(int unsignedValueSizeinBits){
   if (unsignedValueSizeinBits == 32) {
-    BlockingReadRegisters(0x52, 1, -32);
+    return BlockingReadRegisters(0x52, 1, -32);
   }
   else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
-    BlockingReadRegisters(0x42, 1, -64);
+    return BlockingReadRegisters(0x42, 1, -64);
   }
 }
 
-void OctaveModbusWrapper::NetUnsignedVolume(int unsignedValueSizeinBits){
+int OctaveModbusWrapper::NetUnsignedVolume(int unsignedValueSizeinBits){
   if (unsignedValueSizeinBits == 32) {
-    BlockingReadRegisters(0x56, 1, 32);
+    return BlockingReadRegisters(0x56, 1, 32);
   }
   else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
-    BlockingReadRegisters(0x4A, 1, -64);
+    return BlockingReadRegisters(0x4A, 1, -64);
   }
 }
 
-void OctaveModbusWrapper::SystemReset(){
-	BlockingWriteSingleRegister(0x0, 0x1);
+int OctaveModbusWrapper::SystemReset(){
+	return BlockingWriteSingleRegister(0x0, 0x1);
 }
 
-void OctaveModbusWrapper::WriteAlarms(int value){
-	BlockingWriteSingleRegister(0x0, value);
+int OctaveModbusWrapper::WriteAlarms(int value){
+	return BlockingWriteSingleRegister(0x0, value);
 }
 
-void OctaveModbusWrapper::WriteWeekday(int value){
-	BlockingWriteSingleRegister(0x1, value);
+int OctaveModbusWrapper::WriteWeekday(int value){
+	return BlockingWriteSingleRegister(0x1, value);
 }
 
-void OctaveModbusWrapper::WriteDay(int value){
-	BlockingWriteSingleRegister(0x2, value);
+int OctaveModbusWrapper::WriteDay(int value){
+	return BlockingWriteSingleRegister(0x2, value);
 }
 
-void OctaveModbusWrapper::WriteMonth(int value){
-	BlockingWriteSingleRegister(0x3, value);
+int OctaveModbusWrapper::WriteMonth(int value){
+	return BlockingWriteSingleRegister(0x3, value);
 }
 
-void OctaveModbusWrapper::WriteYear(int value){
-	BlockingWriteSingleRegister(0x4, value);
+int OctaveModbusWrapper::WriteYear(int value){
+	return BlockingWriteSingleRegister(0x4, value);
 }
 
-void OctaveModbusWrapper::WriteHours(int value){
-	BlockingWriteSingleRegister(0x5, value);
+int OctaveModbusWrapper::WriteHours(int value){
+	return BlockingWriteSingleRegister(0x5, value);
 }
 
-void OctaveModbusWrapper::WriteMinutes(int value){
-	BlockingWriteSingleRegister(0x6, value);
+int OctaveModbusWrapper::WriteMinutes(int value){
+	return BlockingWriteSingleRegister(0x6, value);
 }
 
-void OctaveModbusWrapper::WriteVolumeResIndex(int value){
-	BlockingWriteSingleRegister(0x7, value);
+int OctaveModbusWrapper::WriteVolumeResIndex(int value){
+	return BlockingWriteSingleRegister(0x7, value);
 }
 
-void OctaveModbusWrapper::WriteVolumeFlowIndex(int value){
-	BlockingWriteSingleRegister(0x8, value);
+int OctaveModbusWrapper::WriteVolumeFlowIndex(int value){
+	return BlockingWriteSingleRegister(0x8, value);
 }
