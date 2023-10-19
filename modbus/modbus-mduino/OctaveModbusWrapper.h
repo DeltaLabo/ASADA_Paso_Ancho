@@ -10,6 +10,15 @@
 #include <fp64lib.h>
 #include <stdint.h>
 
+// Scale factor for two decimal places
+#define SCALE_FACTOR "100.0"
+
+// Limit values that can represented in 16 and 32 bits with 2 decimal places
+#define DEC16_MAX "327.67"
+#define DEC16_MIN "-327.68"
+#define DEC32_MAX "21474836.47"
+#define DEC32_MIN "-21474836.48"
+
 class OctaveModbusWrapper {
     public:
         explicit OctaveModbusWrapper(HardwareSerial &modbusSerial, HardwareSerial &logSerial, bool logtoSerial, bool logtoLoRa);
