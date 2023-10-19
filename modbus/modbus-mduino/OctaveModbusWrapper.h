@@ -9,8 +9,11 @@
 #include "src/ModbusRTUMaster.h"
 #include <fp64lib.h>
 #include <stdint.h>
+#include <ArduinoSTL.h>
 #include <map>
-#include "ParamTables.h"
+
+// Bit indices to check for alarms
+const int alarmsIndices[] = {0, 5, 7, 11, 12, 13};
 
 // Scale factor for two decimal places
 #define SCALE_FACTOR "100.0"
@@ -26,6 +29,7 @@ class OctaveModbusWrapper {
         explicit OctaveModbusWrapper(HardwareSerial &modbusSerial, HardwareSerial &logSerial, bool logtoSerial, bool logtoLoRa);
 
         void begin();
+        void InitMaps();
 
         int AwaitResponse();
         void ProcessResponse(ModbusResponse *response);
