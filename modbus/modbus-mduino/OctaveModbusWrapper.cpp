@@ -7,6 +7,7 @@ OctaveModbusWrapper::OctaveModbusWrapper(HardwareSerial &modbusSerial, HardwareS
 
 void OctaveModbusWrapper::begin() {
     // Start the modbus _master object
+  InitMaps();
 	_master.begin(MODBUS_BAUDRATE);
 }
 
@@ -24,7 +25,7 @@ int OctaveModbusWrapper::AwaitResponse(){
       if (response.hasError()) {
         // Response failure treatment. You can use response.getErrorCode()
         // to get the error code.
-        _logSerial.print("Error ");
+        _logSerial.print("Error: ");
         _logSerial.println(response.getErrorCode());
         // Error code 2: Response received, contains Modbus error code
         return 2;
@@ -33,7 +34,7 @@ int OctaveModbusWrapper::AwaitResponse(){
         if (response.hasError()) {
           // Response failure treatment. You can use response.getErrorCode()
           // to get the error code.
-          _logSerial.print("Error ");
+          _logSerial.print("Error: ");
           _logSerial.println(response.getErrorCode());
           // Error code 2: Response received, contains Modbus error code
           return 2;
@@ -47,7 +48,8 @@ int OctaveModbusWrapper::AwaitResponse(){
           }
           // If there are no registers to read, it was a write request
           else {
-            _logSerial.println("Done writing.");
+            _logSerial.print(functionCodeToName[lastUsedFunctionCode]);
+            _logSerial.println(": Done writing.");
             // No error
             return 0;
           }
@@ -56,6 +58,7 @@ int OctaveModbusWrapper::AwaitResponse(){
     }
   }
   // Error code 1: Timeout
+  _logSerial.println("Error: Timeout");
   return 1;
 }
 
@@ -63,7 +66,8 @@ int OctaveModbusWrapper::AwaitResponse(){
 // Processes the raw register values from the slave response and saves them to the buffers
 // Returns void because it shouldn't throw any errors
 void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
-  _logSerial.println("Register values: ");
+  _logSerial.print(functionCodeToName[lastUsedFunctionCode]);
+  _logSerial.print(": ");
 
   if (_signedResponseSizeinBits == 16){
     // Loop through the response and print each register
@@ -72,8 +76,49 @@ void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
       if (i < _numRegisterstoRead) {
         // Save the register to the buffer
         int16Buffer[i] = response->getRegister(i);
-        _logSerial.print(response->getRegister(i));
-        _logSerial.print(',');
+
+        // If there is more than 1 int16 value, it means that we're reading the Serial
+        if (_numRegisterstoRead > 1) {
+          // Convert the ASCII code to a char
+          _logSerial.print(char(int16Buffer[i]));
+          // Leave space for the next char
+          _logSerial.print(' ');
+        }
+        // If only 1 int16 was requested
+        else {
+          _logSerial.print(int16Buffer[i]);
+          _logSerial.print(" ");
+
+          // Print value interpretation for the functions that require it
+          if (lastUsedFunctionCode == functionNameToCode["VolumeUnit"]){
+            _logSerial.print(volumeUnitCodeToName[int16Buffer[i]]);
+          }
+          else if (lastUsedFunctionCode == functionNameToCode["FlowUnit"]){
+            _logSerial.print(flowUnitCodeToName[int16Buffer[i]]);
+          }
+          else if (lastUsedFunctionCode == functionNameToCode["ReadVolumeResIndex"] || lastUsedFunctionCode == functionNameToCode["ReadFlowResIndex"]){
+            _logSerial.print(resolutionCodeToName[int16Buffer[i]]);
+          }
+          else if (lastUsedFunctionCode == functionNameToCode["TemperatureUnit"]){
+            _logSerial.print(temperatureUnitCodeToName[int16Buffer[i]]);
+          }
+          else if (lastUsedFunctionCode == functionNameToCode["FlowDirection"]){
+            _logSerial.print(flowDirectionCodeToName[int16Buffer[i]]);
+          }
+          else if (lastUsedFunctionCode == functionNameToCode["ReadAlarms"]){
+            if (int16Buffer[i] == 0) _logSerial.print("OK");
+            else{
+              // Bit-wise error check
+              for (int i = 1; i <= 13; i++) {
+                // If the n-th bit is set, print the corresponding error message
+                if ((int16Buffer[i] & (1 << i)) != 0) {
+                  _logSerial.print(alarmCodeToName[i]);
+                  _logSerial.print(" ");
+                }
+              }
+            }
+          }
+        }
       }
       // Clear the unused buffer positions
       else int16Buffer[i] = 0;
@@ -132,6 +177,8 @@ void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
 
 // Read one or more Modbus registers in blocking mode
 int OctaveModbusWrapper::BlockingReadRegisters(int startMemAddress, int numValues, int signedValueSizeinBits){
+  lastUsedFunctionCode = 0x04 << 8 + startMemAddress;
+
   // Calculate the number of registers from the number of values and their size
   // e.g.: 1 32-bit value occupies 2 registers (2 x 16bit)
   _numRegisterstoRead = numValues * abs(signedValueSizeinBits)/16;
@@ -139,7 +186,7 @@ int OctaveModbusWrapper::BlockingReadRegisters(int startMemAddress, int numValue
 
   if (!_master.readInputRegisters(SLAVE_ADDRESS, startMemAddress, _numRegisterstoRead)) {
     // Failure treatment
-    _logSerial.println("Can't send request. Modbus _master is awaiting a response.");
+    _logSerial.println("Error: Can't send request. Modbus master is awaiting a response.");
     // Error code 3: Modbus channel busy
     return 3;
   }
@@ -151,13 +198,15 @@ int OctaveModbusWrapper::BlockingReadRegisters(int startMemAddress, int numValue
 
 // Write a single Modbus register in blocking mode
 int OctaveModbusWrapper::BlockingWriteSingleRegister(int memAddress, int value){
+  lastUsedFunctionCode = 0x06 << 8 + startMemAddress;
+
   // No registers need to be read for a write request
   _numRegisterstoRead = 0;
   _signedResponseSizeinBits = 16;
 
   if (!_master.writeSingleRegister(SLAVE_ADDRESS, memAddress, value)) {
     // Failure treatment
-    _logSerial.println("Can't send request. Modbus _master is awaiting a response.");
+    _logSerial.println("Error: Can't send request. Modbus master is awaiting a response.");
     // Error code 3: Modbus channel busy
     return 3;
   }
@@ -346,7 +395,7 @@ int OctaveModbusWrapper::ReadFlowResIndex(){
 	return BlockingReadRegisters(0x31, 1, 16);
 }
 
-int OctaveModbusWrapper::FlowUnits(){
+int OctaveModbusWrapper::FlowUnit(){
 	return BlockingReadRegisters(0x32, 1, 16);
 }
 
@@ -382,10 +431,6 @@ int OctaveModbusWrapper::NetUnsignedVolume(int unsignedValueSizeinBits){
 
 int OctaveModbusWrapper::SystemReset(){
 	return BlockingWriteSingleRegister(0x0, 0x1);
-}
-
-int OctaveModbusWrapper::WriteAlarms(int value){
-	return BlockingWriteSingleRegister(0x0, value);
 }
 
 int OctaveModbusWrapper::WriteWeekday(int value){

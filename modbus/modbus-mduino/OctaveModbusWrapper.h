@@ -9,6 +9,8 @@
 #include "src/ModbusRTUMaster.h"
 #include <fp64lib.h>
 #include <stdint.h>
+#include <map>
+#include "ParamTables.h"
 
 // Scale factor for two decimal places
 #define SCALE_FACTOR "100.0"
@@ -44,14 +46,13 @@ class OctaveModbusWrapper {
         int ReadVolumeResIndex();
         int SignedCurrentFlow(int unsignedValueSizeinBits);
         int ReadFlowResIndex();
-        int FlowUnits();
+        int FlowUnit();
         int FlowDirection();
         int TemperatureValue();
         int TemperatureUnit();
         int NetSignedVolume(int unsignedValueSizeinBits);
         int NetUnsignedVolume(int unsignedValueSizeinBits);
         int SystemReset();
-        int WriteAlarms(int value);
         int WriteWeekday(int value);
         int WriteDay(int value);
         int WriteMonth(int value);
@@ -66,6 +67,25 @@ class OctaveModbusWrapper {
         int32_t int32Buffer;
         uint32_t uint32Buffer;
         float64_t doubleBuffer;
+
+        /****** Parameter maps ********/
+        std::map<String, int> flowUnitNameToCode;
+        std::map<int, String> flowUnitCodeToName;
+        std::map<String, int> volumeUnitNameToCode;
+        std::map<int, String> volumeUnitCodeToName;
+        std::map<String, int> temperatureUnitNameToCode;
+        std::map<int, String> temperatureUnitCodeToName;
+        std::map<String, int> flowDirectionNameToCode;
+        std::map<int, String> flowDirectionCodeToName;
+        std::map<String, int> resolutiontNameToCode;
+        std::map<int, String> resolutionCodeToName;
+        std::map<int, String> alarmCodeToName;
+
+        /****** Function name map *******/
+        std::map<String, int> functionNameToCode;
+        std::map<int, String> functionCodeToName;
+
+        int lastUsedFunctionCode = 0;
 
         uint32_t modbusBaudrate = MODBUS_BAUDRATE;
     
