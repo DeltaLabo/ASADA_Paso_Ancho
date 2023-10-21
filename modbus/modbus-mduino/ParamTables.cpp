@@ -83,6 +83,7 @@ void OctaveModbusWrapper::InitMaps() {
     functionNameToCode["WriteVolumeResIndex"] = 0x0607;
     functionNameToCode["WriteFlowResIndex"] = 0x0608;
 
+    errorCodeToName[0] = "No error";
     errorCodeToName[1] = "Illegal Modbus Function";
     errorCodeToName[2] = "Illegal Modbus Data Address";
     errorCodeToName[3] = "Illegal Modbus Data Value";
