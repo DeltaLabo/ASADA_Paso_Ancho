@@ -93,6 +93,7 @@ void OctaveModbusWrapper::InitMaps() {
     errorCodeToName[7] = "16-bit Underflow";
     errorCodeToName[8] = "32-bit Overflow";
     errorCodeToName[9] = "32-bit Underflow";
+    errorCodeToName[10] = "Invalid Resolution Index";
 
     // Create the reverse mappings
     for (const auto& entry : flowUnitNameToCode) {
