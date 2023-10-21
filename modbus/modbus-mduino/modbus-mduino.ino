@@ -53,7 +53,5 @@ void loop() {
     digitalWrite(40, !digitalRead(40));
 
     /****** Add Modbus requests to send at the polling frequency ******/
-    octave.SystemReset();
-    octave.WriteFlowResIndex(2);
   }
 }
