@@ -81,7 +81,17 @@ void OctaveModbusWrapper::InitMaps() {
     functionNameToCode["WriteHours"] = 0x0605;
     functionNameToCode["WriteMinutes"] = 0x0606;
     functionNameToCode["WriteVolumeResIndex"] = 0x0607;
-    functionNameToCode["WriteVolumeFlowIndex"] = 0x0608;
+    functionNameToCode["WriteFlowResIndex"] = 0x0608;
+
+    errorCodeToName[1] = "Illegal Modbus Function";
+    errorCodeToName[2] = "Illegal Modbus Data Address";
+    errorCodeToName[3] = "Illegal Modbus Data Value";
+    errorCodeToName[4] = "Modbus Server Device Failure";
+    errorCodeToName[5] = "Modbus Timeout";
+    errorCodeToName[6] = "16-bit Overflow";
+    errorCodeToName[7] = "16-bit Underflow";
+    errorCodeToName[8] = "32-bit Overflow";
+    errorCodeToName[9] = "32-bit Underflow";
 
     // Create the reverse mappings
     for (const auto& entry : flowUnitNameToCode) {

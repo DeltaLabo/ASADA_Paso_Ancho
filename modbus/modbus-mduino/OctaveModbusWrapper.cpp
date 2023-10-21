@@ -24,8 +24,8 @@ int OctaveModbusWrapper::AwaitResponse(){
         // to get the error code.
         _logSerial.print("Error: ");
         _logSerial.println(response.getErrorCode());
-        // Error code 2: Response received, contains Modbus error code
-        return 2;
+        // Error: Response received, contains Modbus error code
+        return static_cast<int>(response.getErrorCode());
       } else {
         // Get the discrete inputs values from the response
         if (response.hasError()) {
@@ -33,8 +33,8 @@ int OctaveModbusWrapper::AwaitResponse(){
           // to get the error code.
           _logSerial.print("Error: ");
           _logSerial.println(response.getErrorCode());
-          // Error code 2: Response received, contains Modbus error code
-          return 2;
+          // Error: Response received, contains Modbus error code
+          return static_cast<int>(response.getErrorCode());
         } else {
           // If there are registers to read, process them
           if(_numRegisterstoRead > 0) {
@@ -54,9 +54,9 @@ int OctaveModbusWrapper::AwaitResponse(){
       }
     }
   }
-  // Error code 1: Timeout
+  // Error code 5: Timeout
   _logSerial.println("Error: Timeout");
-  return 1;
+  return 5;
 }
 
 
@@ -240,15 +240,15 @@ int truncateDoubleto16bits(float64_t input, int16_t &output){
   if (fp64_compare(input, fp64_atof(DEC16_MAX)) == 1) {
     // Output the largest possible value to minimize the error
     output = INT16_MAX;
-    // Error code 1: Overflow
-    return 1;
+    // Error code 6: 16-bit Overflow
+    return 6;
   }
   // if input < DEC16MIN
   else if (fp64_compare(input, fp64_atof(DEC16_MIN)) == -1) {
     // Output the smallest possible value to minimize the error
     output = INT16_MIN;
-    // Error code 2: Underflow
-    return 2;
+    // Error code 7: 16-bit Underflow
+    return 7;
   }
   else {
     // Scale, then cast to int16
@@ -265,15 +265,15 @@ int truncateDoubleto32bits(float64_t input, int32_t &output){
   if (fp64_compare(input, fp64_atof(DEC32_MAX)) == 1) {
     // Output the largest possible value to minimize the error
     output = INT32_MAX;
-    // Error code 1: Overflow
-    return 1;
+    // Error code 8: 32-bit Overflow
+    return 8;
   }
   // if input < DEC32MIN
   else if (fp64_compare(input, fp64_atof(DEC32_MIN)) == -1) {
     // Output the smallest possible value to minimize the error
     output = INT32_MIN;
-    // Error code 2: Underflow
-    return 2;
+    // Error code 9: 32-bit Underflow
+    return 9;
   }
   else {
     // Scale, then cast to int16
@@ -301,18 +301,18 @@ int truncateDoubleto32bits(float64_t input, int32_t &output){
         }
         // If the input was a negative number
         else {
-          // Output the largest possible value to minimize the error
+          // Output the smallest possible value to minimize the error
           output = INT32_MIN;
-          // Error code 2: Underflow
-          return 2;
+          // Error code 9: 32-bit Underflow
+          return 9;
         }
       }
       // If the input had a "positive" sign
       else {
         // Output the largest possible value to minimize the error
         output = INT32_MAX;
-        // Error code 1: Overflow
-        return 1;
+        // Error code 8: 32-bit Overflow
+        return 8;
       }
     }
   }
@@ -457,6 +457,6 @@ int OctaveModbusWrapper::WriteVolumeResIndex(int value){
 	return BlockingWriteSingleRegister(0x7, value);
 }
 
-int OctaveModbusWrapper::WriteVolumeFlowIndex(int value){
+int OctaveModbusWrapper::WriteFlowResIndex(int value){
 	return BlockingWriteSingleRegister(0x8, value);
 }

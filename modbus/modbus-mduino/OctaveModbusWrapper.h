@@ -65,7 +65,7 @@ class OctaveModbusWrapper {
         int WriteHours(int value);
         int WriteMinutes(int value);
         int WriteVolumeResIndex(int value);
-        int WriteVolumeFlowIndex(int value);
+        int WriteFlowResIndex(int value);
 
         /****** Modbus response buffers ******/
         int int16Buffer[16];
@@ -89,6 +89,8 @@ class OctaveModbusWrapper {
         /****** Function name map *******/
         std::map<String, int> functionNameToCode;
         std::map<int, String> functionCodeToName;
+
+        std::map<int, String> errorCodeToName;
 
         int lastUsedFunctionCode = 0;
 
