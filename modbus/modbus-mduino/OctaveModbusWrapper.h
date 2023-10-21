@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <ArduinoSTL.h>
 #include <map>
+#include "ParamTables.h"
 
 // Bit indices to check for alarms
 const int alarmsIndices[] = {0, 5, 7, 11, 12, 13};
