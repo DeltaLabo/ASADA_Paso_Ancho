@@ -53,5 +53,11 @@ void loop() {
     digitalWrite(40, !digitalRead(40));
 
     /****** Add Modbus requests to send at the polling frequency ******/
+    octave.ForwardVolume(64);
+    octave.SignedCurrentFlow(32);
+    octave.ReadAlarms();
+    octave.TemperatureValue();
+    octave.TemperatureUnit();
+    octave.SerialNumber();
   }
 }
