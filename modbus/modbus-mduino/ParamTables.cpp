@@ -115,3 +115,66 @@ void OctaveModbusWrapper::InitMaps() {
         functionCodeToName[entry.second] = entry.first;
     }
 }
+
+
+/****** Utilities ******/
+
+// Convert uint64 to str to make it Serial-printable
+char* str( uint64_t num ) {
+  static char buf[22];
+  char* p = &buf[sizeof(buf)-1];
+  *p = '\0';
+  do {
+    *--p = '0' + (num%10);
+    num /= 10;
+  } while ( num > 0 );
+  return p;
+}
+
+// Convert int64 to str to make it Serial-printable
+char* str( int64_t num ) {
+    if ( num>=0 ) return str((uint64_t)num);
+    char* p = str((uint64_t)(-num));
+    *--p = '-';
+    return p;    
+}
+
+// Convert to ASCII and print the Octave Serial Number
+void OctaveModbusWrapper::PrintSerial(int16_t registers[16], HardwareSerial &Serial) {
+    for (int i = 0; i < 16; i++){
+        // Convert the ASCII code to a char
+        Serial.print(char(registers[i]));
+        // Leave space for the next char
+        Serial.print(' ');
+    }
+    Serial.println();
+}
+
+// Interpret and print Octave Alarms
+void OctaveModbusWrapper::PrintAlarms(int16_t alarms, HardwareSerial &Serial) {
+    if (alarms == 0) Serial.println(alarmCodeToName[0]);
+    else{
+        // Bit-wise error check
+        for (int j = 0; j < sizeof(alarmsIndices) / sizeof(alarmsIndices[0]); j++) {
+            // If the (i+1)-th bit is set, print the corresponding error message
+            if ((alarms & (1 << alarmsIndices[j])) != 0) {
+                Serial.print(alarmCodeToName[alarmsIndices[j]]);
+                Serial.print(" ");
+            }
+        }
+        Serial.println();
+    }
+}
+
+// Print a 64-bit double number
+void OctaveModbusWrapper::PrintDouble(float64_t &number, HardwareSerial &Serial) {
+    // char *fp64_to_string(float64_t x, uint8_t max_chars, uint8_t max_zeroes)
+    Serial.println(fp64_to_string(number, 12, 1));
+}
+
+void OctaveModbusWrapper::PrintError(uint8_t errorCode, HardwareSerial &Serial) {
+    Serial.print("Error code ");
+    Serial.print(errorCode);
+    Serial.print(": ");
+    Serial.println(errorCodeToName[errorCode]);
+}

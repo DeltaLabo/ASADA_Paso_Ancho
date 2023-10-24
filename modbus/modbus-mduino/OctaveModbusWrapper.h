@@ -27,7 +27,7 @@ const uint8_t alarmsIndices[] = {0, 5, 7, 11, 12, 13};
 
 class OctaveModbusWrapper {
     public:
-        explicit OctaveModbusWrapper(HardwareSerial &modbusSerial, HardwareSerial &logSerial);
+        explicit OctaveModbusWrapper(HardwareSerial &modbusSerial);
 
         void begin();
         void InitMaps();
@@ -36,6 +36,11 @@ class OctaveModbusWrapper {
         void ProcessResponse(ModbusResponse *response);
         uint8_t BlockingReadRegisters(uint8_t startMemAddress, uint8_t numValues, int8_t signedValueSizeinBits);
         uint8_t BlockingWriteSingleRegister(uint8_t memAddress, int16_t value);
+
+        void PrintDouble(float64_t &number, HardwareSerial &Serial);
+        void PrintSerial(int16_t registers[16], HardwareSerial &Serial);
+        void PrintAlarms(int16_t alarms, HardwareSerial &Serial);
+        void PrintError(uint8_t errorCode, HardwareSerial &Serial);
 
         uint8_t ReadAlarms();
         uint8_t SerialNumber();
@@ -98,7 +103,6 @@ class OctaveModbusWrapper {
     
     private:
         ModbusRTUMaster _master;
-        HardwareSerial &_logSerial;
 
         /****** Parameters for the Modbus requests ******/
         // Number of registers to read for a Modbus request, is 0 for a write request

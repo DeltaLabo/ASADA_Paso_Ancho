@@ -5,13 +5,16 @@
 #include "OctaveModbusWrapper.h"
 
 // Define the OctaveModbusWrapper object, using the RS-485 port for Modbus and Serial0 for logging
-OctaveModbusWrapper octave(RS485, Serial);
+OctaveModbusWrapper octave(RS485);
 
 // Control variable for the Modbus polling frequency
 uint32_t lastSentTime = 0UL;
 
 // Control variable to execute Modbus requests only on first loop iteration
 bool isFirstLoopIteration = true;
+
+// Variable to store Modbus error code
+uint8_t modbusErrorCode;
 
 
 void setup() {
@@ -53,5 +56,28 @@ void loop() {
     digitalWrite(40, !digitalRead(40));
 
     /****** Add Modbus requests to send at the polling frequency ******/
+    modbusErrorCode = octave.ForwardVolume(64);
+    if (modbusErrorCode == 0) octave.PrintDouble(octave.doubleBuffer, Serial);
+    else octave.PrintError(modbusErrorCode, Serial);
+
+    modbusErrorCode = octave.SignedCurrentFlow(32);
+    if (modbusErrorCode == 0) Serial.println(octave.int32Buffer);
+    else octave.PrintError(modbusErrorCode, Serial);
+
+    modbusErrorCode = octave.ReadAlarms();
+    if (modbusErrorCode == 0) octave.PrintAlarms(octave.int16Buffer[0], Serial);
+    else octave.PrintError(modbusErrorCode, Serial);
+
+    modbusErrorCode = octave.TemperatureValue();
+    if (modbusErrorCode == 0) Serial.println(octave.int16Buffer[0]);
+    else octave.PrintError(modbusErrorCode, Serial);
+
+    modbusErrorCode = octave.TemperatureUnit();
+    if (modbusErrorCode == 0) Serial.println(octave.temperatureUnitCodeToName[octave.int16Buffer[0]]);
+    else octave.PrintError(modbusErrorCode, Serial);
+
+    modbusErrorCode = octave.SerialNumber();
+    if (modbusErrorCode == 0) octave.PrintSerial(octave.int16Buffer, Serial);
+    else octave.PrintError(modbusErrorCode, Serial);
   }
 }

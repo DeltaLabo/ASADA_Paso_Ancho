@@ -1,6 +1,6 @@
 #include "OctaveModbusWrapper.h"
 
-OctaveModbusWrapper::OctaveModbusWrapper(HardwareSerial &modbusSerial, HardwareSerial &logSerial) : _master(modbusSerial), _logSerial(logSerial) {}
+OctaveModbusWrapper::OctaveModbusWrapper(HardwareSerial &modbusSerial) : _master(modbusSerial){}
 
 void OctaveModbusWrapper::begin() {
     // Start the modbus _master object
@@ -20,33 +20,21 @@ uint8_t OctaveModbusWrapper::AwaitResponse(){
     // If there was a valid response
     if (response) {
       if (response.hasError()) {
-        // Response failure treatment. You can use response.getErrorCode()
-        // to get the error code.
-        _logSerial.print("Error: ");
-        _logSerial.println(response.getErrorCode());
         // Error: Response received, contains Modbus error code
         return response.getErrorCode();
       } else {
-        // Get the discrete inputs values from the response
         if (response.hasError()) {
-          // Response failure treatment. You can use response.getErrorCode()
-          // to get the error code.
-          _logSerial.print("Error: ");
-          _logSerial.println(response.getErrorCode());
           // Error: Response received, contains Modbus error code
           return response.getErrorCode();
         } else {
           // If there are registers to read, process them
           if(_numRegisterstoRead > 0) {
-            // Get error code from called function
             ProcessResponse(&response);
             // Assume no error occurred while processing
             return 0;
           }
           // If there are no registers to read, it was a write request
           else {
-            _logSerial.print(functionCodeToName[lastUsedFunctionCode]);
-            _logSerial.println(": Done writing.");
             // No error
             return 0;
           }
@@ -55,7 +43,6 @@ uint8_t OctaveModbusWrapper::AwaitResponse(){
     }
   }
   // Error code 5: Timeout
-  _logSerial.println("Error: Timeout");
   return 5;
 }
 
@@ -63,64 +50,17 @@ uint8_t OctaveModbusWrapper::AwaitResponse(){
 // Processes the raw register values from the slave response and saves them to the buffers
 // Returns void because it shouldn't throw any errors
 void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
-  _logSerial.print(functionCodeToName[lastUsedFunctionCode]);
-  _logSerial.print(": ");
-
   if (_signedResponseSizeinBits == 16){
-    // Loop through the response and print each register
+    // Loop through the response
     for (int i = 0; i < 16; i++){
       // If the index corresponds to a valid register from the request
       if (i < _numRegisterstoRead) {
         // Save the register to the buffer
         int16Buffer[i] = response->getRegister(i);
-
-        // If there is more than 1 int16 value, it means that we're reading the Serial
-        if (_numRegisterstoRead > 1) {
-          // Convert the ASCII code to a char
-          _logSerial.print(char(int16Buffer[i]));
-          // Leave space for the next char
-          _logSerial.print(' ');
-        }
-        // If only 1 int16 was requested
-        else {
-          _logSerial.print(int16Buffer[i]);
-          _logSerial.print(" ");
-
-          // Print value interpretation for the functions that require it
-          if (lastUsedFunctionCode == functionNameToCode["VolumeUnit"]){
-            _logSerial.print(volumeUnitCodeToName[int16Buffer[i]]);
-          }
-          else if (lastUsedFunctionCode == functionNameToCode["FlowUnit"]){
-            _logSerial.print(flowUnitCodeToName[int16Buffer[i]]);
-          }
-          else if (lastUsedFunctionCode == functionNameToCode["ReadVolumeResIndex"] || lastUsedFunctionCode == functionNameToCode["ReadFlowResIndex"]){
-            _logSerial.print(resolutionCodeToName[int16Buffer[i]]);
-          }
-          else if (lastUsedFunctionCode == functionNameToCode["TemperatureUnit"]){
-            _logSerial.print(temperatureUnitCodeToName[int16Buffer[i]]);
-          }
-          else if (lastUsedFunctionCode == functionNameToCode["FlowDirection"]){
-            _logSerial.print(flowDirectionCodeToName[int16Buffer[i]]);
-          }
-          else if (lastUsedFunctionCode == functionNameToCode["ReadAlarms"]){
-            if (int16Buffer[i] == 0) _logSerial.print("OK");
-            else{
-              // Bit-wise error check
-              for (int j = 0; j < sizeof(alarmsIndices) / sizeof(alarmsIndices[0]); j++) {
-                // If the (i+1)-th bit is set, print the corresponding error message
-                if ((int16Buffer[i] & (1 << alarmsIndices[j])) != 0) {
-                  _logSerial.print(alarmCodeToName[alarmsIndices[j]]);
-                  _logSerial.print(" ");
-                }
-              }
-            }
-          }
-        }
       }
       // Clear the unused buffer positions
       else int16Buffer[i] = 0;
     }
-    _logSerial.println();
 
     // Clear the unused buffers
     int32Buffer = 0;
@@ -136,7 +76,6 @@ void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
     if (_signedResponseSizeinBits == 32){
       // The value is split into AB CD, combine it into ABCD and save it to the buffer
       uint32Buffer = (static_cast<unsigned long>(response->getRegister(0)) << 16) + static_cast<unsigned long>(response->getRegister(1));
-      _logSerial.println(uint32Buffer);
 
       // Clear the unused buffers
       int32Buffer = 0;
@@ -145,7 +84,6 @@ void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
     else if (_signedResponseSizeinBits == -32){
       // The value is split into AB CD, combine it into ABCD and save it to the buffer
       int32Buffer = (static_cast<unsigned long>(response->getRegister(0)) << 16) + static_cast<unsigned long>(response->getRegister(1));
-      _logSerial.println(int32Buffer);
 
       // Clear the unused buffers
       uint32Buffer = 0;
@@ -162,12 +100,8 @@ void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
               + (static_cast<unsigned long long>(( (response->getRegister(2) >> 8) | (response->getRegister(2) << 8))) << 32)
               + (static_cast<unsigned long long>(( (response->getRegister(1) >> 8) | (response->getRegister(1) << 8))) << 16)
               + ((response->getRegister(0) >> 8) | (response->getRegister(0) << 8));
-
-      // Convert the 64-bit floating point number to a string, then print it
-      _logSerial.println(fp64_to_string(doubleBuffer, 10, 1)); // char *fp64_to_string(float64_t x, uint8_t max_chars, uint8_t max_zeroes)
     }
   }
-  _logSerial.println();
 }
 
 
@@ -181,8 +115,6 @@ uint8_t OctaveModbusWrapper::BlockingReadRegisters(uint8_t startMemAddress, uint
   _signedResponseSizeinBits = signedValueSizeinBits;
 
   if (!_master.readInputRegisters(SLAVE_ADDRESS, startMemAddress, _numRegisterstoRead)) {
-    // Failure treatment
-    _logSerial.println("Error: Can't send request. Modbus master is awaiting a response.");
     // Error code 3: Modbus channel busy
     return 3;
   }
@@ -201,8 +133,6 @@ uint8_t OctaveModbusWrapper::BlockingWriteSingleRegister(uint8_t memAddress, int
   _signedResponseSizeinBits = 16;
 
   if (!_master.writeSingleRegister(SLAVE_ADDRESS, memAddress, value)) {
-    // Failure treatment
-    _logSerial.println("Error: Can't send request. Modbus master is awaiting a response.");
     // Error code 3: Modbus channel busy
     return 3;
   }
@@ -211,27 +141,7 @@ uint8_t OctaveModbusWrapper::BlockingWriteSingleRegister(uint8_t memAddress, int
 }
 
 
-/****** Utilities ******/
-
-// Convert uint64 to str to make it _logSerial-printable
-char* str( uint64_t num ) {
-  static char buf[22];
-  char* p = &buf[sizeof(buf)-1];
-  *p = '\0';
-  do {
-    *--p = '0' + (num%10);
-    num /= 10;
-  } while ( num > 0 );
-  return p;
-}
-
-// Convert int64 to str to make it _logSerial-printable
-char* str( int64_t num ) {
-    if ( num>=0 ) return str((uint64_t)num);
-    char* p = str((uint64_t)(-num));
-    *--p = '-';
-    return p;    
-}
+/******* Utilities ********/
 
 // Truncate 64-bit double to 16 bits
 uint8_t truncateDoubleto16bits(float64_t &input, int16_t &output){
@@ -462,7 +372,6 @@ uint8_t OctaveModbusWrapper::WriteMinutes(uint8_t value){
 // value must be within 0 to 8, see table
 uint8_t OctaveModbusWrapper::WriteVolumeResIndex(uint8_t value){
   if (value > 8) {
-    _logSerial.println("Error: Invalid Resolution Index");
     return 10; // Error code 10: Invalid Resolution Index
   }
 	return BlockingWriteSingleRegister(0x7, value);
@@ -471,7 +380,6 @@ uint8_t OctaveModbusWrapper::WriteVolumeResIndex(uint8_t value){
 // value must be within 0 to 8, see table
 uint8_t OctaveModbusWrapper::WriteFlowResIndex(uint8_t value){
   if (value > 8) {
-    _logSerial.println("Error: Invalid Resolution Index");
     return 10; // Error code 10: Invalid Resolution Index
   }
 	return BlockingWriteSingleRegister(0x8, value);
