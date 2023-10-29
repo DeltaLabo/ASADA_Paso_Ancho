@@ -116,11 +116,13 @@ uint8_t OctaveModbusWrapper::BlockingReadRegisters(uint8_t startMemAddress, uint
 
   if (!_master.readInputRegisters(SLAVE_ADDRESS, startMemAddress, _numRegisterstoRead)) {
     // Error code 3: Modbus channel busy
+    _lastModbusErrorCode = 3;
     return 3;
   }
 
   // Get error code from called funcion
-  return AwaitResponse();
+  _lastModbusErrorCode = AwaitResponse();
+  return _lastModbusErrorCode;
 }
 
 
@@ -134,10 +136,12 @@ uint8_t OctaveModbusWrapper::BlockingWriteSingleRegister(uint8_t memAddress, int
 
   if (!_master.writeSingleRegister(SLAVE_ADDRESS, memAddress, value)) {
     // Error code 3: Modbus channel busy
+    _lastModbusErrorCode = 3;
     return 3;
   }
   // Get error code from called funcion
-  return AwaitResponse();
+  _lastModbusErrorCode = AwaitResponse();
+  return _lastModbusErrorCode;
 }
 
 

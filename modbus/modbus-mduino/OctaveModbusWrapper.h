@@ -41,6 +41,7 @@ class OctaveModbusWrapper {
         void PrintSerial(int16_t registers[16], HardwareSerial &Serial);
         void PrintAlarms(int16_t alarms, HardwareSerial &Serial);
         void PrintError(uint8_t errorCode, HardwareSerial &Serial);
+        uint8_t InterpretResult(uint8_t errorCode, HardwareSerial &Serial);
 
         uint8_t ReadAlarms();
         uint8_t SerialNumber();
@@ -109,6 +110,9 @@ class OctaveModbusWrapper {
         uint8_t _numRegisterstoRead = 0;
         // Size, in bits, of the slave response values, is -32 for int32 and 32 for uint32
         int8_t _signedResponseSizeinBits = 16;
+        // Storage variable for the Modbus error code, which is also returned with each request
+        // Doesn't update when non-Modbus errors occur, i.e. when truncating a double
+        uint8_t _lastModbusErrorCode = 0;
 };
 
 #endif

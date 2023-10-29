@@ -119,28 +119,9 @@ void OctaveModbusWrapper::InitMaps() {
 
 /****** Utilities ******/
 
-// Convert uint64 to str to make it Serial-printable
-char* str( uint64_t num ) {
-  static char buf[22];
-  char* p = &buf[sizeof(buf)-1];
-  *p = '\0';
-  do {
-    *--p = '0' + (num%10);
-    num /= 10;
-  } while ( num > 0 );
-  return p;
-}
-
-// Convert int64 to str to make it Serial-printable
-char* str( int64_t num ) {
-    if ( num>=0 ) return str((uint64_t)num);
-    char* p = str((uint64_t)(-num));
-    *--p = '-';
-    return p;    
-}
-
 // Convert to ASCII and print the Octave Serial Number
 void OctaveModbusWrapper::PrintSerial(int16_t registers[16], HardwareSerial &Serial) {
+    // Loop through the response and print each register
     for (int i = 0; i < 16; i++){
         // Convert the ASCII code to a char
         Serial.print(char(registers[i]));
@@ -152,6 +133,8 @@ void OctaveModbusWrapper::PrintSerial(int16_t registers[16], HardwareSerial &Ser
 
 // Interpret and print Octave Alarms
 void OctaveModbusWrapper::PrintAlarms(int16_t alarms, HardwareSerial &Serial) {
+    // Leave space for the interpretation
+    Serial.print(": ");
     if (alarms == 0) Serial.println(alarmCodeToName[0]);
     else{
         // Bit-wise error check
@@ -172,9 +155,76 @@ void OctaveModbusWrapper::PrintDouble(float64_t &number, HardwareSerial &Serial)
     Serial.println(fp64_to_string(number, 12, 1));
 }
 
+// Interpret and print an Octave error code
 void OctaveModbusWrapper::PrintError(uint8_t errorCode, HardwareSerial &Serial) {
+    // Print the error code and its meaning
     Serial.print("Error code ");
     Serial.print(errorCode);
     Serial.print(": ");
     Serial.println(errorCodeToName[errorCode]);
+}
+
+// Interpret the result of a Modbus request from its error code and print it to a Serial
+// Returns the error code for convenience
+// The rest of the parameters needed to interpret the result are stored in the OctaveModbusWrapper object
+uint8_t OctaveModbusWrapper::InterpretResult(uint8_t errorCode, HardwareSerial &Serial) {
+    // Print the function name
+    Serial.print(functionCodeToName[lastUsedFunctionCode]);
+    Serial.print(": ");
+    // If there was an error, print it
+    if (errorCode != 0) PrintError(errorCode, Serial);
+    else {
+        // If it was a write request, just print that it's done
+        if (_numRegisterstoRead == 0) Serial.println("Done writing");
+        // For read requests, print the received value
+        else {
+            // 32- and 64-bit values don't need to be interpreted, just print them
+            if (_signedResponseSizeinBits == 32) Serial.println(uint32Buffer);
+            else if (_signedResponseSizeinBits == -32) Serial.println(int32Buffer);
+            else if (_signedResponseSizeinBits == -64) PrintDouble(doubleBuffer, Serial);
+            // Interpret the value if it's 16-bits
+            else {
+                // If there is more than 1 int16 value, it means that we're reading the Serial
+                if (_numRegisterstoRead > 1) PrintSerial(int16Buffer, Serial);
+                // If only 1 int16 was requested
+                else {
+                    // Print the value
+                    Serial.print(int16Buffer[0]);
+
+                    // Print value interpretation for the functions that require it
+                    if (lastUsedFunctionCode == functionNameToCode["VolumeUnit"]){
+                        // Leave space for the interpretation
+                        Serial.print(": ");
+                        Serial.println(volumeUnitCodeToName[int16Buffer[0]]);
+                    }
+                    else if (lastUsedFunctionCode == functionNameToCode["FlowUnit"]){
+                        // Leave space for the interpretation
+                        Serial.print(": ");
+                        Serial.println(flowUnitCodeToName[int16Buffer[0]]);
+                    }
+                    else if ((lastUsedFunctionCode == functionNameToCode["ReadVolumeResIndex"]) || (lastUsedFunctionCode == functionNameToCode["ReadFlowResIndex"])){
+                        // Leave space for the interpretation
+                        Serial.print(": ");
+                        Serial.println(resolutionCodeToName[int16Buffer[0]]);
+                    }
+                    else if (lastUsedFunctionCode == functionNameToCode["TemperatureUnit"]){
+                        // Leave space for the interpretation
+                        Serial.print(": ");
+                        Serial.println(temperatureUnitCodeToName[int16Buffer[0]]);
+                    }
+                    else if (lastUsedFunctionCode == functionNameToCode["FlowDirection"]){
+                        // Leave space for the interpretation
+                        Serial.print(": ");
+                        Serial.println(flowDirectionCodeToName[int16Buffer[0]]);
+                    }
+                    else if (lastUsedFunctionCode == functionNameToCode["ReadAlarms"]){
+                        PrintAlarms(int16Buffer[0], Serial);
+                    }
+                }
+            }
+        }
+    }
+
+    // Return the error code for convenience
+    return errorCode;
 }
