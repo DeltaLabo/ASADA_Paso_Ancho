@@ -4,7 +4,8 @@ import csv
 from datetime import datetime
 
 # Especifica la ubicación del directorio para los archivos CSV
-csv_directory = "C:\\Users\\ASQ\\OneDrive - Estudiantes ITCR\\Semestre 2-2023\\Delta"
+#csv_directory = "C:\\Users\\ASQ\\OneDrive - Estudiantes ITCR\\Semestre 2-2023\\Delta"`
+csv_directory = "C:\\Users\\antho\\Delta\\ASADA_Paso_Ancho"
 
 # Abre un archivo CSV para guardar los datos
 def open_csv_file():
@@ -20,7 +21,7 @@ def open_csv_file():
     return csv_file_path
 
 # Configura la comunicación serie
-ser = serial.Serial('COM12', 115200)  # Ajusta el puerto y la velocidad según tu configuración
+ser = serial.Serial('COM24', 115200)  # Ajusta el puerto y la velocidad según tu configuración
 
 # Abre un archivo CSV para guardar los datos
 current_csv_path = open_csv_file()
