@@ -220,6 +220,7 @@ uint8_t OctaveModbusWrapper::InterpretResult(uint8_t errorCode, HardwareSerial &
                     else if (lastUsedFunctionCode == functionNameToCode["ReadAlarms"]){
                         PrintAlarms(int16Buffer[0], Serial);
                     }
+                    else Serial.println();  
                 }
             }
         }
