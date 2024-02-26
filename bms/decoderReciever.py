@@ -15,7 +15,8 @@ def open_csv_file():
 
     with open(csv_file_path, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile, delimiter=",")
-        column_names = ["Header", "Timestamp", "RSSI", "Voltaje", "Corriente", "%Restante"] + [f"Voltaje {i}" for i in range(1, 5)] + ["Tail"]
+        column_names = ["Header", "Timestamp", "RSSI", "Voltaje", "Corriente", "%Restante"] + [f"Voltaje {i}" for i in range(1, 5)] 
+        + ["Caudal"] + ["Volumen"] + ["Altura"] + ["Tail"]
         csvwriter.writerow(column_names)  # Escribe los nombres de las columnas en la primera fila
 
     return csv_file_path
@@ -44,9 +45,18 @@ while True:
                 voltaje2 = int(hex_values[9] + hex_values[10].lstrip("0x").rjust(2, '0'),16) / 1000
                 voltaje3 = int(hex_values[11] + hex_values[12].lstrip("0x").rjust(2, '0'),16) / 1000
                 voltaje4 = int(hex_values[13] + hex_values[14].lstrip("0x").rjust(2, '0'),16) / 1000
+                caudal = int(hex_values[15] + hex_values[16].lstrip("0x").rjust(2, '0'),16) / 100
+                volumen = (int(hex_values[17] 
+                + hex_values[18].lstrip("0x").rjust(2, '0')
+                + hex_values[19].lstrip("0x").rjust(2, '0')
+                + hex_values[20].lstrip("0x").rjust(2, '0'),16) / 100)
+                altura = int(hex_values[21] + hex_values[22].lstrip("0x").rjust(2, '0'),16) / 100
                 tail = hex_values[-2] + hex_values[-1].strip("0x")
                 # Combina RSSI y los valores hexadecimales en una sola lista
-                row_data = [header]+[timestamp]+[rssi]+[voltaje]+[current]+[per]+[voltaje1]+[voltaje2]+[voltaje3]+[voltaje4]+[tail]
+                row_data = ([header]+[timestamp]+[rssi]+[voltaje]+[current]+[per]
+                +[voltaje1]+[voltaje2]+[voltaje3]+[voltaje4]
+                +[caudal] +[volumen] +[altura]
+                +[tail])
 
                 # Se verifica si ya se cambió de hora
                 new_hour = datetime.now().strftime("%H")
