@@ -183,6 +183,13 @@ void loop() {
         WaterHeightArr.calculateAverage();
         avgWaterHeight = WaterHeightArr.int16array;
 
+        Serial.print("SigCurFlow: ");
+        Serial.println(avgSignedCurrentFlow, HEX);
+        Serial.print("NetSigVol: ");
+        Serial.println(avgNetSignedVolume, HEX);
+        Serial.print("WaterHt: ");
+        Serial.println(avgWaterHeight, HEX);
+
         LoRaSend();
 
         // Restart time counter
@@ -214,22 +221,22 @@ int i = 0;
   }
 
   // Copia el caudal, separado en bytes con el orden AB
-  DatosExtendidos[2 + 13 - 1] = (byte)(avgSignedCurrentFlow >> 8);
-  DatosExtendidos[2 + 13 + 1 - 1] = (byte)(avgSignedCurrentFlow);
+  DatosExtendidos[2 + 13 + 1 - 1] = (byte)(avgSignedCurrentFlow >> 8);
+  DatosExtendidos[2 + 13 + 2 - 1] = (byte)(avgSignedCurrentFlow);
 
   // Copia el volumen, separado en bytes con el orden ABCD
-  DatosExtendidos[2 + 13 + 2 - 1] = (byte)(avgNetSignedVolume >> 32);
-  DatosExtendidos[2 + 13 + 3 - 1] = (byte)(avgNetSignedVolume >> 16);
-  DatosExtendidos[2 + 13 + 4 - 1] = (byte)(avgNetSignedVolume >> 8);
-  DatosExtendidos[2 + 13 + 5- 1] = (byte)(avgNetSignedVolume);
+  DatosExtendidos[2 + 13 + 3 - 1] = (byte)(avgNetSignedVolume >> 32);
+  DatosExtendidos[2 + 13 + 4 - 1] = (byte)(avgNetSignedVolume >> 16);
+  DatosExtendidos[2 + 13 + 5 - 1] = (byte)(avgNetSignedVolume >> 8);
+  DatosExtendidos[2 + 13 + 6- 1] = (byte)(avgNetSignedVolume);
 
   // Copia la altura, separada en bytes con el orden AB
-  DatosExtendidos[2 + 13 + 6 - 1] = (byte)(avgWaterHeight >> 8);
-  DatosExtendidos[2 + 13 + 7 - 1] = (byte)(avgWaterHeight);
+  DatosExtendidos[2 + 13 + 7 - 1] = (byte)(avgWaterHeight >> 8);
+  DatosExtendidos[2 + 13 + 8 - 1] = (byte)(avgWaterHeight);
 
   // Se agregan los espacios reserved
   for (i = 0; i < 75; i++) {
-    DatosExtendidos[i + 15] = (i & 0xFF);
+    DatosExtendidos[i + 15 + 8] = (i & 0xFF);
   }
 
   // Copia el pie al final
@@ -237,6 +244,7 @@ int i = 0;
     DatosExtendidos[i + 98] = tail[i];
   }
 
+  /*
   //Se imprimen los datos obtenidos que son de utilidad
   Serial.print("Datos en el loop para transmisión: ");
   for(i=0; i<sizeof(DatosUtilesBateria); i++){
@@ -245,6 +253,7 @@ int i = 0;
       Serial.print(" ");
     }
   Serial.println(" ");
+  */
 
   //Se envía la cadena de datos por LoRa
   send(DatosExtendidos, 100);
