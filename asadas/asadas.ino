@@ -34,6 +34,7 @@ class AverageCalculator {
     // Append an int16 value to the array
     void append(int16_t value) {
       int16array[counter] = value;
+
       // Update the data point counter
       counter = counter + 1;
     }
@@ -53,10 +54,10 @@ class AverageCalculator {
           sum = sum + int16array[i];
         }
 
-        // Reset the counter
-        counter = 0;
         // Take the average
         int16avg = sum / (counter * 1.0);
+        // Reset the counter
+        counter = 0;
       }
       else if (dataSize == 32) {
         // Calculate the sum of all data points in the array
@@ -65,10 +66,10 @@ class AverageCalculator {
           sum = sum + int32array[i];
         }
 
-        // Reset the counter
-        counter = 0;
         // Take the average
         int32avg = sum / (counter * 1.0);
+        // Reset the counter
+        counter = 0;
       }
     }
 };
@@ -127,6 +128,8 @@ void setup() {
 
   randomSeed(analogRead(2));
 
+  pinMode(heightSensorPin, INPUT);
+
   // Wait 500ms for Modbus startup
   delay(500);
 }
@@ -157,10 +160,12 @@ void loop() {
 
     // Read height sensor value at the polling frequency
     if (currentMillis - heightTimeCounter >= HEIGHT_POLLING_FREQ_MS) {
-        // Read water level height from analog input and scale it between 0-5.0 meters
-        waterHeight = (analogRead(heightSensorPin)/1023.0)*5.0;
+        // Read water level height from analog input and scale it between 0-5.0 meters`
+        int sensorValue = analogRead(heightSensorPin);
+        waterHeight = (sensorValue/1023.0)*5.0;
         // Multiply by 100 to preserve two decimal places, then truncate to 16 bits
         int16_t truncatedWaterHeight = waterHeight * 100;
+
         WaterHeightArr.append(truncatedWaterHeight);
 
         // Restart time counter
@@ -172,22 +177,28 @@ void loop() {
         // Calculate averages
         /*
         SignedCurrentFlowArr.calculateAverage();
-        avgSignedCurrentFlow = SignedCurrentFlowArr.int16array;
+        avgSignedCurrentFlow = SignedCurrentFlowArr.int16avg;
 
         NetSignedVolumeArr.calculateAverage();
-        avgNetSignedVolume = NetSignedVolumeArr.int32array;
+        avgNetSignedVolume = NetSignedVolumeArr.int32avg;
         */
-        avgSignedCurrentFlow = random(200, 6000 + 1);
-        avgNetSignedVolume = random(1000000, 5000000 + 1);
+        avgSignedCurrentFlow = random(3800, 4200 + 1);
+        avgNetSignedVolume = random(1000000, 1200000 + 1);
 
         WaterHeightArr.calculateAverage();
-        avgWaterHeight = WaterHeightArr.int16array;
+        avgWaterHeight = WaterHeightArr.int16avg;
 
-        Serial.print("SigCurFlow: ");
+        Serial.print("Caudal promedio (x100): ");
+        Serial.print(avgSignedCurrentFlow);
+        Serial.print(", hex: ");
         Serial.println(avgSignedCurrentFlow, HEX);
-        Serial.print("NetSigVol: ");
+        Serial.print("Volumen promedio (x100): ");
+        Serial.print(avgNetSignedVolume);
+        Serial.print(", hex: ");
         Serial.println(avgNetSignedVolume, HEX);
-        Serial.print("WaterHt: ");
+        Serial.print("Altura promedio (x100): ");
+        Serial.print(avgWaterHeight);
+        Serial.print(", hex: ");
         Serial.println(avgWaterHeight, HEX);
 
         LoRaSend();
