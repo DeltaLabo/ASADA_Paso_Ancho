@@ -1,6 +1,3 @@
-// Frequency for sending Modbus requests to the slave
-#define POLLING_FREQ_MS 1000 // ms
-
 #include "RS485.h"
 #include "OctaveModbusWrapper.h"
 
