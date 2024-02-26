@@ -4,60 +4,77 @@
 #include "recolectarDatosBateria.h"
 #include "LoRaSender.h"
 
-
+// Calculates the averages of an array updated in real time
 class AverageCalculator {
   public:
+    // Amount of data points in the array
     int counter;
+    // Maximum size of the array
     int length;
+    // Array data size in bits
     int dataSize;
     int16_t* int16array = NULL;
     int32_t* int32array = NULL;
     int16_t int16avg;
     int32_t int32avg;
 
+    // Constructor
     AverageCalculator(int sampleFreq, int avgFreq, int dataSizeinBits) {
-      length = sampleFreq / avgFreq;
+      // Store as many samples as possible during one average period
+      length = sampleFreq / avgFreq + 5;
+      // Reset the data point counter
       counter = 0;
       dataSize = dataSizeinBits;
 
+      // Allocate memory for data arrays
       if (dataSize == 16) int16array = (int16_t*)malloc(length * sizeof(int16_t));
       else if (dataSize == 32) int32array = (int32_t*)malloc(length * sizeof(int32_t));
     }
 
+    // Append an int16 value to the array
     void append(int16_t value) {
       int16array[counter] = value;
+      // Update the data point counter
       counter = counter + 1;
     }
 
+    // Append an int32 value to the array
     void append(int32_t value) {
       int32array[counter] = value;
+      // Update the data point counter
       counter = counter + 1;
     }
 
     void calculateAverage() {
       if (dataSize == 16) {
+        // Calculate the sum of all data points in the array
         int16_t sum = 0;
         for (int i = 0; i < counter; i++) {
           sum = sum + int16array[i];
         }
 
+        // Reset the counter
         counter = 0;
+        // Take the average
         int16avg = sum / (counter * 1.0);
       }
       else if (dataSize == 32) {
+        // Calculate the sum of all data points in the array
         int32_t sum = 0;
         for (int i = 0; i < counter; i++) {
           sum = sum + int32array[i];
         }
 
+        // Reset the counter
         counter = 0;
+        // Take the average
         int32avg = sum / (counter * 1.0);
       }
     }
 };
 
 // Define the OctaveModbusWrapper object, using the RS-485 port for Modbus and Serial0 for logging
-OctaveModbusWrapper octave(RS485);
+//OctaveModbusWrapper octave(RS485);
 
 // Variable to store the last error code
 uint8_t modbusErrorCode;
@@ -103,10 +120,12 @@ void setup() {
 
   // Start the Modbus serial port
   // SERIAL_8N1: 8 bits, no parity, 1 stop bit
-  RS485.begin(octave.modbusBaudrate, HALFDUPLEX, SERIAL_8N1);
+  //RS485.begin(octave.modbusBaudrate, HALFDUPLEX, SERIAL_8N1);
 
   // Start the Octave Modbus object
-  octave.begin();
+  //octave.begin();
+
+  randomSeed(analogRead(2));
 
   // Wait 500ms for Modbus startup
   delay(500);
@@ -116,6 +135,7 @@ void setup() {
 void loop() {
     uint32_t currentMillis = millis();  // Get the current time
 
+    /*
     // Send Modbus requests to the Octave meter at the polling frequency
     if (currentMillis - modbusTimeCounter >= MODBUS_POLLING_FREQ_MS) {
         // Read Signed Current Flow from Octave meter via Modbus
@@ -133,6 +153,7 @@ void loop() {
         // Restart time counter
         modbusTimeCounter = currentMillis;
     }
+    */
 
     // Read height sensor value at the polling frequency
     if (currentMillis - heightTimeCounter >= HEIGHT_POLLING_FREQ_MS) {
@@ -149,11 +170,15 @@ void loop() {
     // Send collected data via LoRa at the specified interval
     if (currentMillis - LoRaTimeCounter >= LORA_SENDER_FREQ_MS) {
         // Calculate averages
+        /*
         SignedCurrentFlowArr.calculateAverage();
         avgSignedCurrentFlow = SignedCurrentFlowArr.int16array;
 
         NetSignedVolumeArr.calculateAverage();
         avgNetSignedVolume = NetSignedVolumeArr.int32array;
+        */
+        avgSignedCurrentFlow = random(200, 6000 + 1);
+        avgNetSignedVolume = random(1000000, 5000000 + 1);
 
         WaterHeightArr.calculateAverage();
         avgWaterHeight = WaterHeightArr.int16array;
