@@ -1,6 +1,8 @@
 #include "RS485.h"
 #include "OctaveModbusWrapper.h"
 
+#define POLLING_FREQ_MS 1000
+
 // Define the OctaveModbusWrapper object, using the RS-485 port for Modbus and Serial0 for logging
 OctaveModbusWrapper octave(RS485);
 
@@ -13,7 +15,6 @@ bool isFirstLoopIteration = true;
 // Variable to store the last error code
 uint8_t errorCode;
 
-
 void setup() {
   // Set indicator LED pin as output
   // This LED toggles with the same frequency as the Modbus polling, for verification purposes
@@ -25,8 +26,8 @@ void setup() {
   Serial.begin(9600);
 
   // Start the Modbus serial port
-  // SERIAL_8N1: 8 bits, no parity, 1 stop bit
-  RS485.begin(octave.modbusBaudrate, HALFDUPLEX, SERIAL_8N1);
+  // The parity can be set in OctaveModbusWrapper.h
+  RS485.begin(octave.modbusBaudrate, HALFDUPLEX, PARITY);
 
   // Start the Octave Modbus object
   octave.begin();
