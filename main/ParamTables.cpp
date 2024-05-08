@@ -123,10 +123,11 @@ void OctaveModbusWrapper::InitMaps() {
 void OctaveModbusWrapper::PrintSerial(int16_t registers[16], HardwareSerial &Serial) {
     // Loop through the response and print each register
     for (int i = 0; i < 16; i++){
-        // Convert the ASCII code to a char
-        Serial.print(char(registers[i]));
-        // Leave space for the next char
-        Serial.print(' ');
+        if (registers[i] >= 48 && registers[i] <= 57)
+        {
+          // Convert the ASCII code to a char
+          Serial.print(char(registers[i]));
+        }
     }
     Serial.println();
 }
