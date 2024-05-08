@@ -75,7 +75,7 @@ class AverageCalculator {
 };
 
 // Define the OctaveModbusWrapper object, using the RS-485 port for Modbus and Serial0 for logging
-//OctaveModbusWrapper octave(RS485);
+OctaveModbusWrapper octave(RS485);
 
 // Variable to store the last error code
 uint8_t modbusErrorCode;
@@ -120,13 +120,10 @@ void setup() {
   senderStart();
 
   // Start the Modbus serial port
-  // SERIAL_8N1: 8 bits, no parity, 1 stop bit
-  //RS485.begin(octave.modbusBaudrate, HALFDUPLEX, SERIAL_8N1);
+  RS485.begin(octave.modbusBaudrate, HALFDUPLEX, PARITY);
 
   // Start the Octave Modbus object
-  //octave.begin();
-
-  randomSeed(analogRead(2));
+  octave.begin();
 
   pinMode(heightSensorPin, INPUT);
 
@@ -138,7 +135,6 @@ void setup() {
 void loop() {
     uint32_t currentMillis = millis();  // Get the current time
 
-    /*
     // Send Modbus requests to the Octave meter at the polling frequency
     if (currentMillis - modbusTimeCounter >= MODBUS_POLLING_FREQ_MS) {
         // Read Signed Current Flow from Octave meter via Modbus
@@ -156,7 +152,6 @@ void loop() {
         // Restart time counter
         modbusTimeCounter = currentMillis;
     }
-    */
 
     // Read height sensor value at the polling frequency
     if (currentMillis - heightTimeCounter >= HEIGHT_POLLING_FREQ_MS) {
@@ -175,15 +170,11 @@ void loop() {
     // Send collected data via LoRa at the specified interval
     if (currentMillis - LoRaTimeCounter >= LORA_SENDER_FREQ_MS) {
         // Calculate averages
-        /*
         SignedCurrentFlowArr.calculateAverage();
         avgSignedCurrentFlow = SignedCurrentFlowArr.int16avg;
 
         NetSignedVolumeArr.calculateAverage();
         avgNetSignedVolume = NetSignedVolumeArr.int32avg;
-        */
-        avgSignedCurrentFlow = random(3800, 4200 + 1);
-        avgNetSignedVolume = random(1000000, 1200000 + 1);
 
         WaterHeightArr.calculateAverage();
         avgWaterHeight = WaterHeightArr.int16avg;
@@ -209,7 +200,7 @@ void loop() {
 }
 
 void LoRaSend() {
-int i = 0;
+  int i = 0;
   //Se llama a la función pedidoUtil para recolectar los datos de la batería
   byte DatosUtilesBateria[13];
   pedidoUtil(DatosUtilesBateria);
