@@ -1,10 +1,13 @@
 #include "OctaveModbusWrapper.h"
 
+// Initialize Serial interface used for Modbus communication
 OctaveModbusWrapper::OctaveModbusWrapper(HardwareSerial &modbusSerial) : _master(modbusSerial){}
 
+
 void OctaveModbusWrapper::begin() {
-    // Start the modbus _master object
+  // Initialize name-to-code and code-to-name mappings to interpret readings
   InitMaps();
+  // Start the modbus _master object
 	_master.begin(MODBUS_BAUDRATE);
 }
 
@@ -74,7 +77,8 @@ void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
     }
 
     if (_signedResponseSizeinBits == 32){
-      // The value is split into AB CD, combine it into ABCD and save it to the buffer
+      // 32 bit values are split into AB CD bytes, according to the memory map
+      // Combine them into ABCD and save them to the buffer
       uint32Buffer = (static_cast<unsigned long>(response->getRegister(0)) << 16) + static_cast<unsigned long>(response->getRegister(1));
 
       // Clear the unused buffers
@@ -82,7 +86,8 @@ void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
       doubleBuffer = 0.0;
     }
     else if (_signedResponseSizeinBits == -32){
-      // The value is split into AB CD, combine it into ABCD and save it to the buffer
+      // 32 bit values are split into AB CD bytes, according to the memory map
+      // Combine them into ABCD and save them to the buffer
       int32Buffer = (static_cast<unsigned long>(response->getRegister(0)) << 16) + static_cast<unsigned long>(response->getRegister(1));
 
       // Clear the unused buffers
@@ -95,7 +100,8 @@ void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
       int32Buffer = 0;
       uint32Buffer = 0;
 
-      // The value is stored in HG FE DC BA order, rearrange it to ABCDEFGH and save it to the buffer
+      // 64 bit values are split into HG FE DC BA bytes, according to the memory map
+      // Combine them into ABCDEFGH and save them to the buffer
       doubleBuffer = (static_cast<unsigned long long>(((response->getRegister(3) >> 8) | (response->getRegister(3) << 8))) << 48)
               + (static_cast<unsigned long long>(( (response->getRegister(2) >> 8) | (response->getRegister(2) << 8))) << 32)
               + (static_cast<unsigned long long>(( (response->getRegister(1) >> 8) | (response->getRegister(1) << 8))) << 16)
@@ -164,6 +170,7 @@ uint8_t truncateDoubleto16bits(float64_t &input, int16_t &output){
     // Error code 7: 16-bit Underflow
     return 7;
   }
+  // If there were no Overflow or Underflow errors
   else {
     // Scale, then cast to int16
     output = fp64_to_int16(fp64_mul(input, fp64_atof(SCALE_FACTOR)));
@@ -189,6 +196,7 @@ uint8_t truncateDoubleto32bits(float64_t &input, int32_t &output){
     // Error code 9: 32-bit Underflow
     return 9;
   }
+  // If there were no Overflow or Underflow errors
   else {
     // Scale, then cast to int16
     output = fp64_to_int32(fp64_mul(input, fp64_atof(SCALE_FACTOR)));
@@ -234,6 +242,7 @@ uint8_t truncateDoubleto32bits(float64_t &input, int32_t &output){
 
 
 /****** Octave Modbus Requests ******/
+// Parameter format: start address in the Modbus memory map, number of values to request, signed value size in bits
 uint8_t OctaveModbusWrapper::ReadAlarms() {
   return BlockingReadRegisters(0x0, 1, 16);
 }

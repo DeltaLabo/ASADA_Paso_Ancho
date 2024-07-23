@@ -1,6 +1,7 @@
 #include "ParamTables.h"
 
-// Initialize all name-to-code maps
+// Initialize all name-to-code mappings
+// All codes were defined by Arad in the Octave Modbus memory map and are the same for all compatible meters
 void OctaveModbusWrapper::InitMaps() {
     flowUnitNameToCode["Cubic Meters/Hour"] = 0;
     flowUnitNameToCode["Gallons/Minute"] = 1;
@@ -47,7 +48,9 @@ void OctaveModbusWrapper::InitMaps() {
     flowDirectionNameToCode["Forward flow"] = 1;
     flowDirectionNameToCode["Backward flow"] = 2;
 
-    // Format: (Modbus function code << 8) + Start Address
+    // Format: (Modbus function code << 8) + Start memory address
+    // The function codes are 04 for Read Input Registers and
+    // 06 for Write Single Register
     functionNameToCode["ReadAlarms"] = 0x0400;
     functionNameToCode["SerialNumber"] = 0x0401;
     functionNameToCode["ReadWeekday"] = 0x0411;
@@ -83,16 +86,19 @@ void OctaveModbusWrapper::InitMaps() {
     functionNameToCode["WriteVolumeResIndex"] = 0x0607;
     functionNameToCode["WriteFlowResIndex"] = 0x0608;
 
+    // Modbus error codes
     errorCodeToName[0] = "No error";
     errorCodeToName[1] = "Illegal Modbus Function";
     errorCodeToName[2] = "Illegal Modbus Data Address";
     errorCodeToName[3] = "Illegal Modbus Data Value";
     errorCodeToName[4] = "Modbus Server Device Failure";
     errorCodeToName[5] = "Modbus Timeout";
+    // Number compression error codes
     errorCodeToName[6] = "16-bit Overflow";
     errorCodeToName[7] = "16-bit Underflow";
     errorCodeToName[8] = "32-bit Overflow";
     errorCodeToName[9] = "32-bit Underflow";
+    // Modbus error code
     errorCodeToName[10] = "Invalid Resolution Index";
 
     // Create the reverse mappings
@@ -123,6 +129,7 @@ void OctaveModbusWrapper::InitMaps() {
 void OctaveModbusWrapper::PrintSerial(int16_t registers[16], HardwareSerial &Serial) {
     // Loop through the response and print each register
     for (int i = 0; i < 16; i++){
+        // Only print printable characters (indices 48-57 of the ASCII table)
         if (registers[i] >= 48 && registers[i] <= 57)
         {
           // Convert the ASCII code to a char
@@ -140,7 +147,8 @@ void OctaveModbusWrapper::PrintAlarms(int16_t alarms, HardwareSerial &Serial) {
     else{
         // Bit-wise error check
         for (int j = 0; j < sizeof(alarmsIndices) / sizeof(alarmsIndices[0]); j++) {
-            // If the (i+1)-th bit is set, print the corresponding error message
+            // If the (j+1)-th bit is set, print the corresponding error message
+            // That is, the error codes correspond to the bit indices that are set to 1
             if ((alarms & (1 << alarmsIndices[j])) != 0) {
                 Serial.print(alarmCodeToName[alarmsIndices[j]]);
                 Serial.print(" ");

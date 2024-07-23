@@ -1,5 +1,5 @@
 #include "RS485.h"
-#include "OctaveModbusWrapper.h"
+#include "src/OctaveModbusWrapper/OctaveModbusWrapper.h"
 #include "frequencies.h"
 #include "recolectarDatosBateria.h"
 #include "LoRaSender.h"
@@ -139,6 +139,8 @@ void loop() {
     if (currentMillis - modbusTimeCounter >= MODBUS_POLLING_FREQ_MS) {
         // Read Signed Current Flow from Octave meter via Modbus
         octave.SignedCurrentFlow(64);
+        octave.ForwardVolume(32);
+        octave.uint32Buffer;
         // Multiply by 100 to preserve two decimal places, then truncate to 16 bits
         int16_t truncatedSignedCurrentFlow = octave.doubleBuffer * 100;
         SignedCurrentFlowArr.append(truncatedSignedCurrentFlow);
