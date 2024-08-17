@@ -139,13 +139,12 @@ void loop() {
     if (currentMillis - modbusTimeCounter >= MODBUS_POLLING_FREQ_MS) {
         // Read Signed Current Flow from Octave meter via Modbus
         octave.SignedCurrentFlow(64);
-        octave.ForwardVolume(32);
         octave.uint32Buffer;
         // Multiply by 100 to preserve two decimal places, then truncate to 16 bits
         int16_t truncatedSignedCurrentFlow = octave.doubleBuffer * 100;
         SignedCurrentFlowArr.append(truncatedSignedCurrentFlow);
 
-        // Read Signed Current Flow from Octave meter via Modbus
+        // Read Net Signed Volume from Octave meter via Modbus
         octave.NetSignedVolume(64);
         // Multiply by 100 to preserve two decimal places, then truncate to 32 bits
         int32_t truncatedNetSignedVolume = octave.doubleBuffer * 100;
