@@ -2,7 +2,7 @@
 #define __OctaveModbusWrapper_H__
 
 #include <Arduino.h>
-#include "../ModbusRTUMaster.h"
+#include "M-Duino/ModbusRTUMaster.h"
 #include <fp64lib.h>
 #include <stdint.h>
 #include <ArduinoSTL.h>
@@ -115,7 +115,7 @@ class OctaveModbusWrapper {
         uint16_t lastUsedFunctionCode = 0;
 
         uint32_t modbusBaudrate = MODBUS_BAUDRATE;
-    
+
     private:
         ModbusRTUMaster _master;
 
