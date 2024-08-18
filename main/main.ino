@@ -1,8 +1,10 @@
-#include "RS485.h"
+#include <HardwareSerial.h>
 #include "src/OctaveModbusWrapper/OctaveModbusWrapper.h"
 #include "frequencies.h"
 #include "recolectarDatosBateria.h"
 #include "LoRaSender.h"
+
+#include "pins.h"
 
 // Calculates the averages of an array updated in real time
 class AverageCalculator {
@@ -74,7 +76,10 @@ class AverageCalculator {
     }
 };
 
-// Define the OctaveModbusWrapper object, using the RS-485 port for Modbus and Serial0 for logging
+// Define the HardwareSerial used as an RS-485 port
+HardwareSerial RS485(0);
+
+// Define the OctaveModbusWrapper object, using the RS-485 port for Modbus
 OctaveModbusWrapper octave(RS485);
 
 // Variable to store the last error code
@@ -120,7 +125,14 @@ void setup() {
   senderStart();
 
   // Start the Modbus serial port
-  RS485.begin(octave.modbusBaudrate, HALFDUPLEX, PARITY);
+  RS485.begin(octave.modbusBaudrate, PARITY, RS485_RX_PIN, RS485_TX_PIN);
+  // Set RTS pin
+  RS485.setPins(RS485_RX_PIN, RS485_TX_PIN, -1, RS485_RTS_PIN);
+  // Disable hardware flow control, as required by the documentation,
+  // and set the TX buffer size threshold to 128 bytes (maximum value)
+  RS485.setHwFlowCtrlMode(UART_HW_FLOWCTRL_DISABLE, 128);
+  // Enable half-duplex flow control
+  RS485.setMode(UART_MODE_RS485_HALF_DUPLEX);
 
   // Start the Octave Modbus object
   octave.begin();
