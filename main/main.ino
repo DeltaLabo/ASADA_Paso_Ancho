@@ -77,7 +77,7 @@ class AverageCalculator {
 };
 
 // Define the HardwareSerial used as an RS-485 port
-HardwareSerial RS485(0);
+HardwareSerial RS485(1);
 
 // Define the OctaveModbusWrapper object, using the RS-485 port for Modbus
 OctaveModbusWrapper octave(RS485);
@@ -120,8 +120,8 @@ void setup() {
   // Use Serial0 port for debugging and logging
   Serial.begin(9600);
 
-  // Use Serial1 port for LoRa communication
-  Serial1.begin(9600);
+  // Use Serial2 port for LoRa communication
+  Serial2.begin(9600);
   senderStart();
 
   // Start the Modbus serial port
