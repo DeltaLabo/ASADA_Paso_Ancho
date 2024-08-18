@@ -2,7 +2,7 @@
 #define __OctaveModbusWrapper_H__
 
 #include <Arduino.h>
-#include "M-Duino/ModbusRTUMaster.h"
+#include "IndustrialShields/ModbusRTUMaster.h"
 #include <fp64lib.h>
 #include <stdint.h>
 #include <ArduinoSTL.h>
