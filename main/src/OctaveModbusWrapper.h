@@ -3,12 +3,10 @@
 
 #include <Arduino.h>
 #include "IndustrialShields/ModbusRTUMaster.h"
-#include <fp64lib.h>
 #include <stdint.h>
-#include <ArduinoSTL.h>
+#include <cstdlib>
 #include <map>
 #include "ParamTables.h"
-#include "RS485.h"
 
 /****** Modbus settings ******/
 #define MODBUS_BAUDRATE 2400
@@ -49,7 +47,7 @@ class OctaveModbusWrapper {
         uint8_t BlockingWriteSingleRegister(uint8_t memAddress, int16_t value);
 
         // Helper functions to print special data types
-        void PrintDouble(float64_t &number, HardwareSerial &Serial);
+        void PrintDouble(double &number, HardwareSerial &Serial);
         void PrintSerial(int16_t registers[16], HardwareSerial &Serial);
         void PrintAlarms(int16_t alarms, HardwareSerial &Serial);
         void PrintError(uint8_t errorCode, HardwareSerial &Serial);
@@ -91,7 +89,7 @@ class OctaveModbusWrapper {
         int16_t int16Buffer[16];
         int32_t int32Buffer;
         uint32_t uint32Buffer;
-        float64_t doubleBuffer;
+        double doubleBuffer;
 
         /****** Parameter maps ********/
         std::map<String, uint8_t> flowUnitNameToCode;

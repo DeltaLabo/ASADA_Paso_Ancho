@@ -154,17 +154,17 @@ uint8_t OctaveModbusWrapper::BlockingWriteSingleRegister(uint8_t memAddress, int
 /******* Utilities ********/
 
 // Truncate 64-bit double to 16 bits
-uint8_t truncateDoubleto16bits(float64_t &input, int16_t &output){
+uint8_t truncateDoubleto16bits(double &input, int16_t &output){
   // Check for overflow or underflow
   // if input > DEC16MAX
-  if (fp64_compare(input, fp64_atof(DEC16_MAX)) == 1) {
+  if (input > strtod(DEC16_MAX, nullptr)) {
     // Output the largest possible value to minimize the error
     output = INT16_MAX;
     // Error code 6: 16-bit Overflow
     return 6;
   }
   // if input < DEC16MIN
-  else if (fp64_compare(input, fp64_atof(DEC16_MIN)) == -1) {
+  else if (input < strtod(DEC16_MIN, nullptr)) {
     // Output the smallest possible value to minimize the error
     output = INT16_MIN;
     // Error code 7: 16-bit Underflow
@@ -173,24 +173,24 @@ uint8_t truncateDoubleto16bits(float64_t &input, int16_t &output){
   // If there were no Overflow or Underflow errors
   else {
     // Scale, then cast to int16
-    output = fp64_to_int16(fp64_mul(input, fp64_atof(SCALE_FACTOR)));
+    output = static_cast<int16_t>(input * strtod(SCALE_FACTOR, nullptr));
     // No error
     return 0;
   }
 }
 
 // Truncate 64-bit double to 32 bits
-uint8_t truncateDoubleto32bits(float64_t &input, int32_t &output){
+uint8_t truncateDoubleto32bits(double &input, int32_t &output){
   // Check for overflow or underflow
   // if input > DEC32MAX
-  if (fp64_compare(input, fp64_atof(DEC32_MAX)) == 1) {
+  if (input > strtod(DEC32_MAX, nullptr)) {
     // Output the largest possible value to minimize the error
     output = INT32_MAX;
     // Error code 8: 32-bit Overflow
     return 8;
   }
   // if input < DEC32MIN
-  else if (fp64_compare(input, fp64_atof(DEC32_MIN)) == -1) {
+  else if (input < strtod(DEC32_MIN, nullptr)) {
     // Output the smallest possible value to minimize the error
     output = INT32_MIN;
     // Error code 9: 32-bit Underflow
@@ -199,13 +199,13 @@ uint8_t truncateDoubleto32bits(float64_t &input, int32_t &output){
   // If there were no Overflow or Underflow errors
   else {
     // Scale, then cast to int16
-    output = fp64_to_int32(fp64_mul(input, fp64_atof(SCALE_FACTOR)));
+    output = static_cast<int32_t>(input * strtod(SCALE_FACTOR, nullptr));
 
     // Re-check for over/underflow in the sign bit, since fp64_compare doesn't work properly with
     // numbers slightly greater/smaller than DEC32_MAX/MIN
 
     // If the signs match
-    if (fp64_signbit(output) == fp64_signbit(input)){
+    if ((output > 0 && input > 0) || (output < 0 && input < 0) || (output == input)){
       // No error
       return 0;
     }
@@ -213,11 +213,11 @@ uint8_t truncateDoubleto32bits(float64_t &input, int32_t &output){
     // If the signs don't match, there was an error
     else {
       // If the input had a negative sign
-      if (fp64_signbit(input) != 0){
+      if (input < 0){
         // If the input was -0.0, special case
-        if (fp64_compare(fp64_abs(input), fp64_atof("0.0")) == 0) {
+        if (std::abs(input) == 0.0) {
           // Remove the sign, the truncation is then complete
-          output = fp64_atof("0.0");
+          output = 0.0;
           // No error
           return 0;
         }
