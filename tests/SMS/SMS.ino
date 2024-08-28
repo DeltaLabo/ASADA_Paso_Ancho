@@ -28,24 +28,24 @@
 #include "Waveshare_SIM7600.h"
 #include <HardwareSerial.h>
 
+#define LTE_TX_PIN D4
+#define LTE_RX_PIN D5
+
 HardwareSerial HwSerial(0);
 
-// Pin definition
-int POWERKEY = 2;
-
-char phone_number[] = "+50683789714";      //********** change it to the phone number you want to call
-char text_message[] = "www.waveshare.com";      //
+char phone_number[] = "+50670077708";      //********** change it to the phone number you want to call
+char text_message[] = "Laboratorio Delta le informa: Gracias por ser un ejemplo de que significa ser una persona increíble";      //
 
 void setup() {
-  HwSerial.begin(9600, SERIAL_8N1, RX, TX);//D8, D7);
+  delay(25000);
+
+  HwSerial.begin(115200, SERIAL_8N1, LTE_RX_PIN, LTE_TX_PIN);
   Serial.begin(9600); // For logging
 
-  sim7600.PowerOn(POWERKEY);
-  Serial.print("Sending Short Message Test:\n");
+  Serial.println("Sending Short Message Test.");
+
+  sim7600.PowerOn();
   sim7600.SendingShortMessage(phone_number,text_message);
-  //printf("Receiving Short Message Test:\n");
-  //printf("Please send message to phone %s.\n", phone_number);
-  //sim7600.ReceivingShortMessage();
 }
 
 
