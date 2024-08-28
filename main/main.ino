@@ -1,8 +1,9 @@
 #include <HardwareSerial.h>
-#include "src/OctaveModbusWrapper/OctaveModbusWrapper.h"
+#include "src/OctaveModbusWrapper.h"
 #include "frequencies.h"
 #include "recolectarDatosBateria.h"
-#include "LoRaSender.h"
+#include <cstdlib>
+#include <stdlib.h>
 
 #include "pins.h"
 
@@ -102,8 +103,6 @@ int16_t avgSignedCurrentFlow;
 AverageCalculator NetSignedVolumeArr(MODBUS_POLLING_FREQ_MS, LORA_SENDER_FREQ_MS, 32);
 int32_t avgNetSignedVolume;
 
-const int heightSensorPin = A0;
-
 // Water level height, in meters
 float waterHeight = 0.0;
 // Water level height, in meters, truncated to 16 bits
@@ -111,18 +110,11 @@ AverageCalculator WaterHeightArr(HEIGHT_POLLING_FREQ_MS, LORA_SENDER_FREQ_MS, 16
 int16_t avgWaterHeight;
 
 void setup() {
-  // Set indicator LED pin as output
-  // This LED toggles with the same frequency as the Modbus polling, for verification purposes
-  pinMode(40, OUTPUT);
-  // Initialize the indicator LED's state
-  digitalWrite(40, LOW);
-
   // Use Serial0 port for debugging and logging
   Serial.begin(9600);
 
   // Use Serial2 port for LoRa communication
-  Serial2.begin(9600);
-  senderStart();
+  //Serial2.begin(9600);
 
   // Start the Modbus serial port
   RS485.begin(octave.modbusBaudrate, PARITY, RS485_RX_PIN, RS485_TX_PIN);
@@ -137,7 +129,7 @@ void setup() {
   // Start the Octave Modbus object
   octave.begin();
 
-  pinMode(heightSensorPin, INPUT);
+  pinMode(HEIGHT_SENSOR_PIN, INPUT);
 
   // Wait 500ms for Modbus startup
   delay(500);
@@ -151,7 +143,6 @@ void loop() {
     if (currentMillis - modbusTimeCounter >= MODBUS_POLLING_FREQ_MS) {
         // Read Signed Current Flow from Octave meter via Modbus
         octave.SignedCurrentFlow(64);
-        octave.uint32Buffer;
         // Multiply by 100 to preserve two decimal places, then truncate to 16 bits
         int16_t truncatedSignedCurrentFlow = octave.doubleBuffer * 100;
         SignedCurrentFlowArr.append(truncatedSignedCurrentFlow);
@@ -169,7 +160,7 @@ void loop() {
     // Read height sensor value at the polling frequency
     if (currentMillis - heightTimeCounter >= HEIGHT_POLLING_FREQ_MS) {
         // Read water level height from analog input and scale it between 0-5.0 meters`
-        int sensorValue = analogRead(heightSensorPin);
+        int sensorValue = analogRead(HEIGHT_SENSOR_PIN);
         waterHeight = (sensorValue/1023.0)*5.0;
         // Multiply by 100 to preserve two decimal places, then truncate to 16 bits
         int16_t truncatedWaterHeight = waterHeight * 100;
@@ -192,7 +183,7 @@ void loop() {
         WaterHeightArr.calculateAverage();
         avgWaterHeight = WaterHeightArr.int16avg;
 
-        Serial.print("Caudal promedio (x100): ");
+        Serial.print("\nCaudal promedio (x100): ");
         Serial.print(avgSignedCurrentFlow);
         Serial.print(", hex: ");
         Serial.println(avgSignedCurrentFlow, HEX);
@@ -205,71 +196,7 @@ void loop() {
         Serial.print(", hex: ");
         Serial.println(avgWaterHeight, HEX);
 
-        LoRaSend();
-
         // Restart time counter
         LoRaTimeCounter = currentMillis;
     }
-}
-
-void LoRaSend() {
-  int i = 0;
-  //Se llama a la función pedidoUtil para recolectar los datos de la batería
-  byte DatosUtilesBateria[13];
-  pedidoUtil(DatosUtilesBateria);
-
-  // Se define el header y el tail
-  byte header[2] = {0xAA, 0xDD};
-  byte tail[2] = {0xFF, 0x77};
-
-  // Crea un nuevo array para los datos extendidos
-  byte DatosExtendidos[100]; // 2 (header) + 13 (datos bateria) + 6 (datos Octave) + 2 (datos altura) + 75 (reserved) + 2 (tail) = 100 bytes
-
-  // Copia el encabezado al principio
-  for (i = 0; i < 2; i++) {
-    DatosExtendidos[i] = header[i];
-  }
-
-  // Copia los datos de la batería después del encabezado
-  for (i = 0; i < 13; i++) {
-    DatosExtendidos[i + 2] = DatosUtilesBateria[i];
-  }
-
-  // Copia el caudal, separado en bytes con el orden AB
-  DatosExtendidos[2 + 13 + 1 - 1] = (byte)(avgSignedCurrentFlow >> 8);
-  DatosExtendidos[2 + 13 + 2 - 1] = (byte)(avgSignedCurrentFlow);
-
-  // Copia el volumen, separado en bytes con el orden ABCD
-  DatosExtendidos[2 + 13 + 3 - 1] = (byte)(avgNetSignedVolume >> 32);
-  DatosExtendidos[2 + 13 + 4 - 1] = (byte)(avgNetSignedVolume >> 16);
-  DatosExtendidos[2 + 13 + 5 - 1] = (byte)(avgNetSignedVolume >> 8);
-  DatosExtendidos[2 + 13 + 6- 1] = (byte)(avgNetSignedVolume);
-
-  // Copia la altura, separada en bytes con el orden AB
-  DatosExtendidos[2 + 13 + 7 - 1] = (byte)(avgWaterHeight >> 8);
-  DatosExtendidos[2 + 13 + 8 - 1] = (byte)(avgWaterHeight);
-
-  // Se agregan los espacios reserved
-  for (i = 0; i < 75; i++) {
-    DatosExtendidos[i + 15 + 8] = (i & 0xFF);
-  }
-
-  // Copia el pie al final
-  for (i = 0; i < 2; i++) {
-    DatosExtendidos[i + 98] = tail[i];
-  }
-
-  /*
-  //Se imprimen los datos obtenidos que son de utilidad
-  Serial.print("Datos en el loop para transmisión: ");
-  for(i=0; i<sizeof(DatosUtilesBateria); i++){
-      if(DatosUtilesBateria[i] < 16) Serial.print("0");
-      Serial.print(DatosUtilesBateria[i],HEX);
-      Serial.print(" ");
-    }
-  Serial.println(" ");
-  */
-
-  //Se envía la cadena de datos por LoRa
-  send(DatosExtendidos, 100);
 }
