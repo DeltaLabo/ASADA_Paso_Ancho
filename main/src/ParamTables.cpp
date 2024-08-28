@@ -159,9 +159,10 @@ void OctaveModbusWrapper::PrintAlarms(int16_t alarms, HardwareSerial &Serial) {
 }
 
 // Print a 64-bit double number
-void OctaveModbusWrapper::PrintDouble(float64_t &number, HardwareSerial &Serial) {
-    // char *fp64_to_string(float64_t x, uint8_t max_chars, uint8_t max_zeroes)
-    Serial.println(fp64_to_string(number, 12, 1));
+void OctaveModbusWrapper::PrintDouble(double &number, HardwareSerial &Serial) {
+    char buffer[32];  // Buffer to hold the formatted string
+    sprintf(buffer, "%.12g", number);  // Format double with 12 significant figures
+    Serial.println(buffer);
 }
 
 // Interpret and print an Octave error code
