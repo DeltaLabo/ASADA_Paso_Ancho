@@ -38,10 +38,8 @@ Sim7x00::~Sim7x00(){
 
 
 /**************************Power on Sim7x00**************************/
-void Sim7x00::PowerOn(int PowerKey){
+void Sim7x00::PowerOn(){
    uint8_t answer = 0;
-
-  //HwSerial.begin(9600);
 
   // checks if the module is started
   answer = sendATcommand("AT", "OK", 2000);
@@ -49,16 +47,10 @@ void Sim7x00::PowerOn(int PowerKey){
   {
     Serial.print("Starting up...\n");
     
-    pinMode(PowerKey, OUTPUT);
-    // power on pulse
-    digitalWrite(PowerKey, HIGH);
-    delay(500);
-    digitalWrite(PowerKey, LOW);
-    
     // waits for an answer from the module
     while (answer == 0) {     // Send AT every two seconds and wait for the answer
       answer = sendATcommand("AT", "OK", 2000);
-	  delay(1000);
+	    delay(1000);
     }
 
   }
@@ -129,8 +121,8 @@ bool Sim7x00::ReceivingShortMessage(){
   char RecMessage[200];
 
   Serial.print("Setting SMS mode...\n");
-    sendATcommand("AT+CMGF=1", "OK", 1000);    // sets the SMS mode to text
-  sendATcommand("AT+CPMS=\"SM\",\"SM\",\"SM\"", "OK", 1000);    // selects the memory
+  sendATcommand("AT+CMGF=1", "OK", 1000);    // sets the SMS mode to text
+  sendATcommand("AT+CPMS=\"SM\",\"SM\",\"SM\"", "OK", 1000);    // selects th memory
 
     answer = sendATcommand("AT+CMGR=1", "+CMGR:", 2000);    // reads the first SMS
 

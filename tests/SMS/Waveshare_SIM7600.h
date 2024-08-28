@@ -41,15 +41,11 @@
 class Sim7x00 {
 
 public:
-  // Pin definition
-  const static int powerkey = 2;
-  int userkey;
-
   Sim7x00();
   ~Sim7x00();
 
   // SIM query
-  void PowerOn(int PowerKey = powerkey);
+  void PowerOn();
 
   // Phone calls
   void PhoneCall(const char* PhoneNumber);
@@ -67,10 +63,10 @@ public:
   bool GPSPositioning();
 
   //TCP and UDP communication
-//  bool PDPSetting(const char* APN);
-//  bool TCPClientCM(const char* ServerIP,const char* Port,const char* Message,const char* MessageSize);  //TCP Client Command Mode
-//  bool UDPServerCM(const char* ServerIP,const char* Port,const char* Message,const char* MessageSize);  //UDP Client Command Mode
-//  bool TCPServerCM(const char* ServerIP,const char* Port,const char* Message,const char* MessageSize);  //TCP Client Command Mode
+  //  bool PDPSetting(const char* APN);
+  //  bool TCPClientCM(const char* ServerIP,const char* Port,const char* Message,const char* MessageSize);  //TCP Client Command Mode
+  //  bool UDPServerCM(const char* ServerIP,const char* Port,const char* Message,const char* MessageSize);  //UDP Client Command Mode
+  //  bool TCPServerCM(const char* ServerIP,const char* Port,const char* Message,const char* MessageSize);  //TCP Client Command Mode
 
   // Other functions.
   uint8_t sendATcommand(const char* ATcommand, const char* expected_answer, unsigned int timeout);
