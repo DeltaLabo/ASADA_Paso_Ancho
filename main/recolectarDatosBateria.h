@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 void pedidoUtil(byte* DatosUtiles){
   int i=0;
   //byte DatosUtiles[13];
