@@ -1,10 +1,8 @@
 #include <HardwareSerial.h>
-#include "src/OctaveModbusWrapper.h"
-#include "frequencies.h"
-#include "recolectarDatosBateria.h"
-#include <cstdlib>
-#include <stdlib.h>
 
+#include "src/OctaveModbusWrapper/OctaveModbusWrapper.h"
+#include "src/SIM7600Wrapper/SIM7600Wrapper.h"
+#include "frequencies.h"
 #include "pins.h"
 
 // Calculates the averages of an array updated in real time
