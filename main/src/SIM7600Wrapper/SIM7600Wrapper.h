@@ -4,11 +4,7 @@
 #include <HardwareSerial.h>
 #include <map>
 
-/****** UART settings ******/
-#define SIM_BAUDRATE 115200
-// 8 bits, no parity, 1 stop bit
-#define SIM_PARITY SERIAL_8N1
-
+/****** Settings ******/
 // Minimum acceptable amount of available data
 #define MIN_DATA 150 // CRC
 
@@ -23,6 +19,9 @@ public:
     // Initialize all code-to-name mappings
     void InitMaps();
 
+    // Print the interpretation of an error code to serial
+    void PrintError(uint8_t errorCode, HardwareSerial &Serial);
+
     // Method to check the signal strength of the SIM7600 module
     // Returns 0 if signal is found, otherwise returns 1
     uint8_t checkSignal();
@@ -34,9 +33,6 @@ public:
     // Method to check the remaining data by sending an SMS and parsing the response
     // Returns 0 if remaining data is more than 150, otherwise returns 1
     uint8_t checkRemainingData();
-
-    // Print the interpretation of an error code to serial
-    void PrintError(uint8_t errorCode, HardwareSerial &Serial);
 
     // Code-to-name mappings for errors
     std::map<uint8_t, String> errorCodeToName;
