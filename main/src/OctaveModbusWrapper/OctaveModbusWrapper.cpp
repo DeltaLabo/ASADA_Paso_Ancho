@@ -243,109 +243,160 @@ uint8_t truncateDoubleto32bits(double &input, int32_t &output){
 
 /****** Octave Modbus Requests ******/
 // Parameter format: start address in the Modbus memory map, number of values to request, signed value size in bits
-uint8_t OctaveModbusWrapper::ReadAlarms() {
-  return BlockingReadRegisters(0x0, 1, 16);
+uint8_t OctaveModbusWrapper::ReadAlarms(int16_t* output) {
+  uint8_t result = BlockingReadRegisters(0x0, 1, 16);
+  *output = int16Buffer[0];
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::SerialNumber() {
-  return BlockingReadRegisters(0x1, 16, 16);
+uint8_t OctaveModbusWrapper::SerialNumber(int16_t* output) {
+  uint8_t result = BlockingReadRegisters(0x1, 16, 16);
+  memcpy(output, int16Buffer, 16 * sizeof(int16_t));
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::ReadWeekday() {
-  return BlockingReadRegisters(0x11, 1, 16);
+uint8_t OctaveModbusWrapper::ReadWeekday(int16_t* output) {
+  uint8_t result = BlockingReadRegisters(0x11, 1, 16);
+  *output = int16Buffer[0];
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::ReadDay() {
-  return BlockingReadRegisters(0x12, 1, 16);
+uint8_t OctaveModbusWrapper::ReadDay(int16_t* output) {
+  uint8_t result = BlockingReadRegisters(0x12, 1, 16);
+  *output = int16Buffer[0];
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::ReadMonth(){
-	return BlockingReadRegisters(0x13, 1, 16);
+uint8_t OctaveModbusWrapper::ReadMonth(int16_t* output) {
+	uint8_t result = BlockingReadRegisters(0x13, 1, 16);
+  *output = int16Buffer[0];
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::ReadYear(){
-	return BlockingReadRegisters(0x14, 1, 16);
+uint8_t OctaveModbusWrapper::ReadYear(int16_t* output) {
+	uint8_t result = BlockingReadRegisters(0x14, 1, 16);
+  *output = int16Buffer[0];
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::ReadHours(){
-	return BlockingReadRegisters(0x15, 1, 16);
+uint8_t OctaveModbusWrapper::ReadHours(int16_t* output) {
+	uint8_t result = BlockingReadRegisters(0x15, 1, 16);
+  *output = int16Buffer[0];
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::ReadMinutes(){
-	return BlockingReadRegisters(0x16, 1, 16);
+uint8_t OctaveModbusWrapper::ReadMinutes(int16_t* output) {
+	uint8_t result = BlockingReadRegisters(0x16, 1, 16);
+  *output = int16Buffer[0];
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::VolumeUnit(){
-	return BlockingReadRegisters(0x17, 1, 16);
+uint8_t OctaveModbusWrapper::VolumeUnit(int16_t* output) {
+	uint8_t result = BlockingReadRegisters(0x17, 1, 16);
+  *output = int16Buffer[0];
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::ForwardVolume(uint8_t unsignedValueSizeinBits){
-  if (unsignedValueSizeinBits == 32) {
-    return BlockingReadRegisters(0x36, 1, 32);
-  }
-  else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
-    return BlockingReadRegisters(0x18, 1, -64);
-  }
+uint8_t OctaveModbusWrapper::ForwardVolume_uint32(uint32_t* output){
+  uint8_t result = BlockingReadRegisters(0x36, 1, 32);
+  *output = uint32Buffer;
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::ReverseVolume(uint8_t unsignedValueSizeinBits){
-  if (unsignedValueSizeinBits == 32) {
-    return BlockingReadRegisters(0x3A, 1, 32);
-  }
-  else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
-    return BlockingReadRegisters(0x20, 1, -64);
-  }
+uint8_t OctaveModbusWrapper::ForwardVolume_double(double* output){
+  // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
+  uint8_t result = BlockingReadRegisters(0x18, 1, -64);
+  *output = doubleBuffer;
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::ReadVolumeResIndex(){
-	return BlockingReadRegisters(0x28, 1, 16);
+uint8_t OctaveModbusWrapper::ReverseVolume_uint32(uint32_t* output){
+  uint8_t result = BlockingReadRegisters(0x3A, 1, 32);
+  *output = uint32Buffer;
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::SignedCurrentFlow(uint8_t unsignedValueSizeinBits){
-  if (unsignedValueSizeinBits == 32) {
-    return BlockingReadRegisters(0x3E, 1, -32);
-  }
-  else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
-    return BlockingReadRegisters(0x29, 1, -64);
-  }
+uint8_t OctaveModbusWrapper::ReverseVolume_double(double* output){
+  // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
+  uint8_t result = BlockingReadRegisters(0x20, 1, -64);
+  *output = doubleBuffer;
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::ReadFlowResIndex(){
-	return BlockingReadRegisters(0x31, 1, 16);
+
+uint8_t OctaveModbusWrapper::ReadVolumeResIndex(int16_t* output){
+	uint8_t result = BlockingReadRegisters(0x28, 1, 16);
+  *output = int16Buffer[0];
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::FlowUnit(){
-	return BlockingReadRegisters(0x32, 1, 16);
+uint8_t OctaveModbusWrapper::SignedCurrentFlow_int32(int32_t* output){
+  uint8_t result = BlockingReadRegisters(0x3E, 1, -32);
+  *output = int32Buffer;
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::FlowDirection(){
-	return BlockingReadRegisters(0x33, 1, 16);
+uint8_t OctaveModbusWrapper::SignedCurrentFlow_double(double* output){
+  // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
+  uint8_t result = BlockingReadRegisters(0x29, 1, -64);
+  *output = doubleBuffer;
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::TemperatureValue(){
-	return BlockingReadRegisters(0x34, 1, 16);
+uint8_t OctaveModbusWrapper::ReadFlowResIndex(int16_t* output){
+	uint8_t result = BlockingReadRegisters(0x31, 1, 16);
+  *output = int16Buffer[0];
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::TemperatureUnit(){
-	return BlockingReadRegisters(0x35, 1, 16);
+uint8_t OctaveModbusWrapper::FlowUnit(int16_t* output){
+	uint8_t result = BlockingReadRegisters(0x32, 1, 16);
+  *output = int16Buffer[0];
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::NetSignedVolume(uint8_t unsignedValueSizeinBits){
-  if (unsignedValueSizeinBits == 32) {
-    return BlockingReadRegisters(0x52, 1, -32);
-  }
-  else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
-    return BlockingReadRegisters(0x42, 1, -64);
-  }
+uint8_t OctaveModbusWrapper::FlowDirection(int16_t* output){
+	uint8_t result = BlockingReadRegisters(0x33, 1, 16);
+  *output = int16Buffer[0];
+  return result;
 }
 
-uint8_t OctaveModbusWrapper::NetUnsignedVolume(uint8_t unsignedValueSizeinBits){
-  if (unsignedValueSizeinBits == 32) {
-    return BlockingReadRegisters(0x56, 1, 32);
-  }
-  else { // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
-    return BlockingReadRegisters(0x4A, 1, -64);
-  }
+uint8_t OctaveModbusWrapper::TemperatureValue(int16_t* output){
+	uint8_t result = BlockingReadRegisters(0x34, 1, 16);
+  *output = int16Buffer[0];
+  return result;
+}
+
+uint8_t OctaveModbusWrapper::TemperatureUnit(int16_t* output){
+	uint8_t result = BlockingReadRegisters(0x35, 1, 16);
+  *output = int16Buffer[0];
+  return result;
+}
+
+uint8_t OctaveModbusWrapper::NetSignedVolume_int32(int32_t* output){
+  uint8_t result = BlockingReadRegisters(0x52, 1, -32);
+  *output = int32Buffer;
+  return result;
+}
+
+uint8_t OctaveModbusWrapper::NetSignedVolume_double(double* output){
+  // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
+  uint8_t result = BlockingReadRegisters(0x42, 1, -64);
+  *output = doubleBuffer;
+  return result;
+}
+
+uint8_t OctaveModbusWrapper::NetUnsignedVolume_uint32(uint32_t* output){
+  uint8_t result = BlockingReadRegisters(0x56, 1, 32);
+  *output = uint32Buffer;
+  return result;
+}
+
+uint8_t OctaveModbusWrapper::NetUnsignedVolume_double(double* output){
+  // unsignedValueSizeinBits == -64, all 64-bit (double) values are signed
+  uint8_t result = BlockingReadRegisters(0x4A, 1, -64);
+  *output = doubleBuffer;
+  return result;
 }
 
 uint8_t OctaveModbusWrapper::SystemReset(){
