@@ -112,8 +112,6 @@ class OctaveModbusWrapper {
 
         uint16_t lastUsedFunctionCode = 0;
 
-        uint32_t modbusBaudrate = MODBUS_BAUDRATE;
-
     private:
         ModbusRTUMaster _master;
 
