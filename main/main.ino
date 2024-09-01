@@ -5,6 +5,10 @@
 #include "frequencies.h"
 #include "pins.h"
 
+#define MODBUS_BAUDRATE 2400
+#define SIM_BAUDRATE 115200
+#define BMS_BAUDRATE 9600
+
 // Calculates the averages of an array updated in real time
 class AverageCalculator {
   public:
@@ -115,7 +119,7 @@ void setup() {
   //Serial2.begin(9600);
 
   // Start the Modbus serial port
-  RS485.begin(MODBUS_BAUDRATE, MODBUS_PARITY, RS485_RX_PIN, RS485_TX_PIN);
+  RS485.begin(MODBUS_BAUDRATE, SERIAL_8N1, RS485_RX_PIN, RS485_TX_PIN);
   // Set RTS pin
   RS485.setPins(RS485_RX_PIN, RS485_TX_PIN, -1, RS485_RTS_PIN);
   // Disable hardware flow control, as required by the documentation,
