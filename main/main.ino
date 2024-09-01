@@ -91,7 +91,7 @@ uint32_t modbusTimeCounter = 0UL;
 uint32_t heightTimeCounter = 0UL;
 
 // Control variable for the LoRa sender loop
-uint32_t LoRaTimeCounter = 0UL;
+uint32_t loggingTimeCounter = 0UL;
 
 // Signed current flow reading from Octave meter truncated to 16 bits
 AverageCalculator SignedCurrentFlowArr(MODBUS_POLLING_FREQ_MS, LORA_SENDER_FREQ_MS, 16);
@@ -115,7 +115,7 @@ void setup() {
   //Serial2.begin(9600);
 
   // Start the Modbus serial port
-  RS485.begin(octave.modbusBaudrate, PARITY, RS485_RX_PIN, RS485_TX_PIN);
+  RS485.begin(MODBUS_BAUDRATE, MODBUS_PARITY, RS485_RX_PIN, RS485_TX_PIN);
   // Set RTS pin
   RS485.setPins(RS485_RX_PIN, RS485_TX_PIN, -1, RS485_RTS_PIN);
   // Disable hardware flow control, as required by the documentation,
@@ -169,8 +169,8 @@ void loop() {
         heightTimeCounter = currentMillis;
     }
 
-    // Send collected data via LoRa at the specified interval
-    if (currentMillis - LoRaTimeCounter >= LORA_SENDER_FREQ_MS) {
+    // Log collected data at the specified interval
+    if (currentMillis - loggingTimeCounter >= LOGGING_FREQ_MS) {
         // Calculate averages
         SignedCurrentFlowArr.calculateAverage();
         avgSignedCurrentFlow = SignedCurrentFlowArr.int16avg;
@@ -195,6 +195,6 @@ void loop() {
         Serial.println(avgWaterHeight, HEX);
 
         // Restart time counter
-        LoRaTimeCounter = currentMillis;
+        loggingTimeCounter = currentMillis;
     }
 }
