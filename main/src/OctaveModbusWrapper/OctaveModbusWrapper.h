@@ -8,11 +8,8 @@
 #include <map>
 #include "ParamTables.h"
 
-/****** Modbus settings ******/
-#define MODBUS_BAUDRATE 2400
+/****** Settings ******/
 #define MODBUS_SLAVE_ADDRESS 1
-// 8 bits, no parity, 1 stop bit
-#define PARITY SERIAL_8N1
 
 // Bit indices to check for alarms
 const uint8_t alarmsIndices[] = {0, 5, 7, 11, 12, 13};
