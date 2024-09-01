@@ -9,34 +9,62 @@ void SIMWrapper::begin() {
   InitMaps();
 }
 
-// Method to send AT command and check for the expected response
+// Initialize all code-to-name mappings
+void SIM7600Wrapper::InitMaps() {
+    errorCodeToName[0] = "No error";
+    errorCodeToName[11] = "SIM module not found";
+    errorCodeToName[12] = "No signal";
+    errorCodeToName[13] = "Insufficient data remaining";
+    errorCodeToName[14] = "Logging error";
+}
+
+// Interpret and print a SIM error code
+void SIM7600Wrapper::PrintError(uint8_t errorCode, HardwareSerial &Serial) {
+    // Print the error code and its meaning
+    Serial.print("Error code ");
+    Serial.print(errorCode);
+    Serial.print(": ");
+    Serial.println(errorCodeToName[errorCode]);
+}
+
+// Method to send AT command and check for the expected response.
+// expected_answer can be set to nullptr to skip
+// checking the response and avoid clearing the input serial buffer.
 uint8_t SIMWrapper::sendATCommand(const char* ATcommand, const char* expected_answer, unsigned int timeout) {
-    uint8_t x = 0, answer = 0;
-    unsigned long previous;
+    // answer = 1 means that the expected answer hasn't been found
+    uint8_t x = 0, answer = 1;
 
     memset(response, '\0', 100);    // Initialize the response buffer
-
-    delay(100);
 
     while (_serial.available() > 0) _serial.read();   // Clean the input buffer
 
     _serial.println(ATcommand);    // Send the AT command
 
-    x = 0;
-    previous = millis();
+    uint32_t startTime;
 
-    // Wait for the expected response within the timeout period
-    do {
-        if (_serial.available() != 0) {
-            response[x] = _serial.read();
-            x++;
-            if (strstr(response, expected_answer) != NULL) {
-                answer = 1;
+    if (expected_answer != nullptr) {
+        x = 0;
+        startTime = millis();
+
+        // Wait for the expected response within the timeout period
+        do {
+            if (_serial.available() != 0) {
+                response[x] = _serial.read();
+                x++;
+                if (strstr(response, expected_answer) != NULL) {
+                    answer = 0;
+                }
             }
-        }
-    } while ((answer == 0) && ((millis() - previous) < timeout));
+        } while ((answer == 1) && ((millis() - startTime) < timeout));
 
-    _lastSIMErrorCode = (answer == 1) ? 0 : 11; // Set the error code based on the result
+        _lastSIMErrorCode = (answer == 0) ? 0 : 11; // Set the error code based on the result
+    } else {
+        // Delay
+        startTime = millis();
+        while (millis() - startTime < timeout); 
+
+        _lastSIMErrorCode = 0; // No error
+    }
 
     return _lastSIMErrorCode;
 }
@@ -46,13 +74,15 @@ uint8_t SIMWrapper::checkSignal() {
     uint8_t result = 0;
 
     // Send the AT+CSQ command to query signal strength
-    result = sendATCommand("AT+CSQ", "OK", 1000);
+    result = sendATCommand("AT+CSQ", nullptr, 100);
 
     // Check if the command was successfully sent and acknowledged
     if (result == 0) {
         while (_serial.available() > 0) {
             // Read the response from the SIM7600 module
+            // Discard the first line, it's always empty
             String response = _serial.readString();
+            response = _serial.readString();
 
             // Check if the response contains the "+CSQ:" prefix
             if (response.indexOf("+CSQ:") != -1) {
@@ -98,7 +128,7 @@ uint8_t SIMWrapper::sendSMS(const char* phoneNumber, const char* message) {
         _serial.print(message);
         _serial.write(0x1A);  // Send Ctrl+Z to indicate end of message
         answer = sendATCommand("", "OK", 20000);
-        if (answer == 1) {
+        if (answer == 0) {
             _lastSIMErrorCode = 0;   // Sent successfully
             return _lastSIMErrorCode;
         }
@@ -117,48 +147,37 @@ uint8_t SIMWrapper::checkRemainingData() {
     }
 
     sendATCommand("AT+CMGF=1", "OK", 1000);    // Set SMS mode to text
-    sendATCommand("AT+CPMS=\"SM\",\"SM\",\"SM\"", "OK", 1000);  // Select memory
-    if (sendATCommand("AT+CMGR=1", "+CMGR:", 32000) == 0) {  // Read the first SMS
-        while (_serial.available() > 0) {
-            String response = _serial.readString();
+    //sendATCommand("AT+CPMS=\"SM\",\"SM\",\"SM\"", "OK", 1000);  // Select memory
 
-            // Parse the response to find the remaining data amount
-            int index = response.indexOf("SALDO:");
-            if (index != -1) {
-                int startIndex = response.indexOf(" ", saldoIndex) + 1;
-                int endIndex = response.indexOf(" ", startIndex);
-                int remainingData = response.substring(startIndex, endIndex).toInt();
+    // Delay 32 s
+    uint32_t startTime = millis();
+    while (millis() - startTime < 32000); 
 
-                // Check if the remaining data is more than the acceptable minimum
-                if (remainingData > MIN_DATA) {
-                    _lastSIMErrorCode = 0;
-                    return _lastSIMErrorCode;  // Sufficient data
-                } else {
-                    _lastSIMErrorCode = 13;
-                    return _lastSIMErrorCode;  // Insufficient data
-                }
+    sendATCommand("AT+CMGR=1", nullptr, 100);  // Read the first SMS
+
+    while (_serial.available() > 0) {
+        // Discard the first line, it's always empty
+        String response = _serial.readString();
+        response = _serial.readString();
+
+        // Parse the response to find the remaining data amount
+        int index = response.indexOf("SALDO:");
+        if (index != -1) {
+            int startIndex = response.indexOf(" ", saldoIndex) + 1;
+            int endIndex = response.indexOf(" ", startIndex);
+            int remainingData = response.substring(startIndex, endIndex).toInt();
+
+            // Check if the remaining data is more than the acceptable minimum
+            if (remainingData > MIN_DATA) {
+                _lastSIMErrorCode = 0;
+                return _lastSIMErrorCode;  // Sufficient data
+            } else {
+                _lastSIMErrorCode = 13;
+                return _lastSIMErrorCode;  // Insufficient data
             }
         }
     }
 
     _lastSIMErrorCode = 11;  // The module didn't respond
     return _lastSIMErrorCode;
-}
-
-// Initialize all code-to-name mappings
-void SIM7600Wrapper::InitMaps() {
-    errorCodeToName[0] = "No error";
-    errorCodeToName[11] = "SIM module not found";
-    errorCodeToName[12] = "No signal";
-    errorCodeToName[13] = "Insufficient data remaining";
-    errorCodeToName[14] = "Logging error";
-}
-
-// Interpret and print a SIM error code
-void SIM7600Wrapper::PrintError(uint8_t errorCode, HardwareSerial &Serial) {
-    // Print the error code and its meaning
-    Serial.print("Error code ");
-    Serial.print(errorCode);
-    Serial.print(": ");
-    Serial.println(errorCodeToName[errorCode]);
 }
