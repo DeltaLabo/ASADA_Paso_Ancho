@@ -2,9 +2,9 @@
 #include <Arduino.h>
 
 // Constructor implementation
-SIMWrapper::SIMWrapper(HardwareSerial& serial) : _serial(serial) {}
+SIM7600Wrapper::SIM7600Wrapper(HardwareSerial& serial) : _serial(serial) {}
 
-void SIMWrapper::begin() {
+void SIM7600Wrapper::begin() {
   // Initialize code-to-name mappings to interpret readings
   InitMaps();
 }
@@ -30,7 +30,7 @@ void SIM7600Wrapper::PrintError(uint8_t errorCode, HardwareSerial &Serial) {
 // Method to send AT command and check for the expected response.
 // expected_answer can be set to nullptr to skip
 // checking the response and avoid clearing the input serial buffer.
-uint8_t SIMWrapper::sendATCommand(const char* ATcommand, const char* expected_answer, unsigned int timeout) {
+uint8_t SIM7600Wrapper::sendATCommand(const char* ATcommand, const char* expected_answer, unsigned int timeout) {
     // answer = 1 means that the expected answer hasn't been found
     uint8_t x = 0, answer = 1;
 
@@ -70,7 +70,7 @@ uint8_t SIMWrapper::sendATCommand(const char* ATcommand, const char* expected_an
 }
 
 // Method to check the signal strength of the SIM7600 module
-uint8_t SIMWrapper::checkSignal() {
+uint8_t SIM7600Wrapper::checkSignal() {
     uint8_t result = 0;
 
     // Send the AT+CSQ command to query signal strength
@@ -106,18 +106,18 @@ uint8_t SIMWrapper::checkSignal() {
 }
 
 // Method to check if the SIM7600 module is powered on
-uint8_t SIMWrapper::checkPower() {
+uint8_t SIM7600Wrapper::checkPower() {
     // Send the AT command to check if the module is powered on
     return sendATCommand("AT", "OK", 1000);
 }
 
 // Method to delete all stored SMS messages
-void SIMWrapper::deleteAllSMS() {
+void SIM7600Wrapper::deleteAllSMS() {
     sendATCommand("AT+CMGD=,4", "OK", 5000);  // Delete all SMS messages
 }
 
 // Method to send an SMS message
-uint8_t SIMWrapper::sendSMS(const char* phoneNumber, const char* message) {
+uint8_t SIM7600Wrapper::sendSMS(const char* phoneNumber, const char* message) {
     uint8_t answer = 0;
     char aux_string[30];
 
@@ -138,7 +138,7 @@ uint8_t SIMWrapper::sendSMS(const char* phoneNumber, const char* message) {
 }
 
 // Method to check the remaining data by sending an SMS and parsing the response
-uint8_t SIMWrapper::checkRemainingData() {
+uint8_t SIM7600Wrapper::checkRemainingData() {
     deleteAllSMS();  // Delete all stored SMS messages
 
     if (sendSMS("606", "SALDO") != 0) {  // Send "SALDO" message to 606
@@ -163,7 +163,7 @@ uint8_t SIMWrapper::checkRemainingData() {
         // Parse the response to find the remaining data amount
         int index = response.indexOf("SALDO:");
         if (index != -1) {
-            int startIndex = response.indexOf(" ", saldoIndex) + 1;
+            int startIndex = response.indexOf(" ", index) + 1;
             int endIndex = response.indexOf(" ", startIndex);
             int remainingData = response.substring(startIndex, endIndex).toInt();
 

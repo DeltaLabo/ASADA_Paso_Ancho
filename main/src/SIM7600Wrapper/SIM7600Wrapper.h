@@ -9,10 +9,10 @@
 #define MIN_DATA 150 // CRC
 
 
-class SIMWrapper {
+class SIM7600Wrapper {
 public:
     // Constructor to initialize the SIMWrapper with a reference to the serial interface
-    explicit SIMWrapper(HardwareSerial& serial);
+    explicit SIM7600Wrapper(HardwareSerial& serial);
 
     void begin();
 
@@ -45,7 +45,7 @@ private:
     void deleteAllSMS();
 
     // Method to send an SMS message
-    bool sendSMS(const char* phoneNumber, const char* message);
+    uint8_t sendSMS(const char* phoneNumber, const char* message);
 
     HardwareSerial& _serial;  // Reference to the hardware serial interface
     char response[100];       // Buffer to store the response
