@@ -8,10 +8,21 @@ def convert_number():
         input_number = entry.get()
 
         # Convert the input number to an integer based on the selected type
-        if input_type.get() == "dec":
+        if input_type.get() == "int":
             input_number = int(input_number)
         elif input_type.get() == "hex":
             input_number = int(input_number, 16)
+        elif input_type.get() == "doublehex":
+            # Convert the hex string to an integer
+            int_value = int(input_number, 16)
+
+            # Pack the integer into bytes (big-endian format, 8 bytes for a double)
+            packed_bytes = struct.pack('>Q', int_value)
+
+            # Unpack the bytes to get the double value
+            input_number = struct.unpack('>d', packed_bytes)[0]
+        elif input_type.get() == "dec":
+            input_number = float(input_number)
         else:
             raise ValueError("Invalid input base")
 
@@ -27,6 +38,11 @@ def convert_number():
             # Unpack the bytes as a double
             resulting_double = struct.unpack('>d', packed_bytes)[0]
             result = str(resulting_double)
+        elif output_type.get() == "doublehex":
+            # Pack the number into bytes (assuming it's a 64-bit integer)
+            packed_bytes = struct.pack('>d', input_number)
+
+            result = "0x" + packed_bytes.hex()
         elif output_type.get() == "int16":
             # Pack the integer into bytes (assuming it's a 16-bit integer)
             packed_bytes = input_number.to_bytes(length=2, byteorder="big", signed=False)
@@ -93,11 +109,15 @@ input_type_label.pack()
 input_type = tk.StringVar()
 input_type.set("dec")
 
+input_type_int = tk.Radiobutton(window, text="Int", variable=input_type, value="int")
 input_type_dec = tk.Radiobutton(window, text="Decimal", variable=input_type, value="dec")
 input_type_hex = tk.Radiobutton(window, text="Hex", variable=input_type, value="hex")
+input_type_doublehex = tk.Radiobutton(window, text="Double (Hex)", variable=input_type, value="doublehex")
 
+input_type_int.pack()
 input_type_dec.pack()
 input_type_hex.pack()
+input_type_doublehex.pack()
 
 # Result label
 result_label = tk.Label(window, text="Result:")
@@ -117,6 +137,7 @@ output_type.set("dec")
 output_type_dec = tk.Radiobutton(window, text="Decimal", variable=output_type, value="dec")
 output_type_hex = tk.Radiobutton(window, text="Hex", variable=output_type, value="hex")
 output_type_double = tk.Radiobutton(window, text="Double", variable=output_type, value="double")
+output_type_doublehex = tk.Radiobutton(window, text="Double (Hex)", variable=output_type, value="doublehex")
 output_type_int16 = tk.Radiobutton(window, text="int16", variable=output_type, value="int16")
 output_type_int32 = tk.Radiobutton(window, text="int32", variable=output_type, value="int32")
 output_type_crc = tk.Radiobutton(window, text="CRC (hex)", variable=output_type, value="crc")
@@ -124,6 +145,7 @@ output_type_crc = tk.Radiobutton(window, text="CRC (hex)", variable=output_type,
 output_type_dec.pack()
 output_type_hex.pack()
 output_type_double.pack()
+output_type_doublehex.pack()
 output_type_int16.pack()
 output_type_int32.pack()
 output_type_crc.pack()
