@@ -30,7 +30,7 @@ class OctaveModbusWrapper {
         // Initializer
         explicit OctaveModbusWrapper(HardwareSerial &modbusSerial);
 
-        void begin();
+        void begin(uint32_t baudrate = 2400);
         // Initialize all name-to-code mappings
         void InitMaps();
 

@@ -4,11 +4,11 @@
 OctaveModbusWrapper::OctaveModbusWrapper(HardwareSerial &modbusSerial) : _master(modbusSerial){}
 
 
-void OctaveModbusWrapper::begin() {
+void OctaveModbusWrapper::begin(uint32_t baudrate) {
   // Initialize name-to-code and code-to-name mappings to interpret readings
   InitMaps();
   // Start the modbus _master object
-	_master.begin(MODBUS_BAUDRATE);
+	_master.begin(baudrate);
 }
 
 
@@ -100,12 +100,23 @@ void OctaveModbusWrapper::ProcessResponse(ModbusResponse *response){
       int32Buffer = 0;
       uint32Buffer = 0;
 
+      uint64_t auxDoubleBuffer = 0;
+
       // 64 bit values are split into HG FE DC BA bytes, according to the memory map
       // Combine them into ABCDEFGH and save them to the buffer
-      doubleBuffer = (static_cast<unsigned long long>(((response->getRegister(3) >> 8) | (response->getRegister(3) << 8))) << 48)
-              + (static_cast<unsigned long long>(( (response->getRegister(2) >> 8) | (response->getRegister(2) << 8))) << 32)
-              + (static_cast<unsigned long long>(( (response->getRegister(1) >> 8) | (response->getRegister(1) << 8))) << 16)
-              + ((response->getRegister(0) >> 8) | (response->getRegister(0) << 8));
+      auxDoubleBuffer |= static_cast<uint64_t>(response->getRegister(3) >> 8) << 48; // H
+      auxDoubleBuffer |= static_cast<uint64_t>(response->getRegister(3) & 0xFF) << 56; // G
+
+      auxDoubleBuffer |= static_cast<uint64_t>(response->getRegister(2) >> 8) << 32; // F
+      auxDoubleBuffer |= static_cast<uint64_t>(response->getRegister(2) & 0xFF) << 40; // E
+
+      auxDoubleBuffer |= static_cast<uint64_t>(response->getRegister(1) >> 8) << 16; // D
+      auxDoubleBuffer |= static_cast<uint64_t>(response->getRegister(1) & 0xFF) << 24; // C
+
+      auxDoubleBuffer |= static_cast<uint64_t>(response->getRegister(0) >> 8);  // B
+      auxDoubleBuffer |= static_cast<uint64_t>(response->getRegister(0) & 0xFF) << 8;  // A
+
+      doubleBuffer = *reinterpret_cast<double*>(&auxDoubleBuffer);
     }
   }
 }
