@@ -54,25 +54,25 @@ class AverageCalculator {
     void calculateAverage() {
       if (dataSize == 16) {
         // Calculate the sum of all data points in the array
-        int16_t sum = 0;
+        int64_t sum = 0;
         for (int i = 0; i < counter; i++) {
           sum = sum + int16array[i];
         }
 
         // Take the average
-        int16avg = sum / (counter * 1.0);
+        int16avg = (float)sum / ((float)counter * 1.0);
         // Reset the counter
         counter = 0;
       }
       else if (dataSize == 32) {
         // Calculate the sum of all data points in the array
-        int32_t sum = 0;
+        int64_t sum = 0;
         for (int i = 0; i < counter; i++) {
           sum = sum + int32array[i];
         }
 
         // Take the average
-        int32avg = sum / (counter * 1.0);
+        int32avg = (float)sum / ((float)counter * 1.0);
         // Reset the counter
         counter = 0;
       }
@@ -98,25 +98,22 @@ uint32_t heightTimeCounter = 0UL;
 uint32_t loggingTimeCounter = 0UL;
 
 // Signed current flow reading from Octave meter truncated to 16 bits
-AverageCalculator SignedCurrentFlowArr(MODBUS_POLLING_FREQ_MS, LORA_SENDER_FREQ_MS, 16);
+AverageCalculator SignedCurrentFlowArr(MODBUS_POLLING_FREQ_MS, LOGGING_FREQ_MS, 16);
 int16_t avgSignedCurrentFlow;
 
 // Net signed volume reading from Octave meter truncated to 32 bits
-AverageCalculator NetSignedVolumeArr(MODBUS_POLLING_FREQ_MS, LORA_SENDER_FREQ_MS, 32);
+AverageCalculator NetSignedVolumeArr(MODBUS_POLLING_FREQ_MS, LOGGING_FREQ_MS, 32);
 int32_t avgNetSignedVolume;
 
 // Water level height, in meters
 float waterHeight = 0.0;
 // Water level height, in meters, truncated to 16 bits
-AverageCalculator WaterHeightArr(HEIGHT_POLLING_FREQ_MS, LORA_SENDER_FREQ_MS, 16);
+AverageCalculator WaterHeightArr(HEIGHT_POLLING_FREQ_MS, LOGGING_FREQ_MS, 16);
 int16_t avgWaterHeight;
 
 void setup() {
   // Use Serial0 port for debugging and logging
   Serial.begin(9600);
-
-  // Use Serial2 port for LoRa communication
-  //Serial2.begin(9600);
 
   // Start the Modbus serial port
   RS485.begin(MODBUS_BAUDRATE, SERIAL_8N1, RS485_RX_PIN, RS485_TX_PIN);
@@ -129,7 +126,7 @@ void setup() {
   RS485.setMode(UART_MODE_RS485_HALF_DUPLEX);
 
   // Start the Octave Modbus object
-  octave.begin();
+  octave.begin(MODBUS_BAUDRATE);
 
   pinMode(HEIGHT_SENSOR_PIN, INPUT);
 
@@ -144,15 +141,18 @@ void loop() {
     // Send Modbus requests to the Octave meter at the polling frequency
     if (currentMillis - modbusTimeCounter >= MODBUS_POLLING_FREQ_MS) {
         // Read Signed Current Flow from Octave meter via Modbus
-        octave.SignedCurrentFlow(64);
+        double signedCurrentFlow;
+        octave.SignedCurrentFlow_double(&signedCurrentFlow);
         // Multiply by 100 to preserve two decimal places, then truncate to 16 bits
-        int16_t truncatedSignedCurrentFlow = octave.doubleBuffer * 100;
+        int16_t truncatedSignedCurrentFlow = signedCurrentFlow * 100.0;
+
         SignedCurrentFlowArr.append(truncatedSignedCurrentFlow);
 
         // Read Net Signed Volume from Octave meter via Modbus
-        octave.NetSignedVolume(64);
+        double netSignedVolume;
+        octave.NetSignedVolume_double(&netSignedVolume);
         // Multiply by 100 to preserve two decimal places, then truncate to 32 bits
-        int32_t truncatedNetSignedVolume = octave.doubleBuffer * 100;
+        int32_t truncatedNetSignedVolume = netSignedVolume * 100;
         NetSignedVolumeArr.append(truncatedNetSignedVolume);
 
         // Restart time counter
