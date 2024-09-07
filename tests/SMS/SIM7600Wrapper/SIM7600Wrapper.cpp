@@ -137,8 +137,12 @@ uint8_t SIM7600Wrapper::sendSMS(const char* phoneNumber, const char* message) {
     return _lastSIMErrorCode;
 }
 
-// Method to check the remaining data by sending an SMS and parsing the response
-uint8_t SIM7600Wrapper::checkRemainingData() {
+// Method to check the remaining data and its expiration date by sending an SMS
+// and parsing the response
+uint8_t SIM7600Wrapper::checkRemainingData(
+    float* remainingDataOutput,
+    String* dataExpirationDateOutput
+    ) {
     deleteAllSMS();  // Delete all stored SMS messages
 
     if (sendSMS("606", "SALDO") != 0) {  // Send "SALDO" message to 606
@@ -153,31 +157,58 @@ uint8_t SIM7600Wrapper::checkRemainingData() {
     uint32_t startTime = millis();
     while (millis() - startTime < 32000); 
 
-    sendATCommand("AT+CMGR=1", nullptr, 100);  // Read the first SMS
+    // Read the first SMS
+    sendATCommand("AT+CMGR=1", nullptr, 300);
 
-    while (_serial.available() > 0) {
+    if (_serial.available() > 0) {
         // Discard the first line, it's always empty
         String response = _serial.readString();
         response = _serial.readString();
-
-        // Parse the response to find the remaining data amount
-        int index = response.indexOf("SALDO:");
-        if (index != -1) {
-            int startIndex = response.indexOf(" ", index) + 1;
-            int endIndex = response.indexOf(" ", startIndex);
-            int remainingData = response.substring(startIndex, endIndex).toInt();
-
-            // Check if the remaining data is more than the acceptable minimum
-            if (remainingData > MIN_DATA) {
-                _lastSIMErrorCode = 0;
-                return _lastSIMErrorCode;  // Sufficient data
-            } else {
-                _lastSIMErrorCode = 13;
-                return _lastSIMErrorCode;  // Insufficient data
-            }
-        }
+    } else {
+        _lastSIMErrorCode = 11;  // The module didn't respond
+        return _lastSIMErrorCode;
     }
 
-    _lastSIMErrorCode = 11;  // The module didn't respond
+    // Parse the response to find the remaining data amount
+    int index = response.indexOf("Saldo:");
+    int startIndex;
+    int endIndex;
+
+    float remainingData;
+    String dataExpirationDate;
+
+    if (index != -1) {
+        startIndex = index + sizeof("Saldo:") - 1;
+        endIndex = response.indexOf(" ", startIndex);
+        remainingData = response.substring(startIndex, endIndex).toFloat();
+
+        if (remainingDataOutput != nullptr) {
+            *remainingDataOutput = remainingData;
+        }
+
+        if (remainingData < MIN_DATA) {
+            _lastSIMErrorCode = 13; // Insufficient data remaining
+            return _lastSIMErrorCode;
+        }
+    } else {
+        _lastSIMErrorCode = 11;  // The module didn't respond
+        return _lastSIMErrorCode;
+    }
+
+    index = response.indexOf("vence: ");
+    if (index != -1) {
+        startIndex = index + sizeof("vence: ") - 1;
+        endIndex = response.indexOf("\r\n", startIndex);
+        dataExpirationDate = response.substring(startIndex, endIndex);
+
+        if (dataExpirationDateOutput != nullptr) {
+            *dataExpirationDateOutput = remainingData;
+        }
+    } else {
+        _lastSIMErrorCode = 11;  // The module didn't respond
+        return _lastSIMErrorCode;
+    }
+
+    _lastSIMErrorCode = 0; // No error
     return _lastSIMErrorCode;
 }

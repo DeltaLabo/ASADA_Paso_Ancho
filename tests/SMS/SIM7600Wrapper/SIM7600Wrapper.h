@@ -6,7 +6,7 @@
 
 /****** Settings ******/
 // Minimum acceptable amount of available data
-#define MIN_DATA 150 // CRC
+#define MIN_DATA 150.0 // CRC
 
 
 class SIM7600Wrapper {
@@ -15,9 +15,6 @@ public:
     explicit SIM7600Wrapper(HardwareSerial& serial);
 
     void begin();
-
-    // Initialize all code-to-name mappings
-    void InitMaps();
 
     // Print the interpretation of an error code to serial
     void PrintError(uint8_t errorCode, HardwareSerial &Serial);
@@ -30,14 +27,18 @@ public:
     // Returns 0 if the module responds correctly, otherwise returns 1
     uint8_t checkPower();
 
-    // Method to check the remaining data by sending an SMS and parsing the response
+    // Method to check the remaining data and its expiration date by sending an SMS
+    // and parsing the response
     // Returns 0 if remaining data is more than 150, otherwise returns 1
-    uint8_t checkRemainingData();
+    uint8_t checkRemainingData(float* remainingDataOutput, String* dataExpirationDateOutput);
 
     // Code-to-name mappings for errors
     std::map<uint8_t, String> errorCodeToName;
 
 private:
+    // Initialize all code-to-name mappings
+    void InitMaps();
+
     // Method to send AT command and check for the expected response
     uint8_t sendATCommand(const char* ATcommand, const char* expected_answer, unsigned int timeout);
 
