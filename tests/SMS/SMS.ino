@@ -1,5 +1,6 @@
-#include "SIM7600Wrapper/SIM7600Wrapper.h"
 #include <HardwareSerial.h>
+
+#include "SIM7600Wrapper/SIM7600Wrapper.h"
 
 #define LTE_TX_PIN D4
 #define LTE_RX_PIN D5
