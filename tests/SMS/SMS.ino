@@ -11,7 +11,6 @@ SIM7600Wrapper sim(simSerial);
 uint8_t lastSIMOperationResult = 0;
 
 void setup() {
-
   simSerial.begin(115200, SERIAL_8N1, LTE_RX_PIN, LTE_TX_PIN);
   Serial.begin(9600); // For logging
 
@@ -19,8 +18,8 @@ void setup() {
 
   sim.begin();
 
-  lastSIMOperationResult = sim.checkPower();
-  Serial.print("Power check: ");
+  lastSIMOperationResult = sim.initialCheck();
+  Serial.print("Initial check: ");
   Serial.println(sim.errorCodeToName[lastSIMOperationResult]);
 
   lastSIMOperationResult = sim.checkSignal();
