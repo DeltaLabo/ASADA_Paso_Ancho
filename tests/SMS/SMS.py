@@ -1,17 +1,8 @@
 import serial
 import time
 
-def AT(command):
-    ser.write(command + b'\r\n')
-    # Discard leading whitespace
-    ser.read_until(expected=b'\r\n')
-    response = ser.read_until(expected=b'\r\n')
-    # Discard trailing whitespace
-    response = response.rstrip()
-    print(response)
-
 # Open the serial port
-ser = serial.Serial('COM50', 115200)
+ser = serial.Serial('COM50', 115200, timeout=1)
 
 # Give the serial connection some time to establish
 time.sleep(1)
@@ -23,13 +14,22 @@ time.sleep(1)
 #time.sleep(0.3)
 
 # Send text to specified phone number
-#ser.write(b'AT+CMGS="+50683789714"\r')
-#time.sleep(0.3)
+ser.write(b'AT+CMGS="606"\r')
+time.sleep(0.3)
 # Text message
-#ser.write(b"test")
-#time.sleep(0.3)
-#ser.write(b'\x1A')
+ser.write(b"SALDO\x1A")
+time.sleep(0.3)
+print(ser.read_until(expected=b'OK\r\n'))
 
+ser.write(b'AT+CMGF=1\r\n')
+time.sleep(0.3)
+print(ser.read_until(expected=b'OK\r\n'))
+ser.write(b'AT+CMGR=0\r\n')
+time.sleep(10)
+
+print(ser.read_until(expected=b'OK\r\n'))
+
+"""
 # Start HTTP service
 ser.write(b'AT+HTTPINIT\r\n')
 ser.read_until(expected=b'\r\n')
@@ -48,9 +48,7 @@ print(ser.read_until(expected=b'\r\n'))
 ser.write(b'AT+HTTPREAD=50\r\n')
 ser.read_until(expected=b'\r\n')
 print(ser.read_until(expected=b'\r\n'))
-
-# Consultar saldo
-ser.write()
+"""
 
 # Close the serial port
 ser.close()
