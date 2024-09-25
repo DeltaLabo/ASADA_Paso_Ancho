@@ -49,7 +49,12 @@ uint8_t SIM7600Wrapper::sendATCommand(const char* ATcommand, const char* expecte
         // Wait for the expected response within the timeout period
         do {
             if (_serial.available() != 0) {
-                response[x] = _serial.read();
+                char currentChar = _serial.read();
+                // Check if the index is within range to avoid
+                // an overflow in the response buffer
+                if (x < sizeof(response)/sizeof(char)) {
+                    response[x] = currentChar;
+                }
                 x++;
                 if (strstr(response, expected_answer) != NULL) {
                     answer = 0;
@@ -69,7 +74,7 @@ uint8_t SIM7600Wrapper::sendATCommand(const char* ATcommand, const char* expecte
     return _lastSIMErrorCode;
 }
 
-// Method to check the signal strength of the SIM7600 module
+// Method to check the signal reception of the SIM7600 module
 uint8_t SIM7600Wrapper::checkSignal() {
     uint8_t result = 0;
 
@@ -108,10 +113,16 @@ uint8_t SIM7600Wrapper::checkSignal() {
     return _lastSIMErrorCode;
 }
 
-// Method to check if the SIM7600 module is powered on
-uint8_t SIM7600Wrapper::checkPower() {
+// Method to check if the SIM7600 module is powered on and properly configured
+uint8_t SIM7600Wrapper::initialCheck() {
     // Send the AT command to check if the module is powered on
-    return sendATCommand("AT", "OK", 1000);
+    _lastSIMErrorCode = sendATCommand("AT", "OK", 1000);
+    // Disable AT command echo
+    if (_lastSIMErrorCode == 0) {_lastSIMErrorCode = sendATCommand("ATE0", "OK", 1000);}
+    // Disable unsolicited new message indications
+    if (_lastSIMErrorCode == 0) {_lastSIMErrorCode = sendATCommand("AT+CNMI=0,0", "OK", 1000);}
+
+    return _lastSIMErrorCode;
 }
 
 // Method to delete all stored SMS messages
@@ -153,29 +164,20 @@ uint8_t SIM7600Wrapper::checkRemainingData(
         return _lastSIMErrorCode;
     }
 
-    sendATCommand("AT+CMGF=1", "OK", 1000);    // Set SMS mode to text
-    //sendATCommand("AT+CPMS=\"SM\",\"SM\",\"SM\"", "OK", 1000);  // Select memory
-
-    // Delay 32 s
+    // Delay 10 s
     uint32_t startTime = millis();
-    while (millis() - startTime < 32000); 
+    while (millis() - startTime < 10000);
 
     // Read the first SMS
-    sendATCommand("AT+CMGR=1", nullptr, 300);
-
-    String response;
-
-    if (_serial.available() > 0) {
-        response = _serial.readString();
-        response = _serial.readString();
-        Serial.println(response);
-    } else {
+    if (sendATCommand("AT+CMGR=0", "OK", 300) != 0) {
         _lastSIMErrorCode = 11;  // The module didn't respond
         return _lastSIMErrorCode;
     }
 
+    String convertedResponse = String(response);
+
     // Parse the response to find the remaining data amount
-    int index = response.indexOf("Saldo:");
+    int index = convertedResponse.indexOf("Saldo:");
     int startIndex;
     int endIndex;
 
@@ -184,8 +186,8 @@ uint8_t SIM7600Wrapper::checkRemainingData(
 
     if (index != -1) {
         startIndex = index + sizeof("Saldo:") - 1;
-        endIndex = response.indexOf(" ", startIndex);
-        remainingData = response.substring(startIndex, endIndex).toFloat();
+        endIndex = convertedResponse.indexOf(" ", startIndex);
+        remainingData = convertedResponse.substring(startIndex, endIndex).toFloat();
 
         if (remainingDataOutput != nullptr) {
             *remainingDataOutput = remainingData;
@@ -200,11 +202,11 @@ uint8_t SIM7600Wrapper::checkRemainingData(
         return _lastSIMErrorCode;
     }
 
-    index = response.indexOf("vence: ");
+    index = convertedResponse.indexOf("vence: ");
     if (index != -1) {
         startIndex = index + sizeof("vence: ") - 1;
-        endIndex = response.indexOf("\r\n", startIndex);
-        dataExpirationDate = response.substring(startIndex, endIndex);
+        endIndex = convertedResponse.indexOf("\r\n", startIndex);
+        dataExpirationDate = convertedResponse.substring(startIndex, endIndex);
 
         if (dataExpirationDateOutput != nullptr) {
             *dataExpirationDateOutput = remainingData;

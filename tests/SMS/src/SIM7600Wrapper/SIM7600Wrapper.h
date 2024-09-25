@@ -19,13 +19,13 @@ public:
     // Print the interpretation of an error code to serial
     void PrintError(uint8_t errorCode, HardwareSerial &Serial);
 
-    // Method to check the signal strength of the SIM7600 module
+    // Method to check if the SIM7600 module is powered on and properly configured
+    // Returns 0 if the module responds correctly, otherwise returns 1
+    uint8_t initialCheck();
+
+    // Method to check the signal reception of the SIM7600 module
     // Returns 0 if signal is found, otherwise returns 1
     uint8_t checkSignal();
-
-    // Method to check if the SIM7600 module is powered on
-    // Returns 0 if the module responds correctly, otherwise returns 1
-    uint8_t checkPower();
 
     // Method to check the remaining data and its expiration date by sending an SMS
     // and parsing the response
@@ -49,7 +49,7 @@ private:
     uint8_t sendSMS(const char* phoneNumber, const char* message);
 
     HardwareSerial& _serial;  // Reference to the hardware serial interface
-    char response[100];       // Buffer to store the response
+    char response[400];       // Buffer to store the response
 
     uint8_t _lastSIMErrorCode = 0;
 };
