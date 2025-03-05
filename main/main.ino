@@ -4,80 +4,11 @@
 #include "src/SIM7600Wrapper/SIM7600Wrapper.h"
 #include "frequencies.h"
 #include "pins.h"
+#include "src/metrics.h"
 
 #define MODBUS_BAUDRATE 2400
 #define SIM_BAUDRATE 115200
 #define BMS_BAUDRATE 9600
-
-// Calculates the averages of an array updated in real time
-class AverageCalculator {
-  public:
-    // Amount of data points in the array
-    int counter;
-    // Maximum size of the array
-    int length;
-    // Array data size in bits
-    int dataSize;
-    int16_t* int16array = NULL;
-    int32_t* int32array = NULL;
-    int16_t int16avg;
-    int32_t int32avg;
-
-    // Constructor
-    AverageCalculator(int sampleFreq, int avgFreq, int dataSizeinBits) {
-      // Store as many samples as possible during one average period
-      length = sampleFreq / avgFreq + 5;
-      // Reset the data point counter
-      counter = 0;
-      dataSize = dataSizeinBits;
-
-      // Allocate memory for data arrays
-      if (dataSize == 16) int16array = (int16_t*)malloc(length * sizeof(int16_t));
-      else if (dataSize == 32) int32array = (int32_t*)malloc(length * sizeof(int32_t));
-    }
-
-    // Append an int16 value to the array
-    void append(int16_t value) {
-      int16array[counter] = value;
-
-      // Update the data point counter
-      counter = counter + 1;
-    }
-
-    // Append an int32 value to the array
-    void append(int32_t value) {
-      int32array[counter] = value;
-      // Update the data point counter
-      counter = counter + 1;
-    }
-
-    void calculateAverage() {
-      if (dataSize == 16) {
-        // Calculate the sum of all data points in the array
-        int64_t sum = 0;
-        for (int i = 0; i < counter; i++) {
-          sum = sum + int16array[i];
-        }
-
-        // Take the average
-        int16avg = (float)sum / ((float)counter * 1.0);
-        // Reset the counter
-        counter = 0;
-      }
-      else if (dataSize == 32) {
-        // Calculate the sum of all data points in the array
-        int64_t sum = 0;
-        for (int i = 0; i < counter; i++) {
-          sum = sum + int32array[i];
-        }
-
-        // Take the average
-        int32avg = (float)sum / ((float)counter * 1.0);
-        // Reset the counter
-        counter = 0;
-      }
-    }
-};
 
 // Define the HardwareSerial used as an RS-485 port
 HardwareSerial RS485(1);
@@ -97,19 +28,9 @@ uint32_t heightTimeCounter = 0UL;
 // Control variable for the LoRa sender loop
 uint32_t loggingTimeCounter = 0UL;
 
-// Signed current flow reading from Octave meter truncated to 16 bits
-AverageCalculator SignedCurrentFlowArr(MODBUS_POLLING_FREQ_MS, LOGGING_FREQ_MS, 16);
-int16_t avgSignedCurrentFlow;
-
-// Net signed volume reading from Octave meter truncated to 32 bits
-AverageCalculator NetSignedVolumeArr(MODBUS_POLLING_FREQ_MS, LOGGING_FREQ_MS, 32);
-int32_t avgNetSignedVolume;
-
-// Water level height, in meters
-float waterHeight = 0.0;
-// Water level height, in meters, truncated to 16 bits
-AverageCalculator WaterHeightArr(HEIGHT_POLLING_FREQ_MS, LOGGING_FREQ_MS, 16);
-int16_t avgWaterHeight;
+MetricsManager_int16 signedCurrentFlowMetrics;
+MetricsManager_int32 netSignedVolumeMetrics;
+MetricsManager_int16 waterHeightMetrics;
 
 void setup() {
   // Use Serial0 port for debugging and logging
@@ -130,6 +51,18 @@ void setup() {
 
   pinMode(HEIGHT_SENSOR_PIN, INPUT);
 
+  signedCurrentFlowMetrics.addMetric(new AverageMetric_int16(MODBUS_POLLING_FREQ_MS, LOGGING_FREQ_MS));
+  signedCurrentFlowMetrics.addMetric(new MaxMetric_int16());
+  signedCurrentFlowMetrics.addMetric(new MinMetric_int16());
+
+  netSignedVolumeMetrics.addMetric(new AverageMetric_int32(MODBUS_POLLING_FREQ_MS, LOGGING_FREQ_MS));
+  netSignedVolumeMetrics.addMetric(new MaxMetric_int32());
+  netSignedVolumeMetrics.addMetric(new MaxMetric_int32());
+
+  waterHeightMetrics.addMetric(new AverageMetric_int16(HEIGHT_POLLING_FREQ_MS, LOGGING_FREQ_MS));
+  waterHeightMetrics.addMetric(new MaxMetric_int16());
+  waterHeightMetrics.addMetric(new MinMetric_int16());
+
   // Wait 500ms for Modbus startup
   delay(500);
 }
@@ -145,15 +78,14 @@ void loop() {
         octave.SignedCurrentFlow_double(&signedCurrentFlow);
         // Multiply by 100 to preserve two decimal places, then truncate to 16 bits
         int16_t truncatedSignedCurrentFlow = signedCurrentFlow * 100.0;
-
-        SignedCurrentFlowArr.append(truncatedSignedCurrentFlow);
+        signedCurrentFlowMetrics.append(truncatedSignedCurrentFlow);
 
         // Read Net Signed Volume from Octave meter via Modbus
         double netSignedVolume;
         octave.NetSignedVolume_double(&netSignedVolume);
         // Multiply by 100 to preserve two decimal places, then truncate to 32 bits
         int32_t truncatedNetSignedVolume = netSignedVolume * 100;
-        NetSignedVolumeArr.append(truncatedNetSignedVolume);
+        netSignedVolumeMetrics.append(truncatedNetSignedVolume);
 
         // Restart time counter
         modbusTimeCounter = currentMillis;
@@ -163,11 +95,10 @@ void loop() {
     if (currentMillis - heightTimeCounter >= HEIGHT_POLLING_FREQ_MS) {
         // Read water level height from analog input and scale it between 0-5.0 meters`
         int sensorValue = analogRead(HEIGHT_SENSOR_PIN);
-        waterHeight = (sensorValue/1023.0)*5.0;
+        float waterHeight = (sensorValue/1023.0)*5.0;
         // Multiply by 100 to preserve two decimal places, then truncate to 16 bits
         int16_t truncatedWaterHeight = waterHeight * 100;
-
-        WaterHeightArr.append(truncatedWaterHeight);
+        waterHeightMetrics.append(truncatedWaterHeight);
 
         // Restart time counter
         heightTimeCounter = currentMillis;
@@ -175,29 +106,57 @@ void loop() {
 
     // Log collected data at the specified interval
     if (currentMillis - loggingTimeCounter >= LOGGING_FREQ_MS) {
-        // Calculate averages
-        SignedCurrentFlowArr.calculateAverage();
-        avgSignedCurrentFlow = SignedCurrentFlowArr.int16avg;
-
-        NetSignedVolumeArr.calculateAverage();
-        avgNetSignedVolume = NetSignedVolumeArr.int32avg;
-
-        WaterHeightArr.calculateAverage();
-        avgWaterHeight = WaterHeightArr.int16avg;
+        signedCurrentFlowMetrics.calculate();
+        netSignedVolumeMetrics.calculate();
+        waterHeightMetrics.calculate();
 
         Serial.print("\nCaudal promedio (x100): ");
-        Serial.print(avgSignedCurrentFlow);
+        Serial.print(signedCurrentFlowMetrics.getResult(0));
+        if (signedCurrentFlowMetrics.hasOverflowed(0)) {
+            Serial.print(" (overflow)");
+          }
         Serial.print(", hex: ");
-        Serial.println(avgSignedCurrentFlow, HEX);
-        Serial.print("Volumen promedio (x100): ");
-        Serial.print(avgNetSignedVolume);
+        Serial.println(signedCurrentFlowMetrics.getResult(0), HEX);
+        Serial.print("Caudal max (x100): ");
+        Serial.print(signedCurrentFlowMetrics.getResult(1));
         Serial.print(", hex: ");
-        Serial.println(avgNetSignedVolume, HEX);
-        Serial.print("Altura promedio (x100): ");
-        Serial.print(avgWaterHeight);
+        Serial.println(signedCurrentFlowMetrics.getResult(1), HEX);
+        Serial.print("Caudal min (x100): ");
+        Serial.print(signedCurrentFlowMetrics.getResult(2));
         Serial.print(", hex: ");
-        Serial.println(avgWaterHeight, HEX);
+        Serial.println(signedCurrentFlowMetrics.getResult(2), HEX);
 
+        Serial.print("Volumen promedio (x100): ");
+        Serial.print(netSignedVolumeMetrics.getResult(0));
+        if (netSignedVolumeMetrics.hasOverflowed(0)) {
+            Serial.print(" (overflow)");
+          }
+        Serial.print(", hex: ");
+        Serial.println(netSignedVolumeMetrics.getResult(0), HEX);
+        Serial.print("Volumen max (x100): ");
+        Serial.print(netSignedVolumeMetrics.getResult(1));
+        Serial.print(", hex: ");
+        Serial.println(netSignedVolumeMetrics.getResult(1), HEX);
+        Serial.print("Volumen min (x100): ");
+        Serial.print(netSignedVolumeMetrics.getResult(2));
+        Serial.print(", hex: ");
+        Serial.println(netSignedVolumeMetrics.getResult(2), HEX);
+    
+        Serial.print("Altura promedio (x100): ");
+        Serial.print(waterHeightMetrics.getResult(0));
+        if (waterHeightMetrics.hasOverflowed(0)) {
+            Serial.print(" (overflow)");
+          }
+        Serial.print(", hex: ");
+        Serial.println(waterHeightMetrics.getResult(0), HEX);
+        Serial.print("Altura max (x100): ");
+        Serial.print(waterHeightMetrics.getResult(1));
+        Serial.print(", hex: ");
+        Serial.println(waterHeightMetrics.getResult(1), HEX);
+        Serial.print("Altura min (x100): ");
+        Serial.print(waterHeightMetrics.getResult(2));
+        Serial.print(", hex: ");
+        Serial.println(waterHeightMetrics.getResult(2), HEX);
         // Restart time counter
         loggingTimeCounter = currentMillis;
     }
