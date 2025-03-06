@@ -1,0 +1,1 @@
+arduino-cli compile main/main.ino --fqbn esp32:esp32:XIAO_ESP32C3 --verbose
