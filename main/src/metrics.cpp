@@ -148,7 +148,7 @@ int32_t MinMetric_int32::getResult() {
 }
 
 /**** Manager class to calculate multiple metrics for a variable ****/
-void MetricsManager_int16::addMetric(Metric16* metric) {
+void MetricsManager_int16::addMetric(Metric_int16* metric) {
   metrics.push_back(metric);
 }
 
@@ -172,7 +172,7 @@ bool MetricsManager_int16::hasOverflowed(int index) {
   return metrics[index]->hasOverflowed();
 }
 
-void MetricsManager_int32::addMetric(Metric32* metric) {
+void MetricsManager_int32::addMetric(Metric_int32* metric) {
   metrics.push_back(metric);
 }
 

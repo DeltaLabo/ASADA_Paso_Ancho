@@ -92,12 +92,12 @@ class MinMetric_int16 : public Metric_int16 {
     bool hasOverflowed() override { return false; }
 };
 
-class MaxMetric_int32 : public Metric_int32 {
+class MinMetric_int32 : public Metric_int32 {
   private:
     int32_t min;
 
   public:
-    MaxMetric_int32();
+    MinMetric_int32();
     void append(int32_t value) override;
     void calculate() override;
     int32_t getResult() override;

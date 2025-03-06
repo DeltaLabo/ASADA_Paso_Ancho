@@ -1,7 +1,7 @@
 #include <HardwareSerial.h>
 
 #include "src/OctaveModbusWrapper/ESP32/OctaveModbusWrapper.h"
-#include "src/SIM7600Wrapper/SIM7600Wrapper.h"
+//#include "src/SIM7600Wrapper/SIM7600Wrapper.h"
 #include "frequencies.h"
 #include "pins.h"
 #include "src/metrics.h"
