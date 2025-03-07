@@ -10,95 +10,122 @@
 #define BMS_BAUDRATE 9600
 
 // Calculates the averages of an array updated in real time
-class AverageCalculator {
+class AverageCalculator_int16 {
   public:
     // Amount of data points in the array
     int counter;
     // Maximum size of the array
     int length;
-    // Array data size in bits
-    int dataSize;
-    int16_t* int16array = NULL;
-    int32_t* int32array = NULL;
-    int16_t int16avg;
-    int32_t int32avg;
+    int16_t* array = NULL;
+    int16_t average;
 
     // Constructor
-    AverageCalculator(int sampleFreq, int avgFreq, int dataSizeinBits) {
+    AverageCalculator_int16(int sampleFreq, int avgFreq) {
       // Store as many samples as possible during one average period
       length = (avgFreq / sampleFreq) + 5;
       // Reset the data point counter
       counter = 0;
-      dataSize = dataSizeinBits;
 
       // Allocate memory for data arrays
-      if (dataSize == 16) int16array = (int16_t*)malloc(length * sizeof(int16_t));
-      else if (dataSize == 32) int32array = (int32_t*)malloc(length * sizeof(int32_t));
+      array = (int16_t*)malloc(length * sizeof(int16_t));
     }
 
     // Append an int16 value to the array
     void append(int16_t value) {
       // Bounds checking
       if (counter < length) {
-        int16array[counter] = value;
+        array[counter] = value;
         counter = counter + 1;
       }
+    }
+
+    uint8_t calculateAverage() {
+      uint8_t status = 0;
+
+      // Calculate the sum of all data points in the array
+      int64_t sum = 0;
+      for (int i = 0; i < counter; i++) {
+        sum = sum + array[i];
+      }
+
+      // Take the average, ensuring we don't overflow int16_t
+      float avgFloat = (float)sum / (float)counter;
+      
+      // Check if result will fit in int16_t
+      if (avgFloat > INT16_MAX) {
+        average = INT16_MAX; // Clamp to max value
+        // Error code 1: Overflow
+        status = 1;
+      } else if (avgFloat < -(INT16_MAX+1)) {
+        average = -(INT16_MAX+1); // Clamp to min value
+        // Error code 2: Underflow
+        status = 2;
+      } else {
+        average = (int16_t)avgFloat;
+      }
+
+      // Reset the counter
+      counter = 0;
+
+      return status;
+    }
+};
+
+// Calculates the averages of an array updated in real time
+class AverageCalculator_int32 {
+  public:
+    // Amount of data points in the array
+    int counter;
+    // Maximum size of the array
+    int length;
+    int32_t* array = NULL;
+    int32_t average;
+
+    // Constructor
+    AverageCalculator_int32(int sampleFreq, int avgFreq) {
+      // Store as many samples as possible during one average period
+      length = (avgFreq / sampleFreq) + 5;
+      // Reset the data point counter
+      counter = 0;
+
+      array = (int32_t*)malloc(length * sizeof(int32_t));
     }
 
     // Append an int32 value to the array
     void append(int32_t value) {
       // Bounds checking
       if (counter < length) {
-        int32array[counter] = value;
+        array[counter] = value;
         counter = counter + 1;
       }
     }
 
-    void calculateAverage() {
-      if (dataSize == 16) {
-        // Calculate the sum of all data points in the array
-        int64_t sum = 0;
-        for (int i = 0; i < counter; i++) {
-          sum = sum + int16array[i];
-        }
+    uint8_t calculateAverage() {
+      uint8_t status = 0;
 
-        // Take the average, ensuring we don't overflow int16_t
-        float avgFloat = (float)sum / (float)counter;
-        
-        // Check if result will fit in int16_t
-        if (avgFloat > INT16_MAX) {
-          int16avg = INT16_MAX; // Clamp to max value
-        } else if (avgFloat < -(INT16_MAX+1)) {
-          int16avg = -(INT16_MAX+1); // Clamp to min value
-        } else {
-          int16avg = (int16_t)avgFloat;
-        }
-
-        // Reset the counter
-        counter = 0;
+      // Calculate the sum of all data points in the array
+      int64_t sum = 0;
+      for (int i = 0; i < counter; i++) {
+        sum = sum + array[i];
       }
-      else if (dataSize == 32) {
-        // Calculate the sum of all data points in the array
-        int64_t sum = 0;
-        for (int i = 0; i < counter; i++) {
-          sum = sum + int32array[i];
-        }
 
-        // Take the average, ensuring we don't overflow int32_t
-        float avgFloat = (float)sum / (float)counter;
-        
-        // Check if result will fit in int32_t
-        if (avgFloat > INT32_MAX) {
-          int32avg = INT32_MAX; // Clamp to max value
-        } else if (avgFloat < -(INT32_MAX+1)) {
-          int32avg = -(INT32_MAX+1); // Clamp to min value
-        } else {
-          int32avg = (int32_t)avgFloat;
-        }
-
-        // Reset the counter
-        counter = 0;
+      // Take the average, ensuring we don't overflow int32_t
+      float avgFloat = (float)sum / (float)counter;
+      
+      // Check if result will fit in int32_t
+      if (avgFloat > INT32_MAX) {
+        average = INT32_MAX; // Clamp to max value
+        status = 1;
+      } else if (avgFloat < -(INT32_MAX+1)) {
+        average = -(INT32_MAX+1); // Clamp to min value
+        status = 1;
+      } else {
+        average = (int32_t)avgFloat;
       }
+
+      // Reset the counter
+      counter = 0;
+      return status;
     }
 };
 
@@ -118,15 +145,15 @@ uint32_t heightTimeCounter = 0UL;
 uint32_t loggingTimeCounter = 0UL;
 
 // Signed current flow reading from Octave meter truncated to 16 bits
-AverageCalculator SignedCurrentFlowArr(MODBUS_POLLING_FREQ_MS, LOGGING_FREQ_MS, 16);
+AverageCalculator_int16 SignedCurrentFlowArr(MODBUS_POLLING_FREQ_MS, LOGGING_FREQ_MS);
 int16_t avgSignedCurrentFlow;
 
 // Net signed volume reading from Octave meter truncated to 32 bits
-AverageCalculator NetSignedVolumeArr(MODBUS_POLLING_FREQ_MS, LOGGING_FREQ_MS, 32);
+AverageCalculator_int32 NetSignedVolumeArr(MODBUS_POLLING_FREQ_MS, LOGGING_FREQ_MS);
 int32_t avgNetSignedVolume;
 
 // Water level height, in meters, truncated to 16 bits
-AverageCalculator WaterHeightArr(HEIGHT_POLLING_FREQ_MS, LOGGING_FREQ_MS, 16);
+AverageCalculator_int16 WaterHeightArr(HEIGHT_POLLING_FREQ_MS, LOGGING_FREQ_MS);
 int16_t avgWaterHeight;
 
 void setup() {
@@ -192,13 +219,13 @@ void loop() {
     if (currentMillis - loggingTimeCounter >= LOGGING_FREQ_MS) {
         // Calculate averages
         SignedCurrentFlowArr.calculateAverage();
-        avgSignedCurrentFlow = SignedCurrentFlowArr.int16avg;
+        avgSignedCurrentFlow = SignedCurrentFlowArr.average;
 
         NetSignedVolumeArr.calculateAverage();
-        avgNetSignedVolume = NetSignedVolumeArr.int32avg;
+        avgNetSignedVolume = NetSignedVolumeArr.average;
 
         WaterHeightArr.calculateAverage();
-        avgWaterHeight = WaterHeightArr.int16avg;
+        avgWaterHeight = WaterHeightArr.average;
 
         Serial.print("\nCaudal promedio (x100): ");
         Serial.print(avgSignedCurrentFlow);
