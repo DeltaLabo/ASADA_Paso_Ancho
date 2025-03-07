@@ -1,8 +1,7 @@
 #include <HardwareSerial.h>
 
 #include "src/OctaveModbusWrapper/ESP32/OctaveModbusWrapper.h"
-#include "src/SIM7600Wrapper/SIM7600Wrapper.h"
-#include "src/DataLogger/DataLogger.h"
+//#include "src/SIM7600Wrapper/SIM7600Wrapper.h"
 #include "frequencies.h"
 #include "pins.h"
 #include "src/metrics.h"
@@ -11,8 +10,98 @@
 #define SIM_BAUDRATE 115200
 #define BMS_BAUDRATE 9600
 
-// Define logging frequency (every 10 minutes)
-#define DATA_LOGGING_FREQ_MS 600000
+// Calculates the averages of an array updated in real time
+class AverageCalculator {
+  public:
+    // Amount of data points in the array
+    int counter;
+    // Maximum size of the array
+    int length;
+    // Array data size in bits
+    int dataSize;
+    int16_t* int16array = NULL;
+    int32_t* int32array = NULL;
+    int16_t int16avg;
+    int32_t int32avg;
+
+    // Constructor
+    AverageCalculator(int sampleFreq, int avgFreq, int dataSizeinBits) {
+      // Store as many samples as possible during one average period
+      length = (avgFreq / sampleFreq) + 5;
+      // Reset the data point counter
+      counter = 0;
+      dataSize = dataSizeinBits;
+
+      // Allocate memory for data arrays
+      if (dataSize == 16) int16array = (int16_t*)malloc(length * sizeof(int16_t));
+      else if (dataSize == 32) int32array = (int32_t*)malloc(length * sizeof(int32_t));
+    }
+
+    // Append an int16 value to the array
+    void append(int16_t value) {
+      // Bounds checking
+      if (counter < length) {
+        int16array[counter] = value;
+        counter = counter + 1;
+      }
+    }
+
+    // Append an int32 value to the array
+    void append(int32_t value) {
+      // Bounds checking
+      if (counter < length) {
+        int32array[counter] = value;
+        counter = counter + 1;
+      }
+    }
+
+    void calculateAverage() {
+      if (dataSize == 16) {
+        // Calculate the sum of all data points in the array
+        int64_t sum = 0;
+        for (int i = 0; i < counter; i++) {
+          sum = sum + int16array[i];
+        }
+
+        // Take the average, ensuring we don't overflow int16_t
+        float avgFloat = (float)sum / (float)counter;
+        
+        // Check if result will fit in int16_t
+        if (avgFloat > INT16_MAX) {
+          int16avg = INT16_MAX; // Clamp to max value
+        } else if (avgFloat < -(INT16_MAX+1)) {
+          int16avg = -(INT16_MAX+1); // Clamp to min value
+        } else {
+          int16avg = (int16_t)avgFloat;
+        }
+
+        // Reset the counter
+        counter = 0;
+      }
+      else if (dataSize == 32) {
+        // Calculate the sum of all data points in the array
+        int64_t sum = 0;
+        for (int i = 0; i < counter; i++) {
+          sum = sum + int32array[i];
+        }
+
+        // Take the average, ensuring we don't overflow int32_t
+        float avgFloat = (float)sum / (float)counter;
+        
+        // Check if result will fit in int32_t
+        if (avgFloat > INT32_MAX) {
+          int32avg = INT32_MAX; // Clamp to max value
+        } else if (avgFloat < -(INT32_MAX+1)) {
+          int32avg = -(INT32_MAX+1); // Clamp to min value
+        } else {
+          int32avg = (int32_t)avgFloat;
+        }
+
+        // Reset the counter
+        counter = 0;
+      }
+    }
+};
 
 // Define the HardwareSerial used as an RS-485 port
 HardwareSerial RS485(1);
@@ -40,9 +129,13 @@ uint32_t loggingTimeCounter = 0UL;
 // Control variable for the Data Logging frequency
 uint32_t dataLoggingTimeCounter = 0UL;
 
-MetricsManager_int16 signedCurrentFlowMetrics;
-MetricsManager_int32 netSignedVolumeMetrics;
-MetricsManager_int16 waterHeightMetrics;
+// Net signed volume reading from Octave meter truncated to 32 bits
+AverageCalculator NetSignedVolumeArr(MODBUS_POLLING_FREQ_MS, LOGGING_FREQ_MS, 32);
+int32_t avgNetSignedVolume;
+
+// Water level height, in meters, truncated to 16 bits
+AverageCalculator WaterHeightArr(HEIGHT_POLLING_FREQ_MS, LOGGING_FREQ_MS, 16);
+int16_t avgWaterHeight;
 
 void setup() {
   // Use Serial0 port for debugging and logging
@@ -114,7 +207,7 @@ void loop() {
         octave.SignedCurrentFlow_double(&signedCurrentFlow);
         // Multiply by 100 to preserve two decimal places, then truncate to 16 bits
         int16_t truncatedSignedCurrentFlow = signedCurrentFlow * 100.0;
-        signedCurrentFlowMetrics.append(truncatedSignedCurrentFlow);
+        SignedCurrentFlowArr.append(truncatedSignedCurrentFlow);
 
         // Read Net Signed Volume from Octave meter via Modbus
         double netSignedVolume;
@@ -134,7 +227,7 @@ void loop() {
         float waterHeight = (sensorValue/1023.0)*5.0;
         // Multiply by 100 to preserve two decimal places, then truncate to 16 bits
         int16_t truncatedWaterHeight = waterHeight * 100;
-        waterHeightMetrics.append(truncatedWaterHeight);
+        WaterHeightArr.append(truncatedWaterHeight);
 
         // Restart time counter
         heightTimeCounter = currentMillis;

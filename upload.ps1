@@ -1,1 +1,1 @@
-arduino-cli upload main/main.ino --fqbn esp32:esp32:XIAO_ESP32C3 --port COM5 --verbose
+arduino-cli upload --fqbn esp32:esp32:XIAO_ESP32C3 --verbose main/main.ino --port COM5
