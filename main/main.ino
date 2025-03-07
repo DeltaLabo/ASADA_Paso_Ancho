@@ -1,7 +1,7 @@
 #include <HardwareSerial.h>
 
 #include "src/OctaveModbusWrapper/ESP32/OctaveModbusWrapper.h"
-#include "src/SIM7600Wrapper/SIM7600Wrapper.h"
+//#include "src/SIM7600Wrapper/SIM7600Wrapper.h"
 #include "frequencies.h"
 #include "pins.h"
 
@@ -26,7 +26,7 @@ class AverageCalculator {
     // Constructor
     AverageCalculator(int sampleFreq, int avgFreq, int dataSizeinBits) {
       // Store as many samples as possible during one average period
-      length = sampleFreq / avgFreq + 5;
+      length = (avgFreq / sampleFreq) + 5;
       // Reset the data point counter
       counter = 0;
       dataSize = dataSizeinBits;
@@ -38,17 +38,20 @@ class AverageCalculator {
 
     // Append an int16 value to the array
     void append(int16_t value) {
-      int16array[counter] = value;
-
-      // Update the data point counter
-      counter = counter + 1;
+      // Bounds checking
+      if (counter < length) {
+        int16array[counter] = value;
+        counter = counter + 1;
+      }
     }
 
     // Append an int32 value to the array
     void append(int32_t value) {
-      int32array[counter] = value;
-      // Update the data point counter
-      counter = counter + 1;
+      // Bounds checking
+      if (counter < length) {
+        int32array[counter] = value;
+        counter = counter + 1;
+      }
     }
 
     void calculateAverage() {
@@ -59,8 +62,18 @@ class AverageCalculator {
           sum = sum + int16array[i];
         }
 
-        // Take the average
-        int16avg = (float)sum / ((float)counter * 1.0);
+        // Take the average, ensuring we don't overflow int16_t
+        float avgFloat = (float)sum / (float)counter;
+        
+        // Check if result will fit in int16_t
+        if (avgFloat > INT16_MAX) {
+          int16avg = INT16_MAX; // Clamp to max value
+        } else if (avgFloat < -(INT16_MAX+1)) {
+          int16avg = -(INT16_MAX+1); // Clamp to min value
+        } else {
+          int16avg = (int16_t)avgFloat;
+        }
+
         // Reset the counter
         counter = 0;
       }
@@ -71,8 +84,18 @@ class AverageCalculator {
           sum = sum + int32array[i];
         }
 
-        // Take the average
-        int32avg = (float)sum / ((float)counter * 1.0);
+        // Take the average, ensuring we don't overflow int32_t
+        float avgFloat = (float)sum / (float)counter;
+        
+        // Check if result will fit in int32_t
+        if (avgFloat > INT32_MAX) {
+          int32avg = INT32_MAX; // Clamp to max value
+        } else if (avgFloat < -(INT32_MAX+1)) {
+          int32avg = -(INT32_MAX+1); // Clamp to min value
+        } else {
+          int32avg = (int32_t)avgFloat;
+        }
+
         // Reset the counter
         counter = 0;
       }
@@ -105,8 +128,6 @@ int16_t avgSignedCurrentFlow;
 AverageCalculator NetSignedVolumeArr(MODBUS_POLLING_FREQ_MS, LOGGING_FREQ_MS, 32);
 int32_t avgNetSignedVolume;
 
-// Water level height, in meters
-float waterHeight = 0.0;
 // Water level height, in meters, truncated to 16 bits
 AverageCalculator WaterHeightArr(HEIGHT_POLLING_FREQ_MS, LOGGING_FREQ_MS, 16);
 int16_t avgWaterHeight;
@@ -134,7 +155,6 @@ void setup() {
   delay(500);
 }
 
-
 void loop() {
     uint32_t currentMillis = millis();  // Get the current time
 
@@ -145,7 +165,6 @@ void loop() {
         octave.SignedCurrentFlow_double(&signedCurrentFlow);
         // Multiply by 100 to preserve two decimal places, then truncate to 16 bits
         int16_t truncatedSignedCurrentFlow = signedCurrentFlow * 100.0;
-
         SignedCurrentFlowArr.append(truncatedSignedCurrentFlow);
 
         // Read Net Signed Volume from Octave meter via Modbus
@@ -163,10 +182,9 @@ void loop() {
     if (currentMillis - heightTimeCounter >= HEIGHT_POLLING_FREQ_MS) {
         // Read water level height from analog input and scale it between 0-5.0 meters`
         int sensorValue = analogRead(HEIGHT_SENSOR_PIN);
-        waterHeight = (sensorValue/1023.0)*5.0;
+        float waterHeight = (sensorValue/1023.0)*5.0;
         // Multiply by 100 to preserve two decimal places, then truncate to 16 bits
         int16_t truncatedWaterHeight = waterHeight * 100;
-
         WaterHeightArr.append(truncatedWaterHeight);
 
         // Restart time counter
