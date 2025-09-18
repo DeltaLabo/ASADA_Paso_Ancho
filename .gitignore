@@ -55,6 +55,7 @@ dkms.conf
 .vscode/
 
 paperv1/
+venv/
 
 *.aux
 *.fdb_latexmk
