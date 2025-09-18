@@ -53,3 +53,5 @@ dkms.conf
 
 # Visual Studio Code config directory
 .vscode/
+
+paperv1/
