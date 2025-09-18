@@ -55,3 +55,14 @@ dkms.conf
 .vscode/
 
 paperv1/
+
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.snm
+*.synctex.gz
+*.toc
+*.nav
+isse2025.pdf

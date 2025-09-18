@@ -1,0 +1,52 @@
+%% Bruno Beamer theme — Version 1.0
+%% A lightweight Beamer theme inspired from the Metropolis theme
+%%
+%% Written in 2017-2019 by:
+%% — Rémi Cérès <remiceres@msn.com>
+%% — Mattéo Delabre <bonjour@matteodelabre.me>
+%%
+%% This work is released under the CC0 1.0 Universal license. See the
+%% accompanying LICENSE file for details. To the extent possible under
+%% law, Rémi Cérès and Mattéo Delabre have waived all copyright and
+%% related or neighboring rights to the Bruno Beamer theme. This work
+%% is published from France.
+
+\mode<presentation>
+
+% Normal slide header
+\setbeamertemplate{frametitle}{
+    \vskip1em\par
+    \usebeamerfont{frametitle}\insertframetitle\par
+    \usebeamerfont{framesubtitle}\insertframesubtitle\par
+}
+
+% Remove useless navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% Remove header line that distract from actual slide content
+\setbeamertemplate{headline}{}
+
+% Footer information line with title, author and slide number
+\setbeamertemplate{footline}{%
+    \leavevmode%
+    \hbox{%
+        \usebeamerfont{footline}%
+        \begin{beamercolorbox}[
+            wd=\textwidth,
+            ht=3ex,
+            dp=1.25ex
+        ]{footline}%
+            \hspace{1cm}%
+            \insertshorttitle%
+            \hfill%
+            \insertshortauthor%
+            \hspace{2em}%
+            \insertpagenumber/ \insertsectionendpage
+            %\insertframenumber{} / \inserttotalframenumber% 
+            \hspace{1cm}
+        \end{beamercolorbox}%
+    }
+    \vskip0pt%
+}
+
+\mode<all>
