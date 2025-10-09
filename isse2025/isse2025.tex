@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass[aspectratio=169]{beamer}
 \usetheme{Bruno}
 
 \title[IoT for Rural Aqueducts using MBSE]{Towards a Modular IoT System Architecture for Rural Aqueducts using Model-Based Systems Engineering}
@@ -46,8 +46,8 @@
         \end{column}
         \begin{column}{0.5\textwidth}
             \begin{figure}
-                \includegraphics[width=\columnwidth]{images/asada.jpg}
-                \caption{Water tank facility of ASADA Rio Celeste, Alajuela, Costa Rica \cite{rioceleste}.}
+                \includegraphics[width=0.8\columnwidth]{images/asada.png}
+                \caption{Aerial view of the water tank facility of ASADA Paso Ancho, Costa Rica \cite{rioceleste}.}
             \end{figure}
         \end{column}
     \end{columns}
@@ -60,13 +60,13 @@
     \begin{columns}[T] % Align columns at the top
         \begin{column}{0.5\textwidth}
             \begin{figure}
-                \includegraphics[width=\columnwidth]{images/oviedo.png}
+                \includegraphics[width=0.7\columnwidth]{images/oviedo.png}
                 \caption{IoT system developed by \cite{Oviedo2024} for ASADA Paso Ancho, Cartago.}
             \end{figure}
         \end{column}
         \begin{column}{0.5\textwidth}
             \begin{figure}
-                \includegraphics[width=\columnwidth]{images/solorzano.png}
+                \includegraphics[width=0.8\columnwidth]{images/solorzano.png}
                 \caption{IoT system developed by \cite{Solorzano2021} for ASADA Playa Sámara, Nicoya.}
             \end{figure}
         \end{column}
@@ -80,6 +80,7 @@
         \item \textbf{RQ1:} Are there existing systems engineering-based (including ARCADIA MBSE) architectures for the design of IoT systems for rural aqueducts?
         \item \textbf{RQ2:} If they exist, are the architectures generic and modular?
         \item \textbf{RQ3:} What are the needs and desires of rural aqueducts that can be addressed by IoT systems?
+        \item \textbf{Contribution:} A generic system architecture for rural aqueducts, developed using the ARCADIA method
     \end{itemize} 
 \end{frame}
 
@@ -88,25 +89,38 @@
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{images/phases_arcadia.png}
+        \includegraphics[width=0.9\textwidth]{images/phases_arcadia.png}
         \caption{Phases of the ARCADIA Model-Based Systems Engineering Methodology and its associated Language and Tool Capella.}
     \end{figure}
 \end{frame}
 
 \begin{frame}
     \frametitle{\small Operational Need Analysis}
-    \framesubtitle{Extracting Generic Needs and Desires about IoT Systems in Rural Aqueducts}
+    \framesubtitle{Extracting Generic Needs and Desires about IoT Systems in Rural Aqueducts using NLP}
 
-    \begin{figure}
+    \begin{table}
         \centering
-        \includegraphics[width=\textwidth]{images/bertopic.png}
-        \caption{Process of extracting generic needs and desires about IoT systems in rural aqueducts from published literature.}
-    \end{figure}
+        \caption{Needs and desires extracted from paper full text embeddings using BERTopic.}
+        \begin{tabular}{c p{6cm}}
+            Code & Need or desire \\
+            \hline
+            ND1.1 & Identify sources of water pollution \\ %
+            ND1.2 & Monitor water pollution \\ %
+            ND2 & Monitor water pH \\ %
+            ... & ... \\ %
+            ND52 & MQTT node communication \\
+            ND53 & Mobile network connectivity \\
+            ND54 & WiFi connectivity \\
+            ND55 & LoRaWAN connectivity \\
+            \hline
+        \end{tabular}
+        \label{tab:clusters}
+    \end{table}
 \end{frame}
 
 \begin{frame}
-    \frametitle{\small Operational Need Analysis}
-    \framesubtitle{Operational Capabilities 1: Provide high-quality water, 2: Comply with water quality standards and 4: Share data with external entities}
+    \frametitle{\small Operational Need Analysis: Operational Capabilities}
+    \framesubtitle{1: Provide high-quality water, 2: Comply with water quality standards and 4: Share data with external entities}
 
     \begin{figure}
         \centering
@@ -121,29 +135,29 @@
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{images/opcap3.jpg}
+        \includegraphics[width=0.9\textwidth]{images/opcap3.jpg}
         \caption{Operational Need Analysis for rural aqueducts, reduced to the activities involved in Capability 3.}
     \end{figure}
 \end{frame}
 
 \begin{frame}
-    \frametitle{\small System Need Analysis}
-    \framesubtitle{System Capabilities 1: Provide water quality data, 5: Share data with external entities}
+    \frametitle{\small System Need Analysis: System Capabilities}
+    \framesubtitle{1: Provide water quality data, 5: Share data with external entities}
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{images/scap1-5.jpg}
+        \includegraphics[width=0.9\textwidth]{images/scap1-5.jpg}
         \caption{System Need Analysis for IoT systems in rural aqueducts, reduced to the activities involved in Capabilities 1 and 5.}
     \end{figure}
 \end{frame}
 
 \begin{frame}
-    \frametitle{\small System Need Analysis}
-    \framesubtitle{System Capabilities 2: Provide water loss data, 3: Provide water supply and demand data, 4: Control water distribution}
+    \frametitle{\small System Need Analysis: System Capabilities}
+    \framesubtitle{2: Provide water loss data, 3: Provide water supply and demand data, 4: Control water distribution}
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{images/scap2-3-4.jpg}
+        \includegraphics[width=0.85\textwidth]{images/scap2-3-4.jpg}
         \caption{System Need Analysis for IoT systems in rural aqueducts, reduced to the activities involved in Capabilities 2, 3 and 4.}
     \end{figure}
 \end{frame}
@@ -154,7 +168,7 @@
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{images/separation.jpg}
+        \includegraphics[width=0.77\textwidth]{images/separation.jpg}
         \caption{Logical architecture for IoT systems in rural aqueducts, reduced to the logical componentes that interact with end-users and the environment.}
     \end{figure}
 \end{frame}
@@ -165,7 +179,7 @@
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{images/component_exchanges.jpg}
+        \includegraphics[width=0.75\textwidth]{images/component_exchanges.jpg}
         \caption{Logical architecture for IoT systems in rural aqueducts, reduced to logical components and their component exchanges.}
     \end{figure}
 \end{frame}
@@ -176,7 +190,7 @@
 
     \begin{figure}
         \centering
-        \includegraphics[width=0.8\textwidth]{images/physical_implementation.jpg}
+        \includegraphics[width=0.65\textwidth]{images/physical_implementation.jpg}
         \caption{Physical architecture for IoT systems in rural aqueducts, reduced to the Physical Components implementing the Logical Architecture.}
     \end{figure}
 \end{frame}
@@ -187,12 +201,24 @@
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{images/physical_new.jpg}
-        \caption{Physical architecture for IoT systems in rural aqueducts, reduced to the Physical Components containing implementation-specific functions not found in the Logical Architecture.}
+        \includegraphics[width=0.9\textwidth]{images/physical_new.jpg}
+        \caption{Physical architecture for IoT systems in rural aqueducts, reduced to implementation-specific functions not found in the Logical Architecture.}
     \end{figure}
 \end{frame}
 
 \begin{frame}
+    \frametitle{Conclusions and Future Work}
+
+    \begin{itemize}
+        \item Generality was introduced by extracting needs and desires from a wide range of literature using data mining techniques.
+        \item The application of the ARCADIA MBSE method enabled traceability from needs to logical and even physical architecture, and technology-agnostic design.
+        \item Modularity was achieved by separating end-user and environmental interactions, and by using buses, queues, and pub/sub channels for component exchanges.
+        \item The presented architecture can be adapted to a practical implementation, for example by technology transfer initiatives.
+        \item Future work should strengthen the data mining pipeline by including more sources of information, and further developing the physical architecture with more case studies.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[allowframebreaks]
     \frametitle{References}
     \bibliographystyle{IEEEtran}
     \bibliography{refs}
