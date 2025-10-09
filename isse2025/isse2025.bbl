@@ -7,8 +7,7 @@
 \providecommand{\BIBentrySTDinterwordspacing}{\spaceskip=0pt\relax}
 \providecommand{\BIBentryALTinterwordstretchfactor}{4}
 \providecommand{\BIBentryALTinterwordspacing}{\spaceskip=\fontdimen2\font plus
-\BIBentryALTinterwordstretchfactor\fontdimen3\font minus
-  \fontdimen4\font\relax}
+\BIBentryALTinterwordstretchfactor\fontdimen3\font minus \fontdimen4\font\relax}
 \providecommand{\BIBforeignlanguage}[2]{{%
 \expandafter\ifx\csname l@#1\endcsname\relax
 \typeout{** WARNING: IEEEtran.bst: No hyphenation pattern has been}%
@@ -21,8 +20,13 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
-\bibitem{Arcadia_phases}
-Thales, ``Arcadia - capella mbse tool,''
-  \url{https://mbse-capella.org/arcadia.html}, accessed 2024-07-10.
+\bibitem{rioceleste}
+{El Mundo CR}, ``Asada de río celeste protegerá naciente de agua gracias a tarifa de protección al recurso hídrico,'' \url{https://elmundo.cr/costa-rica/asada-de-rio-celeste-protegera-naciente-de-agua-gracias-a-tarifa-de-proteccion-al-recurso-hidrico/}, 2024.
+
+\bibitem{Oviedo2024}
+A.~Oviedo~Muñoz, ``Desarrollo de un prototipo para recopilación y monitoreo remoto de datos hídricos de los tanques, basado en dispositivos {IoT}, en la {ASADA} paso ancho y boquerón,'' Specialization Practice Report to qualify for the title of Industrial Maintenance Engineer, with the academic degree of Licentiate, Tecnológico de Costa Rica, Escuela de Ingeniería Electromecánica, March 2024.
+
+\bibitem{Solorzano2021}
+S.~Solórzano~Alfaro, ``Sistema de control y monitoreo hídrico, basado en {LoRaWAN}™, para el acueducto principal de la asociación administradora del acueducto rural de playa sámara de nicoya,'' Specialization Practice Report to qualify for the title of Industrial Maintenance Engineer, with the academic degree of Licentiate, Tecnológico de Costa Rica, Escuela de Ingeniería Electromecánica, June 2021.
 
 \end{thebibliography}
