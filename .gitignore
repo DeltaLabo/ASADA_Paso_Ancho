@@ -66,3 +66,5 @@ venv/
 *.synctex.gz
 *.toc
 *.nav
+*.bbl
+*.blg

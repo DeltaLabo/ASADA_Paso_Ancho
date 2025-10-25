@@ -1,8 +1,10 @@
 \documentclass[aspectratio=169]{beamer}
 \usetheme{Bruno}
 
+\usepackage{comment}
+
 \title[IoT for Rural Aqueducts using MBSE]{Towards a Modular IoT System Architecture for Rural Aqueducts using Model-Based Systems Engineering}
-\author[Laboratorio Delta]{Anthony José Arguedas-Rodríguez \and María José Angulo-Campos \and Juan José Montero-Jiménez \and Juan José Rojas-Hernández}
+\author[Tecnológico de Costa Rica]{Anthony José Arguedas-Rodríguez \and María José Angulo-Campos \and Juan José Montero-Jiménez \and Juan José Rojas-Hernández}
 \date{2025 IEEE International Symposium on Systems Engineering}
 
 \begin{document}
@@ -15,11 +17,19 @@
         \vspace{0.5cm}
         {\insertauthor} \\
         \vspace{0.25cm}
-        {\small \textbf{Laboratorio Delta, Costa Rica Institute of Technology}} \\
+        {\small \textbf{Laboratorio Delta, Tecnológico de Costa Rica}} \\
         \vspace{0.5cm}
         {\insertdate}
     \end{center}
 \end{frame}
+
+\begin{comment}
+# Initial slide
+
+Greetings everyone and thank you for being here.
+I am Anthony Arguedas, an undergraduate research assistant at Laboratorio Delta, at the Costa Rica Institute of Technology.
+Today, I will be presenting our work titled "Towards a Modular IoT System Architecture for Rural Aqueducts using Model-Based Systems Engineering." 
+\end{comment}
 
 \begin{frame}
     \frametitle{Contents}
@@ -34,24 +44,57 @@
     \end{itemize}
 \end{frame}
 
+\begin{comment}
+# Contents
+
+In this presentation, we will start by presenting the context of IoT systems in rural aqueducts,
+their capability gaps, and previous work done in the field of technology transfer from academia to rural aqueducts.
+
+Then, we will introduce the ARCADIA Model-Based Systems Engineering Methodology, which we used to develop the system architecture that is the main contribution of our work.
+
+We will through our design process across the four ARCADIA phases, culminating on a case study of a physical architecture
+derived from our generic model for a particular rural aqueduct.
+\end{comment}
+
 \begin{frame}
     \frametitle{What are Rural Aqueducts?}
 
     \begin{columns}[T] % Align columns at the top
         \begin{column}{0.5\textwidth}
             \begin{enumerate}
-                \item Self-managed, community-based, commonly resource-constrained water resource administrators for rural areas.
-                \item Often rely on manual monitoring, inspection, and control methods, and are vulnerable to water loss and unreliable service.
+                \item Self-managed
+                \item Rural community-based
+                \item Small-scale
+                \item Limited staff
+                \item Commonly resource-constrained
+                \item Manual monitoring, inspection, and control methods
+                \item Vulnerable to water loss and unreliable service
             \end{enumerate}
         \end{column}
         \begin{column}{0.5\textwidth}
             \begin{figure}
                 \includegraphics[width=0.8\columnwidth]{images/asada.png}
-                \caption{Aerial view of the water tank facility of ASADA Paso Ancho, Costa Rica \cite{rioceleste}.}
+                \caption{Aerial view of the water tank facility of ASADA Paso Ancho, Costa Rica.}
             \end{figure}
         \end{column}
     \end{columns}
 \end{frame}
+
+\begin{comment}
+# What are Rural Aqueducts?
+
+Firstly, we need to differentiate rural aqueducts from other water distribution networks by stating their main characteristics,
+namely that they are self-managed, community-based, and commonly resource-constrained water resource administrators for rural areas.
+Mentioning here that they are small-scale operations with limited staff is not redundant,
+as larger operations are usually managed in a centralized manner.
+
+They frequently rely on manual operational processes, and are vulnerable to water loss and unreliable service.
+
+In the right we can see an aerial view of the water tank facility of ASADA Paso Ancho, a rural aqueduct in Costa Rica,
+with which we are currently collaborating for the case study that will be presented at the end of this talk.
+We can clearly see that these are small-scale operations without much infrastructure apart from the basic components
+needed to store and distribute water using manual control.
+\end{comment}
 
 \begin{frame}
     \frametitle{\small IoT Systems in Rural Aqueducts Context}
@@ -73,6 +116,18 @@
     \end{columns}
 \end{frame}
 
+\begin{comment}
+# Previous technology transfer work
+
+An important inspiration for this work comes from previous efforts at Laboratorio Delta
+to transfer IoT technology to rural aqueducts, such as two systems pictured here that were developed by previous lab members.
+
+After the second project the need for standardization was identified,
+because although the needs of desires that these systems addressed were similar,
+the architectures were different, and in both cases the design process was started from almost from zero
+although there was previous experience in the lab.
+\end{comment}
+
 \begin{frame}
     \frametitle{Research Questions}
 
@@ -84,6 +139,20 @@
     \end{itemize} 
 \end{frame}
 
+\begin{comment}
+The identified capability gaps and the potential for standardization in the design of IoT systems for rural aqueducts
+led us to formulate the these research questions.
+
+We aimed to surface existing architectures that were developed using systems engineering-based methodologies, and to
+assess if they were generic and modular so as to allow for adaptation to different contexts.
+
+Importantly, we found no previous works that applied the ARCADIA MBSE method, or any systematic approach altogether
+to this problem domain, despite there being a wealth of literature on IoT systems for rural aqueducts.
+
+Thus, we decided to contribute a generic system architecture for rural aqueducts,
+developed using the ARCADIA method, for which the very stage was to identify the needs and desires of rural aqueducts that can be addressed by IoT systems, as exemplified by research question 3.
+\end{comment}
+
 \begin{frame}
     \frametitle{The ARCADIA MBSE Methodology}
 
@@ -93,6 +162,13 @@
         \caption{Phases of the ARCADIA Model-Based Systems Engineering Methodology and its associated Language and Tool Capella.}
     \end{figure}
 \end{frame}
+
+\begin{comment}
+# The ARCADIA MBSE Methodology
+
+Our work finds its basis in a systems engineering approach that employs an exhaustive and rigorous abstraction
+of the system to be designed, which we know of as a model.
+\end{comment}
 
 \begin{frame}
     \frametitle{\small Operational Need Analysis}
@@ -222,6 +298,17 @@
     \frametitle{References}
     \bibliographystyle{IEEEtran}
     \bibliography{refs}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Backup Slide}
+    \framesubtitle{NLP Pipeline for Generic Needs and Desires Extraction}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{images/bertopic.png}
+        \caption{Process of extracting generic needs and desires about IoT systems in rural aqueducts from published literature.}
+    \end{figure}
 \end{frame}
 
 \end{document}
