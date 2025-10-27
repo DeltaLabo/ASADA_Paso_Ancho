@@ -1,6 +1,6 @@
 \documentclass[aspectratio=169]{beamer}
 \usetheme{Bruno}
-
+\setbeamertemplate{footline}[frame number]
 \usepackage{comment}
 \usepackage{graphicx}
 
@@ -101,13 +101,13 @@ needed to store and distribute water using manual control.
         \begin{column}{0.5\textwidth}
             \begin{figure}
                 \includegraphics[width=0.7\columnwidth]{images/oviedo.png}
-                \caption{IoT system developed by \cite{Oviedo2024} for ASADA Paso Ancho, Cartago.}
+                \caption{IoT system developed by [1] for ASADA Paso Ancho, Cartago.}
             \end{figure}
         \end{column}
         \begin{column}{0.5\textwidth}
             \begin{figure}
                 \includegraphics[width=0.8\columnwidth]{images/solorzano.png}
-                \caption{IoT system developed by \cite{Solorzano2021} for ASADA Playa Sámara, Nicoya.}
+                \caption{IoT system developed by [2] for ASADA Playa Sámara, Nicoya.}
             \end{figure}
         \end{column}
     \end{columns}
@@ -296,9 +296,16 @@ Firstly
 \end{frame}
 
 \begin{frame}[allowframebreaks]
-    \frametitle{References}
-    \bibliographystyle{IEEEtran}
-    \bibliography{refs}
+  \frametitle{References}
+  \footnotesize
+  \begin{thebibliography}{99}
+    \bibitem{oviedo2024}
+      A.~Oviedo Muñoz,
+      ``Desarrollo de un prototipo para recopilación y monitoreo remoto de datos hídricos de los tanques, basado en dispositivos IoT, en la ASADA Paso Ancho y Boquerón,'' Specialization Practice Report to qualify for the title of Industrial Maintenance Engineer, Tecnológico de Costa Rica, Escuela de Ingeniería Electromecánica, Mar. 2024.
+    \bibitem{solorzano2021}
+      S.~Solórzano Alfaro,
+      ``Sistema de control y monitoreo hídrico, basado en LoRaWAN, para el acueducto principal de la sociación administradora del acueducto rural de Playa Sámara de Nicoya,'' Specialization Practice Report to qualify for the title of Industrial Maintenance Engineer, Tecnológico de Costa Rica, Escuela de Ingeniería Electromecánica, Jun. 2021.
+  \end{thebibliography}
 \end{frame}
 
 \begin{frame}
