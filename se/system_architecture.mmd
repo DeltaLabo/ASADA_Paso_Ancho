@@ -50,26 +50,12 @@ flowchart TB
     end
 
     %% Actor to System functional exchanges
-    F_CONSULT_WQ -->|"📨 Data requests"| SF_AQ9
-    
-    F_IMPL_WQ_CTRL -->|"📨 Notifications"| SF_AQ3
-    
     F_CONSULT_WL -->|"📨 Water loss<br/>event data"| SF_AQ8
     SF_AQ8 -->|"📨 High water loss<br/>risk event data"| F_CONSULT_WL
     
-    F_CONSULT_SD -->|"📨 Water distribution<br/>parameters"| SF_WD1
-    SF_WD1 -->|"📨 Distribution rules"| SF_AQ4
+    F_CONSULT_SD -->|"📨 Water distribution<br/>parameters"| SF_AQ6
     SF_AQ6 -->|"📨 S/D forecast"| F_CONSULT_SD
     SF_AQ10 -->|"📨 S/D measurement"| F_CONSULT_SD
-    
-    F_IMPL_WP_MIT -->|"📨 Notifications"| SF_AQ2
-    SF_AQ3 -->|"📨 Low quality water<br/>source data"| F_IMPL_WP_MIT
-
-    F_DEF_DIST --> SF_AQ4
-
-    F_IMPL_WL_MIT -->|"📨 Notifications"| SF_AQ7
-    SF_AQ7 -->|"📨 Indirect water loss<br/>measurement"| F_IMPL_WL_MIT
-    SF_AQ5 -->|"📨 Insufficient supply<br/>event data"| F_IMPL_WL_MIT
 
     %% External data aggregators exchange
     SF_AQ13 -->|"📨 Shareable<br/>data"| SF_ED1
@@ -77,15 +63,9 @@ flowchart TB
     %% Internal System exchanges
     SF_AQ8 --> SF_AQ7
     SF_AQ8 --> SF_AQ11
-    SF_AQ12 -->|"📨 Water loss indicator<br/>measurement"| SF_AQ8
-    SF_AQ12 --> SF_AQ11
-    SF_AQ9 --> SF_AQ15
     SF_AQ10 --> SF_AQ15
     SF_AQ15 --> SF_AQ14
     SF_AQ14 --> SF_AQ13
-    SF_AQ4 --> SF_AQ6
-    SF_AQ6 --> SF_AQ5
-    SF_AQ11 --> SF_AQ7
 
     %% Styling
     classDef actorFunctionClass fill:#f9e79f,stroke:#b7950b,stroke-width:2px
@@ -94,8 +74,8 @@ flowchart TB
     classDef externalClass fill:#e6ffe6,stroke:#009900,stroke-width:3px
     classDef actorContainerClass fill:#fff9e6,stroke:#d4a017,stroke-width:2px,stroke-dasharray: 3 3
 
-    class F_CONSULT_WQ,F_IMPL_WQ_CTRL,F_CONSULT_WL,F_CONSULT_SD,F_IMPL_WQ_STD,F_IMPL_WP_MIT,F_DEF_DIST,F_IMPL_WL_MIT actorFunctionClass
-    class SF_WQ1,SF_ED1,SF_WD1,SF_AQ1,SF_AQ2,SF_AQ3,SF_AQ4,SF_AQ5,SF_AQ6,SF_AQ7,SF_AQ8,SF_AQ9,SF_AQ10,SF_AQ11,SF_AQ12,SF_AQ13,SF_AQ14,SF_AQ15 systemFunctionClass
-    class RuralAqueductSystem,WaterDist,WQEvaluator systemClass
+    class F_CONSULT_WL,F_CONSULT_SD,F_DEF_DIST,F_IMPL_WL_MIT actorFunctionClass
+    class SF_ED1,SF_AQ5,SF_AQ6,SF_AQ7,SF_AQ8,SF_AQ10,SF_AQ11,SF_AQ13,SF_AQ14,SF_AQ15 systemFunctionClass
+    class RuralAqueductSystem systemClass
     class ExtDataAgg externalClass
     class RuralAqueductActors actorContainerClass
