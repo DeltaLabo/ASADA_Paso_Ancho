@@ -1,0 +1,262 @@
+flowchart TB
+    subgraph DigitalOceanDroplet["☁️ DigitalOcean Droplet<br/>Basic Droplet<br/>1 vCPU / 2GB RAM / 25GB SSD<br/>$4/month<br/>Ubuntu 22.04 LTS"]
+        direction TB
+        
+        subgraph DockerEngine["🐳 Docker Engine<br/>Container runtime<br/><br/>{c} Exposed ports: 80, 443, 8086"]
+            direction TB
+            PF_DOCKER1["🟩 Run InfluxDB container"]
+            PF_DOCKER2["🟩 Run API backend container"]
+            PF_DOCKER3["🟩 Run dashboard frontend container"]
+            style DockerEngine fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+        end
+        
+        subgraph InfluxDBContainer["💾 InfluxDB Container<br/>influxdb:2.7<br/><br/>{c} Port 8086, Token auth, Bucket: water_data, Org: aqueduct"]
+            direction TB
+            subgraph InfluxDBEngine["⚙️ InfluxDB Engine"]
+                direction TB
+                PF_INFLUX1["🟩 Expose HTTP API"]
+                PF_INFLUX2["🟩 Authenticate requests"]
+                PF_INFLUX3["🟩 Write data to bucket"]
+                PF_INFLUX4["🟩 Query time-series data"]
+            end
+            subgraph InfluxDBStorage["💿 Persistent Volume<br/>Docker volume mount<br/><br/>{c} 90-day retention with downsampling"]
+                direction TB
+                PF_LTS1["🟩 Persist time-series<br/>measurements"]
+                PF_LTS2["🟩 Persist forecast<br/>results"]
+                PF_LTS3["🟩 Persist alert<br/>history"]
+            end
+            InfluxDBEngine --> InfluxDBStorage
+            style InfluxDBContainer fill:#fff9e6,stroke:#d4a017,stroke-width:3px
+            style InfluxDBEngine fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+            style InfluxDBStorage fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+        end
+        
+        subgraph BackendContainer["⚙️ Backend API Container<br/>Node.js runtime"]
+            direction TB
+            direction TB
+            subgraph APIServer["🌐 API Server<br/><br/>{c} Port 3000"]
+                direction TB
+                PF_API1["🟩 Query measurement data"]
+                PF_API2["🟩 Serve forecast predictions"]
+                PF_API3["🟩 Update alert configurations"]
+                PF_API4["🟩 Stream real-time data"]
+            end
+            subgraph ForecastingEngine["📈 Forecasting Engine"]
+                direction TB
+                PF_FORE1["🟩 Seasonal trend<br/>analysis"]
+                PF_FORE2["🟩 Hourly forecast<br/>calculation"]
+                PF_FORE3["🟩 Anomaly detection"]
+            end
+            subgraph AlertManager["🚨 Alert Manager<br/><br/>{c} Evaluation interval: 5 min"]
+                direction TB
+                PF_ALERT1["🟩 Evaluate alert thresholds"]
+                PF_ALERT2["🟩 Send email notifications"]
+                PF_ALERT3["🟩 Send SMS/WhatsApp notifications"]
+            end
+            APIServer --> ForecastingEngine
+            APIServer --> AlertManager
+            style BackendContainer fill:#fff9e6,stroke:#d4a017,stroke-width:3px
+            style APIServer fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+            style ForecastingEngine fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+            style AlertManager fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+        end
+        
+        subgraph FrontendContainer["📊 Dashboard Container<br/>Node.js runtime<br/><br/>{c} Port 3000"]
+            direction TB
+            subgraph DashboardUI["🖥️ Dashboard UI"]
+                direction TB
+                PF_UI1["🟩 Render real-time gauges"]
+                PF_UI2["🟩 Display historical charts"]
+                PF_UI3["🟩 Show forecast graphs"]
+                PF_UI4["🟩 Display alert panel"]
+            end
+            subgraph MobileUI["📱 Mobile Responsive<br/><br/>{c} Touch-friendly controls"]
+                direction TB
+                PF_MOB1["🟩 Render touch-optimized interface"]
+                PF_MOB2["🟩 Cache data for offline use"]
+            end
+            DashboardUI --> MobileUI
+            style FrontendContainer fill:#fff9e6,stroke:#d4a017,stroke-width:3px
+            style DashboardUI fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+            style MobileUI fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+        end
+        
+        subgraph NginxContainer["🌐 Nginx Reverse Proxy<br/>nginx:alpine<br/><br/>{c} Port 80→3000 (HTTP), 443→3000 (HTTPS), 8086 passthrough"]
+            direction TB
+            PF_NGINX1["🟩 Route HTTP requests to backend"]
+            PF_NGINX2["🟩 Terminate SSL/TLS connections"]
+            PF_NGINX3["🟩 Proxy InfluxDB API requests"]
+            PF_NGINX4["🟩 Serve static files"]
+            style NginxContainer fill:#fff9e6,stroke:#d4a017,stroke-width:3px
+        end
+        
+        subgraph BackupSystem["💾 Backup System<br/>Daily cron job"]
+            direction TB
+            PF_BACK1["🟩 InfluxDB backup<br/>to /backups"]
+            PF_BACK2["🟩 Compress to .tar.gz"]
+            PF_BACK3["🟩 Upload to S3<br/>(DigitalOcean Spaces)"]
+            style BackupSystem fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+        end
+        
+        DockerEngine --> InfluxDBContainer
+        DockerEngine --> BackendContainer
+        DockerEngine --> FrontendContainer
+        DockerEngine --> NginxContainer
+        InfluxDBStorage -.->|"📁 Backup"| BackupSystem
+        NginxContainer --> FrontendContainer
+        NginxContainer --> BackendContainer
+        BackendContainer --> InfluxDBEngine
+        FrontendContainer --> APIServer
+        
+        style DigitalOceanDroplet fill:#e6f3ff,stroke:#0066cc,stroke-width:3px
+    end
+
+    subgraph OctaveSensor["🔊 Octave Ultrasonic Sensor"]
+        direction TB
+        subgraph OS_HW["🟦 Ultrasonic Sensing"]
+            PF_OS1["🟩 Measure current<br/>flow"]
+            PF_OS2["🟩 Measure volume<br/>outflow"]
+        end
+        style OctaveSensor fill:#fff9e6,stroke:#d4a017,stroke-width:3px
+        style OS_HW fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+    end
+
+    subgraph PressureSensor["🔌 Single-wire pressure sensor"]
+        direction TB
+        subgraph PS_HW["🟦 Pressure sensing"]
+            PF_PS1["🟩 Generate water pressure<br/>current signal"]
+        end
+        style PressureSensor fill:#fff9e6,stroke:#d4a017,stroke-width:3px
+        style PS_HW fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+    end
+
+    subgraph SolarPanel["☀️ Solar panel"]
+        direction TB
+        subgraph SP_HW["🟦 PV Cells"]
+            PF_SP1["🟩 Provide solar power"]
+        end
+        style SolarPanel fill:#fff9e6,stroke:#d4a017,stroke-width:3px
+        style SP_HW fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+    end
+
+    subgraph LTEAntenna["📡 LTE Antenna<br/><br/>{c} Omnidirectional"]
+        direction TB
+        subgraph LTE_HW["🟦 Radio transmitter"]
+            PF_LTE1["🟩 Transmit radio signals"]
+        end
+        style LTEAntenna fill:#fff9e6,stroke:#d4a017,stroke-width:3px
+        style LTE_HW fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+    end
+
+    subgraph Enclosure["📦 Enclosure<br/><br/>{c} Water-, and dustproof"]
+        direction TB
+        
+        subgraph PCB["🔌 PCB"]
+            direction TB
+            
+            subgraph XIAO["🟨 XIAO ESP32-C3"]
+                direction TB
+                
+                subgraph DataProcessing["⚙️ Data Processing"]
+                    direction TB
+                    PF_DP1["🟩 Calculate average,<br/>max, min over window"]
+                    PF_DP2["🟩 Quantify water loss"]
+                    PF_DP3["🟩 Calculate water<br/>loss event risk"]
+                    PF_DP4["🟩 Track supply<br/>and demand limits"]
+                end
+
+                subgraph DataAcquisition["📡 Data Acquisition<br/><br/>{c} Configurable measurement period"]
+                    direction TB
+                    PF_DA1["🟩 Acquire sensor measurements"]
+                    style DataAcquisition fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+                end
+
+                subgraph MeasurementWindow["📁 Measurement window<br/><br/>{c} Configurable window size"]
+                    direction TB
+                    PF_MW1["🟩 Provide full measurement windows"]
+                    style MeasurementWindow fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+                end
+
+                subgraph MobileDataMgr["📱 Mobile data manager"]
+                    direction TB
+                    PF_MDM1["🟩 Alert about low<br/>remaining data"]
+                    style MobileDataMgr fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+                end
+            end
+
+            subgraph CurrentConv["⚡ Current-to-voltage converter"]
+                direction TB
+                PF_CV1["🟩 Convert current<br/>signal to voltage"]
+                style CurrentConv fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+            end
+
+            subgraph PowerSystem["🔋 Power system<br/><br/>{c} Uninterrupted<br/>power supply"]
+                direction TB
+                PF_PWR1["🟩 Charge battery"]
+                PF_PWR2["🟩 Provide power"]
+                style PowerSystem fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+            end
+
+            subgraph SIM7600["📶 SIM7600G-H"]
+                direction TB
+                
+                subgraph MobileNetSys["🟦 Mobile network system"]
+                    direction TB
+                    PF_MNS1["🟩 Encode data<br/>as radio signals"]
+                    PF_MNS2["🟩 Measure<br/>remaining data"]
+                    style MobileNetSys fill:#87ceeb,stroke:#0066cc,stroke-width:2px
+                end
+                style SIM7600 fill:#fff9e6,stroke:#d4a017,stroke-width:2px
+            end
+        end
+        style Enclosure fill:#f0f0f0,stroke:#666,stroke-width:3px
+        style PCB fill:#f5f5dc,stroke:#999,stroke-width:2px
+        style XIAO fill:#ffffcc,stroke:#b8b800,stroke-width:2px
+    end
+
+    subgraph Notifier["📬 Notifier"]
+        direction TB
+        PF_N1["🟩 Send notification<br/>about event"]
+        style Notifier fill:#fff9e6,stroke:#d4a017,stroke-width:3px
+    end
+
+    %% Physical connections - cables and signals
+    OS_HW -->|"🔴 TP Cable"| Enclosure
+    PS_HW -->|"🔴 Gauge 10 cable"| Enclosure
+    SolarPanel -->|"🔴 Gauge 10 cable"| PowerSystem
+    SIM7600 -->|"🔴 Antenna"| LTEAntenna
+    
+    %% Internal signal flows
+    CurrentConv -->|"📡 Voltage signal"| DataAcquisition
+    DataAcquisition -->|"📡 Measurements queue"| MeasurementWindow
+    MeasurementWindow -->|"📡 Measurement windows"| DataProcessing
+    DataAcquisition -->|"📡 Modbus"| OS_HW
+    
+    %% Data output flows (XIAO → Cloud VPS)
+    XIAO -->|"📡 HTTPS POST<br/>InfluxDB API<br/>(via LTE → Nginx)"| NginxContainer
+    XIAO -->|"📡 MQTT event topics"| Notifier
+    XIAO -->|"📡 Mobile network"| LTEAntenna
+    
+    %% Power flow
+    PowerSystem -.->|"⚡ Power"| XIAO
+    PowerSystem -.->|"⚡ Power"| CurrentConv
+    PowerSystem -.->|"⚡ Power"| SIM7600
+    
+    %% VPS external flows (via Nginx)
+    NginxContainer -->|"📡 Port 8086"| InfluxDBEngine
+    
+    %% VPS internal flows
+    APIServer -->|"📡 InfluxDB HTTP API"| InfluxDBEngine
+    DashboardUI -->|"📡 REST API<br/>/api/*"| APIServer
+    NginxContainer -->|"📡 Proxy pass<br/>Port 3000"| DashboardUI
+
+    %% Styling
+    classDef physicalFunctionClass fill:#90ee90,stroke:#228b22,stroke-width:2px
+    classDef physicalComponentClass fill:#87ceeb,stroke:#0066cc,stroke-width:3px
+    classDef hardwareNodeClass fill:#ffffcc,stroke:#b8b800,stroke-width:2px
+    classDef externalSystemClass fill:#fff9e6,stroke:#d4a017,stroke-width:3px
+
+    class PF_DOCKER1,PF_DOCKER2,PF_DOCKER3,PF_INFLUX1,PF_INFLUX2,PF_INFLUX3,PF_INFLUX4,PF_LTS1,PF_LTS2,PF_LTS3,PF_API1,PF_API2,PF_API3,PF_API4,PF_FORE1,PF_FORE2,PF_FORE3,PF_ALERT1,PF_ALERT2,PF_ALERT3,PF_UI1,PF_UI2,PF_UI3,PF_UI4,PF_MOB1,PF_MOB2,PF_NGINX1,PF_NGINX2,PF_NGINX3,PF_NGINX4,PF_BACK1,PF_BACK2,PF_BACK3,PF_OS1,PF_OS2,PF_PS1,PF_SP1,PF_LTE1,PF_DP1,PF_DP2,PF_DP3,PF_DP4,PF_DA1,PF_MW1,PF_MDM1,PF_CV1,PF_PWR1,PF_PWR2,PF_MNS1,PF_MNS2,PF_N1 physicalFunctionClass
+    class DataProcessing,DataAcquisition,MeasurementWindow,MobileDataMgr,CurrentConv,PowerSystem,MobileNetSys,LongTermStorage physicalComponentClass
+    class XIAO,SIM7600 hardwareNodeClass
+    class DigitalOceanDroplet,DockerEngine,InfluxDBContainer,InfluxDBEngine,InfluxDBStorage,BackendContainer,APIServer,ForecastingEngine,AlertManager,FrontendContainer,DashboardUI,MobileUI,NginxContainer,BackupSystem,OctaveSensor,PressureSensor,SolarPanel,LTEAntenna,Notifier,Enclosure,PCB externalSystemClass

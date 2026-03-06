@@ -1,0 +1,43 @@
+flowchart TB
+    subgraph RuralAqueduct["🏛️ Rural Aqueduct (OE)"]
+        direction TB
+        
+        subgraph Row1[" "]
+            direction LR
+            A6["🟨 Share data with<br/>external entities<br/><br/>{c} Share water quality,<br/>infrastructure status,<br/>operational data"]
+        end
+        
+        subgraph Row2[" "]
+            direction LR
+            A3["🟨 Monitor<br/>water loss<br/><br/>{c} Detect discrete water loss events<br/>(tank overflow, pipe burst)<br/>{c} Real-time and remote"]
+            A4["🟨 Implement water loss<br/>mitigation strategy"]
+        end
+        
+        subgraph Row5[" "]
+            direction LR
+            A10["🟨 Monitor water supply<br/>and demand (S/D)<br/><br/>{c} Metrics incl. tank level,<br/>water volume<br/>outflow"]
+            A11["🟨 Predict water<br/>supply and demand"]
+            A12["🟨 Define water<br/>distribution rules"]
+        end
+    end
+
+    subgraph ExternalDataAgg["📦 External data aggregators (OE)"]
+        direction TB
+        E1["🟨 Receive<br/>aqueduct data"]
+    end
+
+    %% Internal functional exchanges
+    A3 -->|"📨 Water loss<br/>data"| A4
+    A10 -->|"📨 S/D data"| A11
+    A11 -->|"📨 S/D forecast"| A12
+    
+    %% External exchanges
+    A6 -->|"📨 Shareable data"| E1
+
+    %% Styling
+    classDef activityClass fill:#f9e79f,stroke:#b7950b,stroke-width:2px
+    classDef containerClass fill:#eafaf1,stroke:#27ae60,stroke-width:3px
+
+    class A3,A4,A6,A10,A11,A12 activityClass
+    class E1,E2 activityClass
+    class RuralAqueduct,ExternalDataAgg,WQEvaluator containerClass
