@@ -1,0 +1,149 @@
+flowchart TB
+    subgraph RuralAqueduct["👤 Rural aqueduct (LA)"]
+        direction TB
+    end
+
+    subgraph ExtDataAgg["📦 External data aggregators (LA)"]
+        direction TB
+    end
+
+    subgraph WQEvaluator["🏛️ Water quality standards<br/>compliance evaluator (LA)"]
+        direction TB
+    end
+
+    subgraph WaterDist["🏛️ Water distribution system (LA)"]
+        direction TB
+    end
+
+    subgraph Notifier["📬 Notifier (LC)"]
+        direction TB
+        LF_N1["🟩 Send notification<br/>about event"]
+    end
+
+    subgraph Dashboard["📊 Dashboard (LC)"]
+        direction TB
+        LF_D1["🟩 Present measurements,<br/>events, and forecasts"]
+    end
+
+    subgraph LongTermStorage["💾 Long-term storage (LC)"]
+        direction TB
+        
+        subgraph LTS_Row1[" "]
+            direction LR
+            LF_LTS1["🟩 Make data accessible<br/>to aggregators"]
+            LF_LTS2["🟩 Generate water<br/>quality report"]
+        end
+        
+        subgraph LTS_Row2[" "]
+            direction LR
+            LF_LTS3["🟩 Store forecasts<br/>and estimates"]
+            LF_LTS4["🟩 Store<br/>measurements<br/><br/>{c} Configurable storage<br/>frequency"]
+        end
+        
+        subgraph LTS_Row3[" "]
+            direction LR
+            LF_LTS5["🟩 Query stored<br/>data"]
+            LF_LTS6["🟩 Store event<br/>data"]
+        end
+    end
+
+    subgraph DataProcessing["⚙️ Data Processing (LC)"]
+        direction TB
+        
+        subgraph DP_Row1[" "]
+            direction LR
+            LF_DP1["🟩 Predict water<br/>supply and demand (S/D)"]
+        end
+        
+        subgraph DP_Row2[" "]
+            direction LR
+            LF_DP2["🟩 Quantify<br/>water loss<br/><br/>{c} Link data to specific<br/>components vulnerable to<br/>water loss (water tank, pipe)"]
+            LF_DP3["🟩 Calculate water<br/>loss risk"]
+        end
+    end
+
+    subgraph EventDetection["🔍 Event detection (LC)"]
+        direction TB
+        
+        subgraph ED_Row1[" "]
+            direction LR
+            LF_ED1["🟩 Identify sources of<br/>water pollution"]
+            LF_ED2["🟩 Identify water<br/>sources with low quality"]
+        end
+        
+        subgraph ED_Row2[" "]
+            direction LR
+            LF_ED3["🟩 Identify significant<br/>water loss events<br/><br/>{c} e.g. tank overflow,<br/>pipe burst"]
+            LF_ED4["🟩 Identify insufficient<br/>supply events"]
+        end
+    end
+
+    subgraph DataAcquisition["📡 Data Acquisition (LC)"]
+        direction TB
+        LF_DA1["🟩 Collect direct<br/>measurements<br/><br/>{c} Configurable collection<br/>frequency"]
+    end
+
+    subgraph MeasurementWindow["📁 Measurement window (LC)"]
+        direction TB
+        LF_MW1["🟩 Add measurement<br/>to window<br/><br/>{c} Configurable window<br/>size"]
+        LF_MW2["🟩 Provide full<br/>measurement windows"]
+    end
+
+    subgraph DistributionController["🎛️ Distribution controller (LC)"]
+        direction TB
+        LF_DC1["🟩 Optimize water<br/>distribution parameters"]
+    end
+
+    subgraph Sensors["🔌 Sensors (LC)"]
+        direction TB
+        
+        subgraph S_Row1[" "]
+            direction LR
+            LF_S1["🟩 Measure water loss<br/>event indicators<br/><br/>{c} Must consist of<br/>IoT-enabled components<br/>{c} e.g. pipe pressure,<br/>vibrations"]
+            LF_S2["🟩 Measure<br/>water quality<br/><br/>{c} Must consist of<br/>IoT-enabled components<br/>{c} Data must be linked<br/>to a specific water source<br/>{c} Metrics incl. pH, turbidity,<br/>fertilizer content..."]
+            LF_S3["🟩 Measure water supply<br/>and demand (S/D)<br/><br/>{c} Must consist of<br/>IoT-enabled components<br/>{c} Metrics incl. tank level,<br/>water pressure, and<br/>volume outflow"]
+        end
+    end
+
+    %% External exchanges (top actors) - exchange mechanisms as labels
+    RuralAqueduct -->|"📨 Notifications"| LF_N1
+    LF_D1 -->|"📨 Dashboard"| RuralAqueduct
+    LF_LTS1 -->|"📨 API"| ExtDataAgg
+    LF_LTS2 -->|"📨 Reports"| WQEvaluator
+
+    %% External exchanges (bottom)
+    WaterDist -->|"📨 Pub/Sub Channel"| LF_DC1
+
+    %% Internal component exchanges
+    LF_N1 -->|"📨 Pub/Sub Channel"| LF_ED3
+    LF_N1 -->|"📨 Pub/Sub Channel"| LF_ED4
+    
+    LF_D1 -->|"📨 Long-term storage<br/>queries"| LF_LTS5
+    
+    LF_LTS3 -->|"📨 Long-term storage<br/>queries"| LF_DP1
+    LF_LTS6 -->|"📨 Long-term storage<br/>queries"| LF_LTS5
+    
+    LF_DP1 -->|"📨 S/D data queue"| LF_DC1
+    LF_DP2 -->|"📨 Full window queue"| LF_MW2
+    
+    LF_ED1 -->|"📨 Full window queue"| LF_MW2
+    LF_ED3 -->|"📨 Measurement queue"| LF_DA1
+    
+    LF_DA1 -->|"📨 Measurement queue"| LF_MW1
+    LF_DA1 -->|"📨 Sensor bus"| LF_S1
+    LF_DA1 -->|"📨 Sensor bus"| LF_S2
+    LF_DA1 -->|"📨 Sensor bus"| LF_S3
+    
+    LF_MW1 -->|"📨 Full window queue"| LF_DP3
+    LF_MW2 -->|"📨 Full window queue"| LF_ED3
+    
+    LF_DC1 -->|"📨 Full window queue"| LF_MW2
+
+    %% Styling
+    classDef logicalFunctionClass fill:#90ee90,stroke:#228b22,stroke-width:2px
+    classDef logicalComponentClass fill:#87ceeb,stroke:#0066cc,stroke-width:3px
+    classDef externalActorClass fill:#e6ffe6,stroke:#009900,stroke-width:3px
+
+    class LF_N1,LF_D1,LF_LTS1,LF_LTS2,LF_LTS3,LF_LTS4,LF_LTS5,LF_LTS6,LF_DP1,LF_DP2,LF_DP3,LF_ED1,LF_ED2,LF_ED3,LF_ED4,LF_DA1,LF_MW1,LF_MW2,LF_DC1,LF_S1,LF_S2,LF_S3 logicalFunctionClass
+    class Notifier,Dashboard,LongTermStorage,DataProcessing,EventDetection,DataAcquisition,MeasurementWindow,DistributionController,Sensors logicalComponentClass
+    class RuralAqueduct,ExtDataAgg,WQEvaluator,WaterDist externalActorClass
