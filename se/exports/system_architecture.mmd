@@ -1,0 +1,150 @@
+flowchart TB
+    subgraph Constraints["📋 Constraints"]
+        direction TB
+        CON1["Real-time and remote"]
+        CON2["Metrics incl. pH, turbidity,<br/>fertilizer content..."]
+        CON3["Metrics incl. tank level,<br/>water pressure, volume outflow"]
+        CON4["Detect discrete water loss<br/>events (tank overflow,<br/>pipe burst)"]
+        CON5["e.g. pipe pressure,<br/>vibrations"]
+    end
+
+    subgraph RuralAqueductActors["👤 Rural aqueduct"]
+        direction TB
+        
+        subgraph ActorRow1[" "]
+            direction LR
+            F_CONSULT_WQ["🟩 Consult<br/>water quality data"]
+            F_IMPL_WQ_CTRL["🟩 Implement water<br/>quality control strategy"]
+            F_CONSULT_WL["🟩 Consult<br/>water loss data"]
+            F_CONSULT_SD["🟩 Consult water supply<br/>and demand data"]
+        end
+        
+        subgraph ActorRow2[" "]
+            direction LR
+            F_IMPL_WQ_STD["🟩 Implement water quality<br/>standards compliance strategy"]
+            F_IMPL_WP_MIT["🟩 Implement water<br/>pollution mitigation strategy"]
+            F_DEF_DIST["🟩 Define water<br/>distribution rules"]
+            F_IMPL_WL_MIT["🟩 Implement water loss<br/>mitigation strategy"]
+        end
+    end
+
+    subgraph ExtDataAgg["📦 External data aggregators (SA)"]
+        direction TB
+        SF_ED1["🟩 Receive<br/>aqueduct data"]
+    end
+
+    subgraph WQEvaluator["🏛️ Water quality standards<br/>compliance evaluator (SA)"]
+        direction TB
+        SF_WQ1["🟩 Assess water quality<br/>standards compliance"]
+    end
+
+    subgraph WaterDist["🏛️ Water distribution system (SA)"]
+        direction TB
+        SF_WD1["🟩 Water distribution<br/>parameters"]
+    end
+
+    subgraph RuralAqueductSystem["⚙️ System"]
+        direction TB
+        
+        subgraph Row1[" "]
+            direction LR
+            SF_AQ1["🟩 Define data required<br/>for standards<br/>compliance assessment"]
+        end
+
+        subgraph Row2[" "]
+            direction LR
+            SF_AQ2["🟩 Identify sources<br/>of water pollution"]
+            SF_AQ3["🟩 Notify of sources<br/>with low water quality"]
+            SF_AQ4["🟩 Optimize water<br/>distribution parameters"]
+            SF_AQ5["🟩 Notify of<br/>insufficient supply events"]
+        end
+
+        subgraph Row3[" "]
+            direction LR
+            SF_AQ6["🟩 Predict water<br/>supply and demand"]
+            SF_AQ7["🟩 Notify of significant<br/>water loss events"]
+            SF_AQ8["🟩 Quantify<br/>water loss"]
+        end
+
+        subgraph Row4[" "]
+            direction LR
+            SF_AQ9["🟩 Measure<br/>water quality"]
+            SF_AQ10["🟩 Measure water<br/>supply and demand (S/D)"]
+            SF_AQ11["🟩 Notify of high<br/>water loss risk events"]
+            SF_AQ12["🟩 Measure water loss<br/>event indicators"]
+        end
+
+        subgraph Row5[" "]
+            direction LR
+            SF_AQ13["🟩 Make data accessible<br/>to external entities"]
+            SF_AQ14["🟩 Present<br/>stored data"]
+            SF_AQ15["🟩 Store<br/>measurements"]
+        end
+    end
+
+    %% Actor to System functional exchanges
+    F_CONSULT_WQ -->|"📨 Data requests"| SF_AQ9
+    SF_AQ9 -->|"📨 Water quality<br/>measurement"| F_CONSULT_WQ
+    
+    F_IMPL_WQ_CTRL -->|"📨 Notifications"| SF_AQ3
+    
+    F_CONSULT_WL -->|"📨 Water loss<br/>event data"| SF_AQ8
+    SF_AQ8 -->|"📨 High water loss<br/>risk event data"| F_CONSULT_WL
+    
+    F_CONSULT_SD -->|"📨 Water distribution<br/>parameters"| SF_WD1
+    SF_WD1 -->|"📨 Distribution rules"| SF_AQ4
+    SF_AQ6 -->|"📨 S/D forecast"| F_CONSULT_SD
+    SF_AQ10 -->|"📨 S/D measurement"| F_CONSULT_SD
+
+    F_IMPL_WQ_STD -->|"📨 Standards<br/>compliance<br/>assessment"| SF_WQ1
+    SF_WQ1 -->|"📨 Shareable water<br/>quality data"| SF_AQ1
+    
+    F_IMPL_WP_MIT -->|"📨 Notifications"| SF_AQ2
+    SF_AQ2 -->|"📨 Water pollution<br/>source data"| F_IMPL_WP_MIT
+    SF_AQ3 -->|"📨 Low quality water<br/>source data"| F_IMPL_WP_MIT
+    
+    F_DEF_DIST --> SF_AQ4
+    
+    F_IMPL_WL_MIT -->|"📨 Notifications"| SF_AQ7
+    SF_AQ7 -->|"📨 Indirect water loss<br/>measurement"| F_IMPL_WL_MIT
+    SF_AQ5 -->|"📨 Insufficient supply<br/>event data"| F_IMPL_WL_MIT
+
+    %% External data aggregators exchange
+    SF_AQ13 -->|"📨 Shareable<br/>data"| SF_ED1
+
+    %% Internal System exchanges
+    SF_AQ8 --> SF_AQ7
+    SF_AQ8 --> SF_AQ11
+    SF_AQ12 -->|"📨 Water loss indicator<br/>measurement"| SF_AQ8
+    SF_AQ12 --> SF_AQ11
+    SF_AQ9 --> SF_AQ15
+    SF_AQ10 --> SF_AQ15
+    SF_AQ15 --> SF_AQ14
+    SF_AQ14 --> SF_AQ13
+    SF_AQ4 --> SF_AQ6
+    SF_AQ6 --> SF_AQ5
+    SF_AQ11 --> SF_AQ7
+
+    %% Constraints (dotted lines)
+    CON1 -.->|" "| SF_AQ9
+    CON1 -.->|" "| SF_AQ10
+    CON1 -.->|" "| SF_AQ12
+    CON2 -.->|" "| SF_AQ9
+    CON3 -.->|" "| SF_AQ10
+    CON4 -.->|" "| SF_AQ12
+    CON5 -.->|" "| SF_AQ12
+
+    %% Styling
+    classDef constraintClass fill:#fff4cc,stroke:#d4a017,stroke-width:2px,stroke-dasharray: 5 5
+    classDef actorFunctionClass fill:#f9e79f,stroke:#b7950b,stroke-width:2px
+    classDef systemFunctionClass fill:#90ee90,stroke:#228b22,stroke-width:2px
+    classDef systemClass fill:#e6f3ff,stroke:#0066cc,stroke-width:3px
+    classDef externalClass fill:#e6ffe6,stroke:#009900,stroke-width:3px
+    classDef actorContainerClass fill:#fff9e6,stroke:#d4a017,stroke-width:2px,stroke-dasharray: 3 3
+
+    class CON1,CON2,CON3,CON4,CON5 constraintClass
+    class F_CONSULT_WQ,F_IMPL_WQ_CTRL,F_CONSULT_WL,F_CONSULT_SD,F_IMPL_WQ_STD,F_IMPL_WP_MIT,F_DEF_DIST,F_IMPL_WL_MIT actorFunctionClass
+    class SF_WQ1,SF_ED1,SF_WD1,SF_AQ1,SF_AQ2,SF_AQ3,SF_AQ4,SF_AQ5,SF_AQ6,SF_AQ7,SF_AQ8,SF_AQ9,SF_AQ10,SF_AQ11,SF_AQ12,SF_AQ13,SF_AQ14,SF_AQ15 systemFunctionClass
+    class RuralAqueductSystem,WaterDist,WQEvaluator systemClass
+    class ExtDataAgg externalClass
+    class RuralAqueductActors actorContainerClass
