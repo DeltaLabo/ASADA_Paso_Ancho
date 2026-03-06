@@ -1,0 +1,83 @@
+flowchart TB
+    subgraph Constraints["📋 Constraints"]
+        direction TB
+        CON1["Detect discrete water loss events<br/>(tank overflow, pipe burst)"]
+        CON2["Real-time<br/>and remote"]
+        CON3["Metrics including pH,<br/>turbidity, fertilizer<br/>content..."]
+        CON4["Metrics incl. tank level,<br/>water pressure, volume<br/>outflow"]
+    end
+
+    subgraph RuralAqueduct["🏛️ Rural Aqueduct (OE)"]
+        direction TB
+        
+        subgraph Row1[" "]
+            direction LR
+            A1["🟨 Identify sources of<br/>water pollution"]
+            A2["🟨 Implement water pollution<br/>mitigation strategy"]
+        end
+        
+        subgraph Row2[" "]
+            direction LR
+            A3["🟨 Monitor<br/>water loss"]
+            A4["🟨 Implement water loss<br/>mitigation strategy"]
+        end
+        
+        subgraph Row3[" "]
+            direction LR
+            A5["🟨 Define data required for<br/>water quality standards<br/>compliance assessment"]
+            A6["🟨 Send data to<br/>external entities"]
+        end
+        
+        subgraph Row4[" "]
+            direction LR
+            A7["🟨 Monitor<br/>water quality"]
+            A8["🟨 Implement water quality<br/>control strategy"]
+            A9["🟨 Implement water quality<br/>standards compliance<br/>strategy"]
+        end
+        
+        subgraph Row5[" "]
+            direction LR
+            A10["🟨 Monitor water supply<br/>and demand (S/D)"]
+            A11["🟨 Predict water<br/>supply and demand"]
+            A12["🟨 Define water<br/>distribution rules"]
+        end
+    end
+    
+    subgraph ExternalDataAgg["📦 External data aggregators (OE)"]
+        direction TB
+        E1["🟨 Receive<br/>aqueduct data"]
+    end
+    
+    subgraph WQEvaluator["📋 Water quality standards<br/>compliance evaluator (OE)"]
+        direction TB
+        E2["🟨 Assess water quality<br/>standards compliance"]
+    end
+    
+    %% Constraint flows (dotted lines)
+    CON1 -.->|" "| A3
+    CON2 -.->|" "| A3
+    CON3 -.->|" "| A7
+    CON4 -.->|" "| A10
+    
+    %% Internal functional exchanges
+    A1 -->|"📨 Water pollution<br/>source data"| A2
+    A3 -->|"📨 Water loss<br/>data"| A4
+    A5 -->|"📨 Compliance assessment<br/>data format"| A6
+    A7 -->|"📨 Water quality<br/>data"| A8
+    A10 -->|"📨 S/D data"| A11
+    A11 -->|"📨 S/D forecast"| A12
+    
+    %% External exchanges
+    A6 -->|"📨 Shareable data"| E1
+    A6 -->|"📨 Shareable water<br/>quality data"| E2
+    E2 -->|"📨 Water quality standards<br/>compliance status"| A9
+    
+    %% Styling
+    classDef constraintClass fill:#fff4cc,stroke:#d4a017,stroke-width:2px,stroke-dasharray: 5 5
+    classDef activityClass fill:#f9e79f,stroke:#b7950b,stroke-width:2px
+    classDef containerClass fill:#eafaf1,stroke:#27ae60,stroke-width:3px
+    
+    class CON1,CON2,CON3,CON4 constraintClass
+    class A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12 activityClass
+    class E1,E2 activityClass
+    class RuralAqueduct,ExternalDataAgg,WQEvaluator containerClass
