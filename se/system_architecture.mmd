@@ -53,15 +53,28 @@ flowchart TB
     SF_AQ13 -->|"📨 Shareable<br/>data"| SF_ED1
 
     %% Internal System exchanges
-    SF_AQ8 --> SF_AQ7
-    SF_AQ16 --> SF_AQ11
+    SF_AQ8 -->|"📨 Water loss<br/>quantification"| SF_AQ7
+    SF_AQ16 -->|"📨 Water loss<br/>risk prediction"| SF_AQ11
 
-    SF_AQ15 --> SF_AQ14
-    SF_AQ10 --> SF_AQ6
-    SF_AQ10 --> SF_AQ8
-    SF_AQ10 --> SF_AQ5
-    SF_AQ6 --> SF_AQ12
-    SF_AQ8 --> SF_AQ16
+    SF_AQ15 -->|"📨 Stored<br/>data"| SF_AQ14
+    SF_AQ10 -->|"📨 S/D<br/>measurements"| SF_AQ6
+    SF_AQ10 -->|"📨 S/D<br/>measurements"| SF_AQ8
+    SF_AQ10 -->|"📨 S/D<br/>measurements"| SF_AQ5
+    SF_AQ6 -->|"📨 S/D<br/>predictions"| SF_AQ12
+    SF_AQ8 -->|"📨 Water loss<br/>quantification"| SF_AQ16
+
+    %% Storage exchanges
+    SF_AQ10 -->|"📨 S/D<br/>measurements"| SF_AQ15
+    SF_AQ8 -->|"📨 Water loss<br/>quantification"| SF_AQ15
+    SF_AQ6 -->|"📨 S/D<br/>predictions"| SF_AQ15
+    SF_AQ16 -->|"📨 Risk<br/>predictions"| SF_AQ15
+    SF_AQ5 -->|"📨 Insufficient<br/>supply events"| SF_AQ15
+    SF_AQ7 -->|"📨 Significant water<br/>loss events"| SF_AQ15
+    SF_AQ11 -->|"📨 High water loss<br/>probability events"| SF_AQ15
+    SF_AQ12 -->|"📨 High insufficient<br/>supply probability events"| SF_AQ15
+
+    %% External accessibility exchange
+    SF_AQ15 -->|"📨 Stored<br/>data"| SF_AQ13
 
     %% Styling
     classDef actorFunctionClass fill:#f9e79f,stroke:#b7950b,stroke-width:2px
