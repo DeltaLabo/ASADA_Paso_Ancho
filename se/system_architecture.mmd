@@ -8,6 +8,12 @@ flowchart TB
         F_IMPL_WL_MIT["🟩 Implement water loss<br/>mitigation strategy"]
     end
 
+    subgraph Sensors["📦 Rural aqueduct sensors"]
+        direction TB
+        SENSOR_OCTAVE["🟩 Octave Water Meter"]
+        SENSOR_LEVEL["🟩 Submersible Water<br/>Level Sensor"]
+    end
+
     subgraph ExtDataAgg["📦 External data aggregators (SA)"]
         direction TB
         SF_ED1["🟩 Receive<br/>aqueduct data"]
@@ -28,6 +34,20 @@ flowchart TB
         SF_AQ15["🟩 Store<br/>measurements and events<br/><br/>{c} Timestamped"]
         SF_AQ16["🟩 Predict water<br/>loss event risk"]
     end
+
+    %% Rural aqueduct human activity exchanges
+    SF_AQ14 -->|"📨 Water loss<br/>data"| F_CONSULT_WL
+    SF_AQ14 -->|"📨 S/D<br/>data"| F_CONSULT_SD
+    SF_AQ7 -->|"📨 Significant water<br/>loss event"| F_IMPL_WL_MIT
+    SF_AQ11 -->|"📨 High water loss<br/>event probability"| F_IMPL_WL_MIT
+    SF_AQ5 -->|"📨 Insufficient<br/>supply event"| F_DEF_DIST
+    SF_AQ12 -->|"📨 High insufficient<br/>supply probability"| F_DEF_DIST
+    F_CONSULT_SD -->|"📨 Analysis-based<br/>decision"| F_DEF_DIST
+    F_CONSULT_WL -->|"📨 Analysis-based<br/>decision"| F_IMPL_WL_MIT
+
+    %% Sensor exchanges
+    SENSOR_OCTAVE -->|"📨 Water Volume,<br/>Current Flow"| SF_AQ10
+    SENSOR_LEVEL -->|"📨 Water Level"| SF_AQ10
 
     %% External data aggregators exchange
     SF_AQ13 -->|"📨 Shareable<br/>data"| SF_ED1
@@ -51,6 +71,8 @@ flowchart TB
     classDef actorContainerClass fill:#fff9e6,stroke:#d4a017,stroke-width:2px,stroke-dasharray: 3 3
 
     class F_CONSULT_WL,F_CONSULT_SD,F_DEF_DIST,F_IMPL_WL_MIT actorFunctionClass
+    class SENSOR_OCTAVE,SENSOR_LEVEL systemFunctionClass
+    class Sensors externalClass
     class SF_ED1,SF_AQ5,SF_AQ6,SF_AQ7,SF_AQ8,SF_AQ10,SF_AQ11,SF_AQ12,SF_AQ13,SF_AQ14,SF_AQ15,SF_AQ16 systemFunctionClass
     class RuralAqueductSystem systemClass
     class ExtDataAgg externalClass
