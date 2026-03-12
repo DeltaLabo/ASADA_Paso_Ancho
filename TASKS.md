@@ -1,0 +1,2 @@
+- [ ] Fix background colors on OA
+- [ ] Introduce existing sensors to SA
