@@ -16,6 +16,7 @@
 - Availability
 - Mobile Accessibility
 - Maintainability
+- Operation in a Remote Area
 
 ## Requirements, Needs, and Desires
 

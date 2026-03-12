@@ -1,0 +1,48 @@
+%% Functional Chain: Allow users to configure alerts
+%% Present data → Consult → Act → Set alert criteria (feedback loop)
+%% Two lanes: supply-side and water-loss-side
+flowchart LR
+    subgraph RuralAqueductSystem["⚙️ System"]
+        direction TB
+        SF_AQ5["🟩 Notify of<br/>insufficient supply events"]
+        SF_AQ12["🟩 Notify of high<br/>insufficient supply<br/> probability"]
+        SF_AQ15["🟩 Store<br/>measurements and events<br/><br/>{c} Timestamped"]
+        SF_AQ14["🟩 Present<br/>stored data<br/><br/>{c} Time series graphs<br/>{c} Filtered<br/>"]
+        SF_AQ8["🟩 Quantify<br/>water loss<br/><br/>{c} Detect discrete water loss<br/>events (tank overflow,<br/>pipe burst)"]
+        SF_AQ11["🟩 Notify of high<br/>water loss event probability"]
+    end
+
+    subgraph RuralAqueductActors["👤 ASADA Paso Ancho Employee"]
+        direction TB
+        F_CONSULT_SD["🟩 Consult water supply<br/>and demand data"]
+        F_DEF_DIST["🟩 Define water<br/>distribution rules"]
+        F_CONSULT_WL["🟩 Consult<br/>water loss data"]
+        F_IMPL_WL_MIT["🟩 Implement water loss<br/>mitigation strategy"]
+    end
+
+    %% Data presentation
+    SF_AQ15 -->|"📨 Stored<br/>data"| SF_AQ14
+
+    %% Supply-side feedback loop
+    SF_AQ14 -->|"📨 S/D<br/>data"| F_CONSULT_SD
+    F_CONSULT_SD -->|"📨 Analysis-based<br/>decision"| F_DEF_DIST
+    F_DEF_DIST -->|"📨 Insufficient supply<br/>alert criteria"| SF_AQ5
+    F_DEF_DIST -->|"📨 Insufficient supply<br/>probability alert criteria"| SF_AQ12
+
+    %% Water-loss-side feedback loop
+    SF_AQ14 -->|"📨 Water loss<br/>data"| F_CONSULT_WL
+    F_CONSULT_WL -->|"📨 Analysis-based<br/>decision"| F_IMPL_WL_MIT
+    F_IMPL_WL_MIT -->|"📨 Water loss detection<br/>alert criteria"| SF_AQ8
+    F_IMPL_WL_MIT -->|"📨 Water loss probability<br/>alert criteria"| SF_AQ11
+
+    %% Styling
+    classDef actorFunctionClass fill:#f9e79f,stroke:#b7950b,stroke-width:2px
+    classDef systemFunctionClass fill:#90ee90,stroke:#228b22,stroke-width:2px
+    classDef systemClass fill:#e6f3ff,stroke:#0066cc,stroke-width:3px
+    classDef externalClass fill:#e6ffe6,stroke:#009900,stroke-width:3px
+    classDef actorContainerClass fill:#fff9e6,stroke:#d4a017,stroke-width:2px,stroke-dasharray: 3 3
+
+    class F_CONSULT_SD,F_DEF_DIST,F_CONSULT_WL,F_IMPL_WL_MIT actorFunctionClass
+    class SF_AQ5,SF_AQ8,SF_AQ11,SF_AQ12,SF_AQ14,SF_AQ15 systemFunctionClass
+    class RuralAqueductSystem systemClass
+    class RuralAqueductActors actorContainerClass

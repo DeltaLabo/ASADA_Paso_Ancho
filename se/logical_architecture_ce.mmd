@@ -1,0 +1,78 @@
+flowchart TB
+    RuralAqueduct["👤 ASADA Paso Ancho Employee (LA)"]
+    ExtDataAgg["📦 External data aggregators (LA)"]
+    Sensors["📦 Sensors (LA)"]
+
+    subgraph System["⚙️ System"]
+        direction TB
+        Notifier["📬 Notifier (LC)"]
+        Dashboard["📊 Dashboard (LC)"]
+        LongTermStorage["💾 Long-term storage (LC)"]
+        DataProcessing["⚙️ Data Processing (LC)"]
+        EventDetection["🔍 Event detection (LC)"]
+        DataAcquisition["📡 Data Acquisition (LC)"]
+        MeasurementWindow["📁 Measurement window (LC)"]
+    end
+
+    %% CE: Push Notification — Notifier → Employee
+    Notifier -->|"📨 Push Notification"| RuralAqueduct
+
+    %% CE: Client-Server — Dashboard → Employee
+    Dashboard -->|"📨 Client-Server"| RuralAqueduct
+
+    %% CE: Request-Reply — Employee → Event Detection
+    RuralAqueduct -->|"📨 Request-Reply"| EventDetection
+
+    %% CE: Request-Reply — Employee → Notifier
+    RuralAqueduct -->|"📨 Request-Reply"| Notifier
+
+    %% CE: Data Export — Long-term Storage → External Aggregators
+    LongTermStorage -->|"📨 Data Export"| ExtDataAgg
+
+    %% CE: Publish-Subscribe — Event Detection → Notifier
+    EventDetection -->|"📨 Publish-Subscribe"| Notifier
+
+    %% CE: Publish-Subscribe — Data Processing → Notifier
+    DataProcessing -->|"📨 Publish-Subscribe"| Notifier
+
+    %% CE: Request-Reply — Dashboard → Long-term Storage
+    Dashboard -->|"📨 Request-Reply"| LongTermStorage
+
+    %% CE: Request-Reply — Long-term Storage → Data Processing
+    LongTermStorage -->|"📨 Request-Reply"| DataProcessing
+
+    %% CE: Publish-Subscribe — Measurement Window → Event Detection
+    MeasurementWindow -->|"📨 Publish-Subscribe"| EventDetection
+
+    %% CE: Publish-Subscribe — Measurement Window → Data Processing
+    MeasurementWindow -->|"📨 Publish-Subscribe"| DataProcessing
+
+    %% CE: Message Queue — Data Acquisition → Measurement Window
+    DataAcquisition -->|"📨 Message Queue"| MeasurementWindow
+
+    %% CE: Modbus — Data Acquisition → Sensors (Octave Water Meter)
+    DataAcquisition -->|"📨 Modbus"| Sensors
+
+    %% CE: 4-20mA Analog Signal — Data Acquisition → Sensors (Submersible Sensor)
+    DataAcquisition -->|"📨 4-20mA Analog Signal"| Sensors
+
+    %% CE: Message Queue — Data Acquisition → Long-term Storage
+    DataAcquisition -->|"📨 Message Queue"| LongTermStorage
+
+    %% CE: Message Queue — Data Processing → Long-term Storage
+    DataProcessing -->|"📨 Message Queue"| LongTermStorage
+
+    %% CE: Message Queue — Event Detection → Long-term Storage
+    EventDetection -->|"📨 Message Queue"| LongTermStorage
+
+    %% CE: Message Queue — Notifier → Long-term Storage
+    Notifier -->|"📨 Message Queue"| LongTermStorage
+
+    %% Styling
+    classDef logicalComponentClass fill:#87ceeb,stroke:#0066cc,stroke-width:3px
+    classDef externalActorClass fill:#e6ffe6,stroke:#009900,stroke-width:3px
+    classDef systemClass fill:#f0f0f0,stroke:#333333,stroke-width:3px
+
+    class Notifier,Dashboard,LongTermStorage,DataProcessing,EventDetection,DataAcquisition,MeasurementWindow logicalComponentClass
+    class RuralAqueduct,ExtDataAgg,Sensors externalActorClass
+    class System systemClass

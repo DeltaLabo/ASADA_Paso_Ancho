@@ -1,0 +1,40 @@
+%% Functional Chain: Provide supply and demand data
+%% Sensors → Collect → Store → Present → Consult S/D
+flowchart LR
+    subgraph Sensors["📦 ASADA Paso Ancho Sensors"]
+        direction TB
+        SENSOR_OCTAVE["🟩 Octave Water Meter"]
+        SENSOR_LEVEL["🟩 Submersible Water<br/>Level Sensor"]
+    end
+
+    subgraph RuralAqueductSystem["⚙️ System"]
+        direction TB
+        SF_AQ10["🟩 Collect water<br/>supply and demand (S/D) measurements <br/><br/>{c} Real-time and remote<br/>"]
+        SF_AQ15["🟩 Store<br/>measurements and events<br/><br/>{c} Timestamped"]
+        SF_AQ14["🟩 Present<br/>stored data<br/><br/>{c} Time series graphs<br/>{c} Filtered<br/>"]
+    end
+
+    subgraph RuralAqueductActors["👤 ASADA Paso Ancho Employee"]
+        direction TB
+        F_CONSULT_SD["🟩 Consult water supply<br/>and demand data"]
+    end
+
+    SENSOR_OCTAVE -->|"📨 Water Volume,<br/>Current Flow"| SF_AQ10
+    SENSOR_LEVEL -->|"📨 Water Level"| SF_AQ10
+    SF_AQ10 -->|"📨 S/D<br/>measurements"| SF_AQ15
+    SF_AQ15 -->|"📨 Stored<br/>data"| SF_AQ14
+    SF_AQ14 -->|"📨 S/D<br/>data"| F_CONSULT_SD
+
+    %% Styling
+    classDef actorFunctionClass fill:#f9e79f,stroke:#b7950b,stroke-width:2px
+    classDef systemFunctionClass fill:#90ee90,stroke:#228b22,stroke-width:2px
+    classDef systemClass fill:#e6f3ff,stroke:#0066cc,stroke-width:3px
+    classDef externalClass fill:#e6ffe6,stroke:#009900,stroke-width:3px
+    classDef actorContainerClass fill:#fff9e6,stroke:#d4a017,stroke-width:2px,stroke-dasharray: 3 3
+
+    class F_CONSULT_SD actorFunctionClass
+    class SENSOR_OCTAVE,SENSOR_LEVEL systemFunctionClass
+    class Sensors externalClass
+    class SF_AQ10,SF_AQ15,SF_AQ14 systemFunctionClass
+    class RuralAqueductSystem systemClass
+    class RuralAqueductActors actorContainerClass

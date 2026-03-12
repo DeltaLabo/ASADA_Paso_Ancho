@@ -1,14 +1,14 @@
 flowchart LR
-    subgraph RuralAqueductActors["👤 Rural aqueduct"]
+    subgraph RuralAqueductActors["👤 ASADA Paso Ancho Employee"]
         direction LR
-        
+
         F_CONSULT_SD["🟩 Consult water supply<br/>and demand data"]
         F_DEF_DIST["🟩 Define water<br/>distribution rules"]
         F_CONSULT_WL["🟩 Consult<br/>water loss data"]
         F_IMPL_WL_MIT["🟩 Implement water loss<br/>mitigation strategy"]
     end
 
-    subgraph Sensors["📦 Rural aqueduct sensors"]
+    subgraph Sensors["📦 ASADA Paso Ancho Sensors"]
         direction LR
         SENSOR_OCTAVE["🟩 Octave Water Meter"]
         SENSOR_LEVEL["🟩 Submersible Water<br/>Level Sensor"]
@@ -44,10 +44,10 @@ flowchart LR
     SF_AQ12 -->|"📨 High insufficient<br/>supply probability"| F_DEF_DIST
     F_CONSULT_SD -->|"📨 Analysis-based<br/>decision"| F_DEF_DIST
     F_CONSULT_WL -->|"📨 Analysis-based<br/>decision"| F_IMPL_WL_MIT
-    F_DEF_DIST -->|"📨 Insufficient supply<br/>thresholds"| SF_AQ5
-    F_DEF_DIST -->|"📨 Insufficient supply<br/>probability thresholds"| SF_AQ12
-    F_IMPL_WL_MIT -->|"📨 Water loss detection<br/>thresholds"| SF_AQ8
-    F_IMPL_WL_MIT -->|"📨 Water loss probability<br/>thresholds"| SF_AQ11
+    F_DEF_DIST -->|"📨 Insufficient supply<br/>alert criteria"| SF_AQ5
+    F_DEF_DIST -->|"📨 Insufficient supply<br/>probability alert criteria"| SF_AQ12
+    F_IMPL_WL_MIT -->|"📨 Water loss detection<br/>alert criteria"| SF_AQ8
+    F_IMPL_WL_MIT -->|"📨 Water loss probability<br/>alert criteria"| SF_AQ11
 
     %% Sensor exchanges
     SENSOR_OCTAVE -->|"📨 Water Volume,<br/>Current Flow"| SF_AQ10
