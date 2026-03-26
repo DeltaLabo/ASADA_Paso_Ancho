@@ -1,0 +1,110 @@
+{
+  "query": "solar powered smart water monitoring system IoT",
+  "total": 5556,
+  "pages_retrieved": 1,
+  "results": [
+    {
+      "paperId": "105029568810",
+      "doi": "10.1038/s41598-026-35810-0",
+      "title": "Smart irrigation-based internet of things and cloud computing technologies for sustainable farming",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 1,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105029037278",
+      "doi": "10.1038/s41598-025-31804-6",
+      "title": "Automated smart drip irrigation system in internet of things using adaptive residual hybrid network for precision farming",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105029849759",
+      "doi": "10.1186/s12938-025-01485-3",
+      "title": "Smart patches for healthcare industry: a review of emerging technologies, challenges, and developmental opportunities",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105029063312",
+      "doi": "10.1038/s41598-025-23535-5",
+      "title": "Energy, exergy, and environmental performance of a solar dryer for orange slices across tray levels and thicknesses",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105027342663",
+      "doi": "10.1007/s40820-025-01953-4",
+      "title": "Functionalized Wood: A Green Nanoengineering Platform for Sustainable Technologies",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 1,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105028336033",
+      "doi": "10.1007/s40820-025-02059-7",
+      "title": "Flexible Polymer-Based Electronics for Human Health Monitoring: A Safety-Level-Oriented Review of Materials and Applications",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105029464675",
+      "doi": "10.1186/s42162-026-00624-x",
+      "title": "Harnessing AI in renewable energy systems: driving environmental and socio-economic transformation",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 2,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105029714264",
+      "doi": "10.1038/s41528-025-00524-2",
+      "title": "Mechanics and bio-interface engineering in flexible biosensors for continuous health monitoring",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105029790936",
+      "doi": "10.1038/s41598-026-36284-w",
+      "title": "AI-enabled energy baselines for verified building decarbonization",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105031088425",
+      "doi": "10.1038/s41467-026-68778-6",
+      "title": "Printing technologies for monitoring crop health",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    }
+  ],
+  "output_metadata": {
+    "extracted_at": "2026-03-26T02:23:25.392537"
+  }
+}

@@ -1,0 +1,194 @@
+digraph ScenarioNotifyEventsAndRisks {
+  graph [
+    rankdir=LR,
+    splines=ortho,
+    newrank=true,
+    nodesep=0.55,
+    ranksep=1.0,
+    pad=0.25,
+    compound=true,
+    forcelabels=true,
+    bgcolor="white",
+    fontname="Helvetica"
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fillcolor="#FFFCB7",
+    color="#7B694F",
+    penwidth=2,
+    fontname="Helvetica",
+    margin="0.12,0.08"
+  ];
+
+  edge [
+    color="#228B22",
+    penwidth=2,
+    fontname="Helvetica",
+    fontsize=10
+  ];
+
+  subgraph cluster_server_host {
+    label="DigitalOcean Premium AMD Droplet\n(4 vCPU / 8 GiB RAM / 160 GiB SSD)";
+    color="#7B694F";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#FFF9D6";
+
+    subgraph cluster_configuration_inputs {
+      label="Configuration Inputs";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_postgres {
+        label="PostgreSQL 16 Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_rel_config [label="Relational Configuration\nand Identity Store", fillcolor="#87CEEB", color="#0066CC"];
+      }
+    }
+
+    subgraph cluster_detection_prediction {
+      label="Detection & Prediction";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_analytics_container {
+        label="Python Analytics Worker Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        subgraph cluster_event_lc {
+          label="Event Detection (LC)";
+          color="#0066CC";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#87CEEB";
+
+          LF_ED_CONF [label="Manage detection\nthresholds", fillcolor="#90EE90", color="#228B22"];
+          LF_ED3 [label="Identify significant\nwater loss events", fillcolor="#90EE90", color="#228B22"];
+          LF_ED4 [label="Identify insufficient\nsupply events", fillcolor="#90EE90", color="#228B22"];
+        }
+
+        subgraph cluster_processing_lc {
+          label="Data Processing (LC)";
+          color="#0066CC";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#87CEEB";
+
+          LF_DP1 [label="Predict water\nsupply and demand", fillcolor="#90EE90", color="#228B22"];
+          LF_DP3 [label="Predict water\nloss event risk", fillcolor="#90EE90", color="#228B22"];
+        }
+
+        analytics_pad [label="", shape=point, width=0.01, height=0.01, style=invis];
+
+        LF_ED_CONF -> LF_ED3 -> LF_ED4 [style=invis, weight=15];
+        LF_DP1 -> LF_DP3 -> analytics_pad [style=invis, weight=15];
+        { rank=same; LF_ED_CONF; LF_DP1; }
+        { rank=same; LF_ED3; LF_DP3; }
+        { rank=same; LF_ED4; analytics_pad; }
+      }
+    }
+
+    subgraph cluster_notification_delivery {
+      label="Notification Delivery";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_notifier {
+        label="Python Notification Worker Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        subgraph cluster_notifier_lc {
+          label="Notifier (LC)";
+          color="#0066CC";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#87CEEB";
+
+          LF_N_SUB [label="Manage notification\nsubscribers and channels", fillcolor="#90EE90", color="#228B22"];
+          LF_N_EV [label="Notify of\ndetected events", fillcolor="#90EE90", color="#228B22"];
+          LF_N_PRED [label="Notify of\npredicted risk events", fillcolor="#90EE90", color="#228B22"];
+
+          LF_N_SUB -> LF_N_EV [style=invis, weight=15];
+          LF_N_EV -> LF_N_PRED [style=invis, weight=15];
+        }
+      }
+    }
+
+    subgraph cluster_event_audit {
+      label="Event / Notification Audit";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_influxdb {
+        label="InfluxDB OSS 2.7 Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        subgraph cluster_lts_lc {
+          label="Long-term Storage (LC)";
+          color="#0066CC";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#87CEEB";
+
+          LF_LTS6 [label="Store event\ndata", fillcolor="#90EE90", color="#228B22"];
+        }
+      }
+    }
+
+    threshold_c [label="{c}\nHigh-risk thresholds are configurable\nand drive both detection and prediction alerts", fillcolor="#F9E79F", color="#B7950B"];
+  }
+
+  subgraph cluster_employee_device {
+    label="Employee Client Device";
+    color="#7B694F";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#FFF9D6";
+
+    F_RECEIVE_EVENT [label="Receive detected-event\nnotification", fillcolor="#F9E79F", color="#B7950B"];
+    F_RECEIVE_RISK [label="Receive high-risk\nnotification", fillcolor="#F9E79F", color="#B7950B"];
+
+    F_RECEIVE_EVENT -> F_RECEIVE_RISK [style=invis, weight=15];
+  }
+
+  lc_rel_config:e -> LF_ED_CONF:w [xlabel="1.\nThreshold\ndefinitions"];
+  lc_rel_config:e -> LF_N_SUB:w [xlabel="2.\nSubscriber\nregistry"];
+  LF_ED_CONF:e -> LF_ED3:w [xlabel="3.\nWater loss\nthresholds"];
+  LF_ED_CONF:e -> LF_ED4:w [xlabel="4.\nSupply\nthresholds"];
+  LF_ED_CONF:s -> LF_DP3:n [xlabel="5.\nRisk\nthresholds"];
+  LF_DP1:e -> LF_DP3:w [xlabel="6.\nS/D\nforecast"];
+  LF_ED3:e -> LF_N_EV:w [xlabel="7.\nDetected water\nloss event"];
+  LF_ED4:e -> LF_N_EV:w [xlabel="8.\nDetected insufficient\nsupply event"];
+  LF_DP3:e -> LF_N_PRED:w [xlabel="9.\nHigh-risk\nprediction"];
+  LF_N_SUB:e -> LF_N_EV:w [xlabel="10.\nSubscriber\nregistry"];
+  LF_N_SUB:e -> LF_N_PRED:w [xlabel="11.\nSubscriber\nregistry"];
+  LF_N_EV:e -> F_RECEIVE_EVENT:w [xlabel="12.\nEvent\nnotification"];
+  LF_N_PRED:e -> F_RECEIVE_RISK:w [xlabel="13.\nHigh-risk\nnotification"];
+  LF_N_EV:s -> LF_LTS6:n [xlabel="14.\nNotification\nrecord"];
+  LF_N_PRED:s -> LF_LTS6:n [xlabel="15.\nPrediction notification\nrecord"];
+
+  threshold_c -> LF_ED_CONF [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+}

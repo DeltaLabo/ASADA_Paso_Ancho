@@ -1,0 +1,210 @@
+digraph LogicalArchitecture {
+  graph [
+    rankdir=LR,
+    splines=ortho,
+    nodesep=0.35,
+    ranksep=0.7,
+    pad=0.2,
+    compound=true,
+    bgcolor="white",
+    fontname="Helvetica"
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    penwidth=2,
+    fontname="Helvetica",
+    margin="0.12,0.08"
+  ];
+
+  edge [
+    color="#4A4A97",
+    penwidth=2,
+    fontname="Helvetica",
+    fontsize=10
+  ];
+
+  subgraph cluster_rural_aqueduct {
+    label="ASADA Paso Ancho Employee (LA)";
+    color="#009900";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#F1FFF1";
+
+    F_CONSULT_SD [label="Consult water supply\nand demand data", fillcolor="#F9E79F", color="#B7950B"];
+    F_DEF_DIST [label="Define water\ndistribution rules", fillcolor="#F9E79F", color="#B7950B"];
+    F_CONSULT_WL [label="Consult\nwater loss data", fillcolor="#F9E79F", color="#B7950B"];
+    F_IMPL_WL_MIT [label="Implement water loss\nmitigation strategy", fillcolor="#F9E79F", color="#B7950B"];
+  }
+
+  ExtDataAgg [label="External data aggregators (LA)", fillcolor="#E6FFE6", color="#009900"];
+
+  subgraph cluster_system {
+    label="System";
+    color="#333333";
+    penwidth=3;
+    style="rounded,filled";
+    fillcolor="#F0F0F0";
+
+    subgraph cluster_data_acquisition {
+      label="Data Acquisition (LC)";
+      color="#0066CC";
+      penwidth=3;
+      style="rounded,filled";
+      fillcolor="#87CEEB";
+
+      LF_DA1 [label="Collect and window\nwater S/D measurements\n\n{c} Real-time and remote\n{c} Configurable collection frequency\n{c} Configurable window size", fillcolor="#90EE90", color="#228B22"];
+      LF_DA2 [label="Monitor sensor health", fillcolor="#90EE90", color="#228B22"];
+    }
+
+    subgraph cluster_data_processing {
+      label="Data Processing (LC)";
+      color="#0066CC";
+      penwidth=3;
+      style="rounded,filled";
+      fillcolor="#87CEEB";
+
+      LF_DP1 [label="Predict water\nsupply and demand (S/D)", fillcolor="#90EE90", color="#228B22"];
+      LF_DP2 [label="Quantify\nwater loss\n\n{c} Link data to specific\ncomponents vulnerable to\nwater loss (water tank, pipe)", fillcolor="#90EE90", color="#228B22"];
+      LF_DP3 [label="Predict water\nloss event risk", fillcolor="#90EE90", color="#228B22"];
+    }
+
+    subgraph cluster_event_detection {
+      label="Event detection (LC)";
+      color="#0066CC";
+      penwidth=3;
+      style="rounded,filled";
+      fillcolor="#87CEEB";
+
+      LF_ED3 [label="Identify significant\nwater loss events\n\n{c} e.g. tank overflow,\npipe burst", fillcolor="#90EE90", color="#228B22"];
+      LF_ED4 [label="Identify insufficient\nsupply events", fillcolor="#90EE90", color="#228B22"];
+      LF_ED_CONF [label="Manage detection\nthresholds", fillcolor="#90EE90", color="#228B22"];
+    }
+
+    subgraph cluster_notifier {
+      label="Notifier (LC)";
+      color="#0066CC";
+      penwidth=3;
+      style="rounded,filled";
+      fillcolor="#87CEEB";
+
+      LF_N_EV [label="Notify of\ndetected events", fillcolor="#90EE90", color="#228B22"];
+      LF_N_PRED [label="Notify of\npredicted risk events", fillcolor="#90EE90", color="#228B22"];
+      LF_N_SUB [label="Manage notification\nsubscribers and channels", fillcolor="#90EE90", color="#228B22"];
+    }
+
+    subgraph cluster_dashboard {
+      label="Dashboard (LC)";
+      color="#0066CC";
+      penwidth=3;
+      style="rounded,filled";
+      fillcolor="#87CEEB";
+
+      LF_D_AUTH [label="Authenticate user", fillcolor="#90EE90", color="#228B22"];
+      LF_D_VIEW [label="Present stored data\n\n{c} Time series graphs\n{c} Filtered", fillcolor="#90EE90", color="#228B22"];
+      LF_D_CONF [label="Manage alert\nconfiguration", fillcolor="#90EE90", color="#228B22"];
+      LF_D_STATUS [label="Display live\nevent status", fillcolor="#90EE90", color="#228B22"];
+    }
+
+    subgraph cluster_long_term_storage {
+      label="Long-term storage (LC)";
+      color="#0066CC";
+      penwidth=3;
+      style="rounded,filled";
+      fillcolor="#87CEEB";
+
+      LF_LTS3 [label="Store forecasts\nand estimates", fillcolor="#90EE90", color="#228B22"];
+      LF_LTS4 [label="Store\nmeasurements\n\n{c} Configurable storage\nfrequency\n{c} Timestamped", fillcolor="#90EE90", color="#228B22"];
+      LF_LTS5 [label="Query stored\ndata", fillcolor="#90EE90", color="#228B22"];
+      LF_LTS6 [label="Store event\ndata", fillcolor="#90EE90", color="#228B22"];
+    }
+
+    subgraph cluster_data_export {
+      label="Data Export (LC)";
+      color="#0066CC";
+      penwidth=3;
+      style="rounded,filled";
+      fillcolor="#87CEEB";
+
+      LF_DE1 [label="Make data accessible\nto aggregators", fillcolor="#90EE90", color="#228B22"];
+    }
+  }
+
+  subgraph cluster_sensor_octave {
+    label="Octave Water Meter (LA)";
+    color="#009900";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#F1FFF1";
+
+    F_MEASURE_VOLUME [label="Measure\nwater volume", fillcolor="#F9E79F", color="#B7950B"];
+    F_MEASURE_FLOW [label="Measure\ncurrent flow", fillcolor="#F9E79F", color="#B7950B"];
+  }
+
+  subgraph cluster_sensor_level {
+    label="Submersible Water Level Sensor (LA)";
+    color="#009900";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#F1FFF1";
+
+    F_MEASURE_LEVEL [label="Measure\nwater level", fillcolor="#F9E79F", color="#B7950B"];
+  }
+
+  F_MEASURE_VOLUME -> LF_DA1 [xlabel="Volume"];
+  F_MEASURE_FLOW -> LF_DA1 [xlabel="Flow"];
+  F_MEASURE_LEVEL -> LF_DA1 [xlabel="Level"];
+
+  LF_DA1 -> LF_DA2 [xlabel="Readings"];
+  LF_DA1 -> LF_LTS4 [xlabel="S/D data"];
+  LF_DA1 -> LF_ED3 [xlabel="Window"];
+  LF_DA1 -> LF_ED4 [xlabel="Window"];
+  LF_DA1 -> LF_DP1 [xlabel="Window"];
+  LF_DA1 -> LF_DP2 [xlabel="Window"];
+  LF_DA2 -> LF_D_STATUS [xlabel="Health"];
+
+  LF_DP2 -> LF_DP3 [xlabel="Loss estimate"];
+  LF_DP1 -> LF_DP3 [xlabel="S/D forecast"];
+  LF_DP1 -> LF_LTS5 [xlabel="Forecast query"];
+  LF_DP1 -> LF_LTS3 [xlabel="S/D pred."];
+  LF_DP2 -> LF_LTS3 [xlabel="Loss estimate"];
+  LF_DP3 -> LF_LTS3 [xlabel="Risk pred."];
+  LF_DP1 -> LF_N_PRED [xlabel="S/D pred."];
+  LF_DP3 -> LF_N_PRED [xlabel="Risk pred."];
+
+  LF_ED_CONF -> LF_ED3 [xlabel="Thresholds"];
+  LF_ED_CONF -> LF_ED4 [xlabel="Thresholds"];
+  LF_ED4 -> LF_N_EV [xlabel="Low supply evt."];
+  LF_ED3 -> LF_N_EV [xlabel="Loss evt."];
+  LF_ED3 -> LF_LTS6 [xlabel="Loss evts."];
+  LF_ED4 -> LF_LTS6 [xlabel="Low supply evts."];
+
+  LF_N_SUB -> LF_N_EV [xlabel="Subs."];
+  LF_N_SUB -> LF_N_PRED [xlabel="Subs."];
+  LF_N_EV -> F_DEF_DIST [xlabel="Event"];
+  LF_N_EV -> F_IMPL_WL_MIT [xlabel="Event"];
+  LF_N_PRED -> F_DEF_DIST [xlabel="Risk"];
+  LF_N_PRED -> F_IMPL_WL_MIT [xlabel="Risk"];
+  LF_N_EV -> LF_LTS6 [xlabel="Event notif."];
+  LF_N_PRED -> LF_LTS6 [xlabel="Risk notif."];
+
+  LF_D_AUTH -> LF_D_VIEW [xlabel="Token"];
+  LF_D_AUTH -> LF_D_CONF [xlabel="Token"];
+  LF_D_VIEW -> F_CONSULT_SD [xlabel="S/D view"];
+  LF_D_VIEW -> F_CONSULT_WL [xlabel="Loss view"];
+  LF_D_STATUS -> F_CONSULT_SD [xlabel="Live S/D"];
+  LF_D_STATUS -> F_CONSULT_WL [xlabel="Live loss"];
+  F_DEF_DIST -> LF_D_CONF [xlabel="Dist. alerts"];
+  F_IMPL_WL_MIT -> LF_D_CONF [xlabel="Mitig. alerts"];
+  LF_D_CONF -> LF_ED_CONF [xlabel="Threshold cfg."];
+  LF_D_CONF -> LF_N_SUB [xlabel="Notif. cfg."];
+  LF_D_VIEW -> LF_LTS5 [xlabel="Query"];
+  LF_D_STATUS -> LF_LTS6 [xlabel="Recent evts."];
+
+  LF_DE1 -> LF_LTS5 [xlabel="Export query"];
+  LF_DE1 -> ExtDataAgg [xlabel="Export"];
+
+  F_CONSULT_SD -> F_DEF_DIST [xlabel="Decision"];
+  F_CONSULT_WL -> F_IMPL_WL_MIT [xlabel="Decision"];
+}

@@ -1,0 +1,90 @@
+digraph OrganizationalArchitecture {
+  graph [
+    rankdir=TB,
+    splines=ortho,
+    nodesep=0.5,
+    ranksep=0.65,
+    pad=0.3,
+    compound=true,
+    bgcolor="white",
+    fontname="Helvetica"
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fillcolor="#f9e79f",
+    color="#b7950b",
+    penwidth=2,
+    fontname="Helvetica",
+    margin="0.15,0.10"
+  ];
+
+  edge [
+    color="#4A4A97",
+    penwidth=2,
+    fontname="Helvetica",
+    fontsize=10
+  ];
+
+  subgraph cluster_asada {
+    label="ASADA Paso Ancho Employee";
+    color="#a04000";
+    penwidth=3;
+    style="rounded,filled";
+    fillcolor="#e67e22";
+    fontname="Helvetica";
+    fontsize=13;
+
+    A6  [label="Share data with\nexternal entities"];
+    A3  [label="Monitor\nwater loss"];
+    A4  [label="Implement water loss\nmitigation strategy"];
+    A10 [label="Monitor water supply\nand demand (S/D)"];
+    A11 [label="Predict water\nsupply and demand"];
+    A12 [label="Define water\ndistribution rules"];
+  }
+
+  subgraph cluster_external {
+    label="External Data Aggregators (OE)";
+    color="#27ae60";
+    penwidth=3;
+    style="rounded,filled";
+    fillcolor="#eafaf1";
+    fontname="Helvetica";
+    fontsize=13;
+
+    E1 [label="Receive\naqueduct data"];
+  }
+
+  // Constraints
+  node [
+    shape=box,
+    style="filled",
+    fillcolor="#fcf3cf",
+    color="#d4ac0d",
+    penwidth=1.5,
+    fontname="Helvetica",
+    margin="0.12,0.08"
+  ];
+
+  C1 [label="{c}\nShare water quality,\ninfrastructure status,\noperational data"];
+  C2 [label="{c}\nDetect discrete water loss events\n(tank overflow, pipe burst)"];
+  C3 [label="{c}\nReal-time and remote"];
+  C4 [label="{c}\nMetrics incl. tank level,\nwater volume outflow"];
+
+  // Internal functional exchanges
+  edge [color="#4A4A97", penwidth=2, style=solid];
+  A3  -> A4  [xlabel="Water loss data"];
+  A10 -> A11 [xlabel="S/D data"];
+  A11 -> A12 [xlabel="S/D forecast"];
+
+  // External exchanges
+  A6  -> E1  [xlabel="Shareable data"];
+
+  // Constraint relationships
+  edge [color="#b7950b", penwidth=1.5, style=dotted, arrowhead=normal];
+  C1 -> A6;
+  C2 -> A3;
+  C3 -> A3;
+  C4 -> A10;
+}

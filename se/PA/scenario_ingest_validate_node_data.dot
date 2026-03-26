@@ -1,0 +1,182 @@
+digraph ScenarioIngestValidateNodeData {
+  graph [
+    rankdir=LR,
+    splines=ortho,
+    newrank=true,
+    nodesep=0.55,
+    ranksep=0.95,
+    pad=0.25,
+    compound=true,
+    forcelabels=true,
+    bgcolor="white",
+    fontname="Helvetica"
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fillcolor="#FFFCB7",
+    color="#7B694F",
+    penwidth=2,
+    fontname="Helvetica",
+    margin="0.12,0.08"
+  ];
+
+  edge [
+    color="#228B22",
+    penwidth=2,
+    fontname="Helvetica",
+    fontsize=10
+  ];
+
+  subgraph cluster_field_node {
+    label="Field Node";
+    color="#7B694F";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#FFF9D6";
+
+    subgraph cluster_field_processing {
+      label="On-node Measurement Handling";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      xiao [label="Seeed XIAO ESP32-C3"];
+
+      subgraph cluster_da_lc {
+        label="Data Acquisition (LC)";
+        color="#0066CC";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#87CEEB";
+
+        LF_DA1 [label="Collect and window\nwater S/D measurements", fillcolor="#90EE90", color="#228B22"];
+        LF_DA2 [label="Monitor\nsensor health", fillcolor="#90EE90", color="#228B22"];
+
+        LF_DA1 -> LF_DA2 [style=invis, weight=15];
+      }
+
+      xiao -> LF_DA1 [style=invis, weight=20];
+    }
+  }
+
+  subgraph cluster_server_host {
+    label="DigitalOcean Premium AMD Droplet\n(4 vCPU / 8 GiB RAM / 160 GiB SSD)";
+    color="#7B694F";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#FFF9D6";
+
+    subgraph cluster_policy_source {
+      label="Validation Policy Source";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_analytics_container {
+        label="Python Analytics Worker Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        subgraph cluster_event_lc {
+          label="Event Detection (LC)";
+          color="#0066CC";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#87CEEB";
+
+          LF_ED_CONF [label="Manage detection\nthresholds", fillcolor="#90EE90", color="#228B22"];
+        }
+      }
+
+      subgraph cluster_fastapi_config {
+        label="FastAPI Application Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_config [label="Configuration API", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      LF_ED_CONF -> lc_config [style=invis, weight=15];
+    }
+
+    subgraph cluster_ingress_validation {
+      label="Ingress & Validation";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_traefik {
+        label="Traefik Reverse Proxy Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_gateway [label="Reverse Proxy /\nTLS Gateway", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      subgraph cluster_fastapi_ingest {
+        label="FastAPI Application Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_ingest [label="Node Ingestion", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      lc_gateway -> lc_ingest [style=invis, weight=20];
+    }
+
+    subgraph cluster_storage_lane {
+      label="Time-series Storage";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_influxdb {
+        label="InfluxDB OSS 2.7 Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        subgraph cluster_lts_lc {
+          label="Long-term Storage (LC)";
+          color="#0066CC";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#87CEEB";
+
+          LF_LTS4 [label="Store\nmeasurements", fillcolor="#90EE90", color="#228B22"];
+        }
+      }
+    }
+
+    validation_c [label="{c}\nAccepted sensor ranges, timestamp freshness,\nnode identity, and missing-value policy", fillcolor="#F9E79F", color="#B7950B"];
+    transport_c [label="{c}\nDevice authentication via client certificate\nor per-device API token over TLS", fillcolor="#F9E79F", color="#B7950B"];
+
+    validation_c -> transport_c [style=invis, weight=10];
+  }
+
+  xiao -> LF_DA1 [style=dashed, arrowhead=none, color="#0066CC", constraint=false];
+  LF_ED_CONF:e -> lc_config:w [xlabel="1.\nActive\nvalidation\npolicy"];
+  lc_config:e -> lc_ingest:w [xlabel="2.\nValidation\nrules"];
+  LF_DA1:e -> LF_DA2:w [xlabel="3.\nWindowed\nreadings"];
+  LF_DA2:e -> lc_gateway:w [xlabel="4.\nHTTPS\nupload"];
+  lc_gateway:e -> lc_ingest:w [xlabel="5.\nRouted\ningest\nrequest"];
+  lc_ingest:e -> LF_LTS4:w [xlabel="6.\nValidated batch\n+ health status"];
+
+  validation_c -> lc_ingest [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+  transport_c -> lc_gateway [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+}

@@ -1,0 +1,240 @@
+digraph ScenarioDashboardFilterAndThresholds {
+  graph [
+    rankdir=LR,
+    splines=ortho,
+    newrank=true,
+    nodesep=0.6,
+    ranksep=1.0,
+    pad=0.25,
+    compound=true,
+    forcelabels=true,
+    bgcolor="white",
+    fontname="Helvetica"
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fillcolor="#FFFCB7",
+    color="#7B694F",
+    penwidth=2,
+    fontname="Helvetica",
+    margin="0.12,0.08"
+  ];
+
+  edge [
+    color="#228B22",
+    penwidth=2,
+    fontname="Helvetica",
+    fontsize=10
+  ];
+
+  subgraph cluster_employee_device {
+    label="Employee Client Device";
+    color="#7B694F";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#FFF9D6";
+
+    F_USER_LOGIN [label="Authenticate to access\nthe dashboard", fillcolor="#F9E79F", color="#B7950B"];
+    F_DEF_DIST [label="Define water\ndistribution rules", fillcolor="#F9E79F", color="#B7950B"];
+    F_IMPL_WL_MIT [label="Implement water loss\nmitigation strategy", fillcolor="#F9E79F", color="#B7950B"];
+    F_CONSULT_SD [label="Consult water supply\nand demand data", fillcolor="#F9E79F", color="#B7950B"];
+    F_CONSULT_WL [label="Consult\nwater loss data", fillcolor="#F9E79F", color="#B7950B"];
+    emp_pad [label="", shape=point, width=0.01, height=0.01, style=invis];
+
+    F_USER_LOGIN -> F_DEF_DIST -> F_IMPL_WL_MIT [style=invis, weight=20];
+    emp_pad -> F_CONSULT_SD -> F_CONSULT_WL [style=invis, weight=20];
+    { rank=same; F_USER_LOGIN; emp_pad; }
+    { rank=same; F_DEF_DIST; F_CONSULT_SD; }
+    { rank=same; F_IMPL_WL_MIT; F_CONSULT_WL; }
+  }
+
+  subgraph cluster_server_host {
+    label="DigitalOcean Premium AMD Droplet\n(4 vCPU / 8 GiB RAM / 160 GiB SSD)";
+    color="#7B694F";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#FFF9D6";
+
+    subgraph cluster_access_visualization {
+      label="Access & Visualization";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_traefik {
+        label="Traefik Reverse Proxy Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_gateway [label="Reverse Proxy /\nTLS Gateway", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      subgraph cluster_grafana {
+        label="Grafana Dashboard Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        subgraph cluster_dashboard_lc {
+          label="Dashboard (LC)";
+          color="#0066CC";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#87CEEB";
+
+          LF_D_AUTH [label="Authenticate\nuser", fillcolor="#90EE90", color="#228B22"];
+          LF_D_VIEW [label="Present stored\ndata", fillcolor="#90EE90", color="#228B22"];
+          LF_D_CONF [label="Manage alert\nconfiguration", fillcolor="#90EE90", color="#228B22"];
+        }
+      }
+
+      subgraph cluster_keycloak {
+        label="Keycloak Identity Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_kc_auth [label="Credential\nValidation", fillcolor="#87CEEB", color="#0066CC"];
+        lc_kc_token [label="OIDC Token\nIssuance", fillcolor="#87CEEB", color="#0066CC"];
+      }
+    }
+
+    subgraph cluster_data_access {
+      label="Historical Data Access";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_influxdb {
+        label="InfluxDB OSS 2.7 Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        subgraph cluster_lts_lc {
+          label="Long-term Storage (LC)";
+          color="#0066CC";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#87CEEB";
+
+          LF_LTS5 [label="Query stored\ndata", fillcolor="#90EE90", color="#228B22"];
+        }
+      }
+    }
+
+    subgraph cluster_threshold_config {
+      label="Alert / Threshold Configuration";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_fastapi {
+        label="FastAPI Application Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_config [label="Configuration API", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      subgraph cluster_postgres {
+        label="PostgreSQL 16 Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_rel_config [label="Relational Configuration\nand Identity Store", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      subgraph cluster_analytics_container {
+        label="Python Analytics Worker Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        subgraph cluster_event_lc {
+          label="Event Detection (LC)";
+          color="#0066CC";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#87CEEB";
+
+          LF_ED_CONF [label="Manage detection\nthresholds", fillcolor="#90EE90", color="#228B22"];
+        }
+      }
+
+      subgraph cluster_notifier {
+        label="Python Notification Worker Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        subgraph cluster_notifier_lc {
+          label="Notifier (LC)";
+          color="#0066CC";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#87CEEB";
+
+          LF_N_SUB [label="Manage notification\nsubscribers and channels", fillcolor="#90EE90", color="#228B22"];
+        }
+      }
+    }
+
+    viz_pad_left  [label="", shape=point, width=0.01, height=0.01, style=invis];
+    viz_pad_right [label="", shape=point, width=0.01, height=0.01, style=invis];
+
+    lc_gateway -> LF_D_AUTH -> lc_kc_auth -> lc_kc_token [style=invis, weight=20];
+    viz_pad_left -> LF_D_VIEW -> LF_LTS5 -> viz_pad_right [style=invis, weight=20];
+    LF_D_CONF -> lc_config -> lc_rel_config -> LF_ED_CONF -> LF_N_SUB [style=invis, weight=20];
+
+    { rank=same; lc_gateway; viz_pad_left; LF_D_CONF; }
+    { rank=same; LF_D_AUTH; LF_D_VIEW; lc_config; }
+    { rank=same; lc_kc_auth; LF_LTS5; lc_rel_config; }
+    { rank=same; lc_kc_token; viz_pad_right; LF_ED_CONF; }
+
+    security_c [label="{c}\nOIDC via Keycloak, TLS via Traefik,\nRBAC for threshold editing", fillcolor="#F9E79F", color="#B7950B"];
+    dashboard_c [label="{c}\nGrafana dashboards support time-range filtering\nand per-user saved preferences", fillcolor="#F9E79F", color="#B7950B"];
+    builtin_c [label="{c}\nKeycloak logical components shown are\nproduct-provided capabilities", fillcolor="#F9E79F", color="#B7950B"];
+
+    security_c -> dashboard_c -> builtin_c [style=invis, weight=10];
+  }
+
+  F_USER_LOGIN:e -> lc_gateway:w [xlabel="1.\nHTTPS\ndashboard\nrequest"];
+  lc_gateway:e -> LF_D_AUTH:w [xlabel="2.\nRouted\ndashboard\nrequest"];
+  LF_D_AUTH:e -> lc_kc_auth:w [xlabel="3.\nOIDC auth\nrequest"];
+  lc_kc_auth:e -> lc_kc_token:w [xlabel="4.\nValid\ncredential\nassertion"];
+  lc_kc_token:w -> LF_D_AUTH:e [xlabel="5.\nIdentity\ntoken /\nclaims", constraint=false, minlen=2];
+  LF_D_AUTH:s -> LF_D_VIEW:n [xlabel="6.\nAuthorized\nsession"];
+  LF_D_VIEW:e -> LF_LTS5:w [xlabel="7.\nTime-range\nquery"];
+  LF_LTS5:w -> LF_D_VIEW:e [xlabel="8.\nFiltered\nhistorical\ndata", constraint=false, minlen=2];
+  LF_D_VIEW:e -> F_CONSULT_SD:w [xlabel="9.\nFiltered S/D\ndashboard", constraint=false, minlen=2];
+  LF_D_VIEW:e -> F_CONSULT_WL:w [xlabel="10.\nFiltered water\nloss dashboard", constraint=false, minlen=2];
+
+  F_DEF_DIST:e -> LF_D_CONF:w [xlabel="11.\nEdit supply\nrisk criteria"];
+  F_IMPL_WL_MIT:e -> LF_D_CONF:w [xlabel="12.\nEdit water loss\nrisk criteria"];
+  LF_D_CONF:e -> lc_config:w [xlabel="13.\nConfiguration\ncommand"];
+  lc_config:e -> lc_rel_config:w [xlabel="14.\nPersist thresholds\n/ subscriptions"];
+  lc_rel_config:e -> LF_ED_CONF:w [xlabel="15.\nThreshold\ndefinitions"];
+  lc_rel_config:e -> LF_N_SUB:w [xlabel="16.\nNotification\nsubscriptions", constraint=false, minlen=2];
+
+  security_c -> lc_kc_auth [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+  security_c -> lc_gateway [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+  dashboard_c -> LF_D_VIEW [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+  builtin_c -> lc_kc_auth [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+}

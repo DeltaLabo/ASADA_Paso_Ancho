@@ -1,0 +1,215 @@
+digraph ServerNodePA {
+  graph [
+    rankdir=TB,
+    splines=ortho,
+    newrank=true,
+    nodesep=0.35,
+    ranksep=0.55,
+    pad=0.25,
+    compound=true,
+    forcelabels=true,
+    bgcolor="white",
+    fontname="Helvetica"
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fillcolor="#FFFCB7",
+    color="#7B694F",
+    penwidth=2,
+    fontname="Helvetica",
+    margin="0.12,0.08"
+  ];
+
+  edge [
+    color="#EF2929",
+    penwidth=2,
+    fontname="Helvetica",
+    fontsize=10
+  ];
+
+  field_node [label="Remote Field Node"];
+  employee_device [label="Employee Client Device"];
+  external_aggregator [label="External Aggregator\nEndpoint"];
+  do_volume [label="DigitalOcean Block\nStorage Volume"];
+  do_spaces [label="DigitalOcean Spaces\nBackup Bucket"];
+
+  subgraph cluster_portable_host {
+    label="DigitalOcean Premium AMD Droplet\n(4 vCPU / 8 GiB RAM / 160 GiB SSD)";
+    color="#7B694F";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#FFF9D6";
+
+    subgraph cluster_platform_plane {
+      label="Droplet Platform";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      host_os [label="Ubuntu Server LTS"];
+      docker_runtime [label="Docker Engine +\nDocker Compose", fillcolor="#87CEEB", color="#0066CC"];
+
+      host_os -> docker_runtime [style=invis, weight=20];
+    }
+
+    subgraph cluster_access_plane {
+      label="Access & Identity";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_traefik {
+        label="Traefik Reverse Proxy Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_gateway [label="Reverse Proxy /\nTLS Gateway", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      subgraph cluster_keycloak {
+        label="Keycloak Identity Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_iam [label="Identity and Access\nManagement", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      subgraph cluster_grafana {
+        label="Grafana Dashboard Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_dashboard [label="Dashboard", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      { rank=same; lc_gateway; lc_iam; lc_dashboard; }
+      lc_gateway -> lc_iam -> lc_dashboard [style=invis, weight=20];
+    }
+
+    subgraph cluster_application_plane {
+      label="Application Services";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_fastapi {
+        label="FastAPI Application Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_ingest [label="Node Ingestion", fillcolor="#87CEEB", color="#0066CC"];
+        lc_config [label="Configuration API", fillcolor="#87CEEB", color="#0066CC"];
+        lc_measurement_window [label="Measurement\nWindow", fillcolor="#87CEEB", color="#0066CC"];
+        lc_export [label="Data Export", fillcolor="#87CEEB", color="#0066CC"];
+
+        { rank=same; lc_ingest; lc_config; }
+        { rank=same; lc_measurement_window; lc_export; }
+        lc_ingest -> lc_measurement_window [style=invis, weight=15];
+        lc_config -> lc_export [style=invis, weight=15];
+        lc_ingest -> lc_config [style=invis, weight=8];
+      }
+
+      subgraph cluster_analytics {
+        label="Python Analytics Worker Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_processing [label="Data Processing", fillcolor="#87CEEB", color="#0066CC"];
+        lc_event [label="Event Detection", fillcolor="#87CEEB", color="#0066CC"];
+
+        lc_processing -> lc_event [style=invis, weight=15];
+      }
+
+      subgraph cluster_notifier {
+        label="Python Notification Worker Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_notifier [label="Notifier", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      { rank=same; lc_ingest; lc_processing; lc_notifier; }
+      lc_export -> lc_processing [style=invis, weight=10];
+      lc_event -> lc_notifier [style=invis, weight=10];
+    }
+
+    subgraph cluster_data_ops_plane {
+      label="Data, Identity Store & Backup";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_influxdb {
+        label="InfluxDB OSS 2.7 Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_storage [label="Long-term Storage", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      subgraph cluster_postgres {
+        label="PostgreSQL 16 Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_rel_config [label="Relational Configuration\nand Identity Store", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      subgraph cluster_restic {
+        label="Restic Backup Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_backup [label="Backup Management", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      { rank=same; lc_storage; lc_rel_config; lc_backup; }
+      lc_storage -> lc_rel_config -> lc_backup [style=invis, weight=20];
+    }
+
+    { rank=same; host_os; lc_gateway; }
+    { rank=same; docker_runtime; lc_iam; }
+    { rank=same; lc_ingest; lc_storage; }
+
+    host_os -> lc_ingest [style=invis, weight=30];
+    lc_gateway -> lc_storage [style=invis, weight=30];
+    docker_runtime -> lc_processing [style=invis, weight=20];
+    lc_iam -> lc_rel_config [style=invis, weight=20];
+  }
+
+  { rank=same; employee_device; field_node; }
+  employee_device -> field_node [style=invis, weight=10];
+  { rank=same; do_volume; do_spaces; external_aggregator; }
+  do_volume -> do_spaces -> external_aggregator [style=invis, weight=10];
+
+  employee_device -> lc_gateway [color="#0066CC", xlabel="HTTPS dashboard access\nover public WAN"];
+  field_node -> lc_ingest [color="#0066CC", xlabel="HTTPS telemetry upload\nover cellular WAN"];
+  lc_export -> external_aggregator [color="#0066CC", xlabel="Export API / HTTPS"];
+  lc_backup -> do_spaces [color="#0066CC", xlabel="S3-compatible\nbackup exchange"];
+
+  host_os -> do_volume [xlabel="Attached block\nstorage"];
+}

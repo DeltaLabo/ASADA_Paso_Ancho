@@ -68,3 +68,6 @@ venv/
 *.nav
 *.bbl
 *.blg
+
+.DS_Store
+AGENTS.md

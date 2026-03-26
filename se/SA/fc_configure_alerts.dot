@@ -1,0 +1,63 @@
+digraph FC_ConfigureAlerts {
+  graph [
+    label="Functional Chain: Configure Alerts";
+    labelloc=t;
+    rankdir=LR;
+    splines=spline;
+    nodesep=0.40;
+    ranksep=1.05;
+    pad=0.35;
+    bgcolor="white";
+    fontname="Helvetica";
+    fontsize=14;
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="Helvetica",
+    margin="0.15,0.10",
+    penwidth=2
+  ];
+
+  edge [
+    color="#4A4A97",
+    penwidth=2,
+    fontname="Helvetica",
+    fontsize=9
+  ];
+
+  // ── Actors ────────────────────────────────────────────────────────────
+  F_DEF_DIST [
+    label=<<B>Define water<BR/>distribution rules</B><BR/><FONT POINT-SIZE="9"><I>Employee</I></FONT>>,
+    fillcolor="#f9e79f", color="#b7950b"
+  ];
+  F_IMPL_WL_MIT [
+    label=<<B>Implement water loss<BR/>mitigation strategy</B><BR/><FONT POINT-SIZE="9"><I>Employee</I></FONT>>,
+    fillcolor="#f9e79f", color="#b7950b"
+  ];
+
+  // ── System functions being configured ────────────────────────────────
+  SF_AQ5 [
+    label=<<B>Notify of insufficient<BR/>supply events</B><BR/><FONT POINT-SIZE="9"><I>System</I></FONT>>,
+    fillcolor="#90ee90", color="#228b22"
+  ];
+  SF_AQ12 [
+    label=<<B>Notify of high insufficient<BR/>supply probability</B><BR/><FONT POINT-SIZE="9"><I>System</I></FONT>>,
+    fillcolor="#90ee90", color="#228b22"
+  ];
+  SF_AQ8 [
+    label=<<B>Quantify<BR/>water loss</B><BR/><FONT POINT-SIZE="9"><I>System</I></FONT>>,
+    fillcolor="#90ee90", color="#228b22"
+  ];
+  SF_AQ11 [
+    label=<<B>Notify of high water loss<BR/>event probability</B><BR/><FONT POINT-SIZE="9"><I>System</I></FONT>>,
+    fillcolor="#90ee90", color="#228b22"
+  ];
+
+  // ── Configuration flows ───────────────────────────────────────────────
+  F_DEF_DIST    -> SF_AQ5  [label="Insufficient supply\nalert criteria"];
+  F_DEF_DIST    -> SF_AQ12 [label="Insufficient supply\nprobability alert criteria"];
+  F_IMPL_WL_MIT -> SF_AQ8  [label="Water loss detection\nalert criteria"];
+  F_IMPL_WL_MIT -> SF_AQ11 [label="Water loss probability\nalert criteria"];
+}

@@ -3,247 +3,574 @@
 \setbeamertemplate{footline}[frame number]
 \usepackage{comment}
 \usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\graphicspath{{images/}{../se/OA/}{../se/SA/}{../se/LA/}{../se/PA/}}
 
-\title[IoT for Rural Aqueducts using MBSE]{Towards a Modular IoT System Architecture for Rural Aqueducts using Model-Based Systems Engineering}
-\author[Tecnológico de Costa Rica]{Anthony José Arguedas-Rodríguez \and María José Angulo-Campos \and Juan José Montero-Jiménez \and Juan José Rojas-Hernández}
-\date{2025 IEEE International Symposium on Systems Engineering}
+\title[2026-03 Meeting]{ASADA Paso Ancho 2026-03 Meeting}
+\author[Lab Delta]{Laboratorio Delta}
+\date{2026-03-12}
 
 \begin{document}
 
+% ═══════════════════════════════════════════════════════════════════════
+% TITLE
+% ═══════════════════════════════════════════════════════════════════════
 \begin{frame}
     \begin{center}
         {\LARGE \textbf{\inserttitle}} \\
         \vspace{0.5cm}
         {\insertauthor} \\
         \vspace{0.25cm}
-        \includegraphics[height=2.3cm]{images/logo_delta.png} \raisebox{0.4cm}{\includegraphics[height=1.3cm]{images/logo_tec.jpg}} \raisebox{0.4cm}{\includegraphics[height=1.6cm]{images/logo_isse.png}} \\
+        \includegraphics[height=2.3cm]{logo_delta.png} \raisebox{0.4cm}{\includegraphics[height=1.3cm]{logo_tec.jpg}} \\
+    \end{center}
+\end{frame}
+
+% ═══════════════════════════════════════════════════════════════════════
+% MISSION CONCEPT REVIEW
+% ═══════════════════════════════════════════════════════════════════════
+\begin{frame}
+    \begin{center}
+        {\LARGE \textbf{Mission Concept Review}} \\
+        \vspace{0.5cm}
+        {ASADA Paso Ancho} \\
+        \vspace{0.25cm}
     \end{center}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Contents}
+    \frametitle{Mission Concept Review}
+
+    {\textbf{Contents}}
     \begin{itemize}
-        \item IoT Systems in Rural Aqueducts Context
-        \item ARCADIA Model-Based Systems Engineering (MBSE) Methodology
-        \item Operational Need Analysis: What Rural Aqueducts Need to Accomplish
-        \item System Need Analysis: What IoT Systems Must Accomplish for Rural Aqueducts
-        \item Logical Architecture: A Generic and Modular IoT System
-        \item Physical Architecture: A Case Study of ASADA Paso Ancho, Costa Rica
-        \item Conclusions and Future Work
+        \item Textual Requirements
+        \item Operational Need Analysis
+    \end{itemize}
+    \vspace{0.25cm}
+    {\textbf{Goals}}
+    \begin{itemize}
+        \item Approve Textual Requirements
+        \item Approve Operational Need Analysis
     \end{itemize}
 \end{frame}
 
 \begin{frame}
-    \frametitle{What are Rural Aqueducts?}
+    \frametitle{Textual Requirements, Needs, and Desires}
 
-    \begin{columns}[T] % Align columns at the top
-        \begin{column}{0.5\textwidth}
-            \begin{enumerate}
-                \item Self-managed
-                \item Rural community-based
-                \item Small-scale
-                \item Limited staff
-                \item Commonly resource-constrained
-                \item Manual monitoring, inspection, and control methods
-                \item Vulnerable to water loss and unreliable service
-            \end{enumerate}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{figure}
-                \includegraphics[width=0.8\columnwidth]{images/asada.png}
-                \caption{Aerial view of the water tank facility of ASADA Paso Ancho, Costa Rica.}
-            \end{figure}
-        \end{column}
-    \end{columns}
+    \footnotesize
+    \begin{tabularx}{\textwidth}{l X}
+        \toprule
+        Code & Requirement, Need, or Desire \\
+        \midrule
+        RND1 & Employees must monitor water tanks via a mobile-accessible dashboard \\
+        RND2 & Employees must be alerted of high overflow or undersupply risk \\
+        RND3 & System must obtain data from the Octave ultrasonic meter and the 24\,V One-Wire depth sensor \\
+        P1   & System must remain operational without on-site power or internet \\
+        M1   & System must be contained in a cabinet that withstands environmental conditions \\
+        M2   & System should operate for $\geq$48\,h under direct rain or sunlight \\
+        CS1  & System must be cybersecurity-hardened following applicable standards \\
+        \bottomrule
+    \end{tabularx}
 \end{frame}
 
 \begin{frame}
-    \frametitle{\small IoT Systems in Rural Aqueducts Context}
-    \framesubtitle{Previous Work on IoT Technology Transfer to Rural Aqueducts at Laboratorio Delta}
+    \frametitle{\small Operational Need Analysis: Organizational Architecture}
+    \framesubtitle{Activities, functional exchanges, and actors at the operational level}
 
-    \begin{columns}[T] % Align columns at the top
-        \begin{column}{0.5\textwidth}
-            \begin{figure}
-                \includegraphics[width=0.7\columnwidth]{images/oviedo.png}
-                \caption{IoT system developed by [1] for ASADA Paso Ancho, Cartago.}
-            \end{figure}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{figure}
-                \includegraphics[width=0.8\columnwidth]{images/solorzano.png}
-                \caption{IoT system developed by [2] for ASADA Playa Sámara, Nicoya.}
-            \end{figure}
-        \end{column}
-    \end{columns}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{organizational_architecture.graphviz.png}
+    \end{figure}
+\end{frame}
+
+% ═══════════════════════════════════════════════════════════════════════
+% SYSTEM REQUIREMENTS REVIEW
+% ═══════════════════════════════════════════════════════════════════════
+\begin{frame}
+    \begin{center}
+        {\LARGE \textbf{System Requirements Review}} \\
+        \vspace{0.5cm}
+        {ASADA Paso Ancho} \\
+        \vspace{0.25cm}
+    \end{center}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Research Questions}
+    \frametitle{System Requirements Review}
 
+    {\textbf{Contents}}
     \begin{itemize}
-        \item \textbf{RQ1:} Are there existing systems engineering-based (including ARCADIA MBSE) architectures for the design of IoT systems for rural aqueducts?
-        \item \textbf{RQ2:} If they exist, are the architectures generic and modular?
-        \item \textbf{RQ3:} What are the needs and desires of rural aqueducts that can be addressed by IoT systems?
-        \item \textbf{Contribution:} A generic system architecture for rural aqueducts, developed using the ARCADIA method
-    \end{itemize} 
-\end{frame}
-
-\begin{frame}
-    \frametitle{The ARCADIA MBSE Methodology}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.9\textwidth]{images/phases_arcadia.png}
-        \caption{Phases of the ARCADIA Model-Based Systems Engineering Methodology and its associated Language and Tool Capella.}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small Operational Need Analysis}
-    \framesubtitle{Extracting Generic Needs and Desires about IoT Systems in Rural Aqueducts using NLP}
-
-    \begin{table}
-        \centering
-        \caption{Needs and desires extracted from paper full text embeddings using BERTopic.}
-        \begin{tabular}{c p{6cm}}
-            Code & Need or desire \\
-            \hline
-            ND1.1 & Identify sources of water pollution \\ %
-            ND1.2 & Monitor water pollution \\ %
-            ND2 & Monitor water pH \\ %
-            ... & ... \\ %
-            ND52 & MQTT node communication \\
-            ND53 & Mobile network connectivity \\
-            ND54 & WiFi connectivity \\
-            ND55 & LoRaWAN connectivity \\
-            \hline
-        \end{tabular}
-        \label{tab:clusters}
-    \end{table}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small Operational Need Analysis: Operational Capabilities}
-    \framesubtitle{1: Provide high-quality water, 2: Comply with water quality standards and 4: Share data with external entities}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth]{images/opcap1.jpg}
-        \caption{Operational Need Analysis for rural aqueducts, reduced to the activities involved in Capabilities 1, 2 and 4.}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small Operational Need Analysis}
-    \framesubtitle{Operational Capability 3: Mitigate water loss}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.9\textwidth]{images/opcap3.jpg}
-        \caption{Operational Need Analysis for rural aqueducts, reduced to the activities involved in Capability 3.}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small System Need Analysis: System Capabilities}
-    \framesubtitle{1: Provide water quality data, 5: Share data with external entities}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.9\textwidth]{images/scap1-5.jpg}
-        \caption{System Need Analysis for IoT systems in rural aqueducts, reduced to the activities involved in Capabilities 1 and 5.}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small System Need Analysis: System Capabilities}
-    \framesubtitle{2: Provide water loss data, 3: Provide water supply and demand data, 4: Control water distribution}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.85\textwidth]{images/scap2-3-4.jpg}
-        \caption{System Need Analysis for IoT systems in rural aqueducts, reduced to the activities involved in Capabilities 2, 3 and 4.}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small Logical Architecture Definition}
-    \framesubtitle{Implementing modularity with end-user and environmental interactions}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.77\textwidth]{images/separation.jpg}
-        \caption{Logical architecture for IoT systems in rural aqueducts, reduced to the logical componentes that interact with end-users and the environment.}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small Logical Architecture Definition}
-    \framesubtitle{Implementing modularity with buses, queues, and pub/sub channels}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.75\textwidth]{images/component_exchanges.jpg}
-        \caption{Logical architecture for IoT systems in rural aqueducts, reduced to logical components and their component exchanges.}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small Physical Architecture Definition}
-    \framesubtitle{Implementing Logical Components}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.65\textwidth]{images/physical_implementation.jpg}
-        \caption{Physical architecture for IoT systems in rural aqueducts, reduced to the Physical Components implementing the Logical Architecture.}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small Physical Architecture Definition}
-    \framesubtitle{Introducing Implementation-Specific Functions}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.9\textwidth]{images/physical_new.jpg}
-        \caption{Physical architecture for IoT systems in rural aqueducts, reduced to implementation-specific functions not found in the Logical Architecture.}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Conclusions and Future Work}
-
+        \item Viewpoints
+        \item System Need Analysis
+    \end{itemize}
+    \vspace{0.25cm}
+    {\textbf{Goals}}
     \begin{itemize}
-        \item Generality was introduced by extracting needs and desires from a wide range of literature using data mining techniques.
-        \item The application of the ARCADIA MBSE method enabled traceability from needs to logical and even physical architecture, and technology-agnostic design.
-        \item Modularity was achieved by separating end-user and environmental interactions, and by using buses, queues, and pub/sub channels for component exchanges.
-        \item The presented architecture can be adapted to a practical implementation, for example by technology transfer initiatives.
-        \item Future work should strengthen the data mining pipeline by including more sources of information, and further developing the physical architecture with more case studies.
+        \item Approve Viewpoints
+        \item Refine System Need Analysis
     \end{itemize}
 \end{frame}
 
-\begin{frame}[allowframebreaks]
-  \frametitle{References}
-  \footnotesize
-  \begin{thebibliography}{99}
-    \bibitem{oviedo2024}
-      A.~Oviedo Muñoz,
-      ``Desarrollo de un prototipo para recopilación y monitoreo remoto de datos hídricos de los tanques, basado en dispositivos IoT, en la ASADA Paso Ancho y Boquerón,'' Specialization Practice Report to qualify for the title of Industrial Maintenance Engineer, Tecnológico de Costa Rica, Escuela de Ingeniería Electromecánica, Mar. 2024.
-    \bibitem{solorzano2021}
-      S.~Solórzano Alfaro,
-      ``Sistema de control y monitoreo hídrico, basado en LoRaWAN, para el acueducto principal de la sociación administradora del acueducto rural de Playa Sámara de Nicoya,'' Specialization Practice Report to qualify for the title of Industrial Maintenance Engineer, Tecnológico de Costa Rica, Escuela de Ingeniería Electromecánica, Jun. 2021.
-  \end{thebibliography}
+\begin{frame}
+    \frametitle{Viewpoints}
+
+    \begin{itemize}
+        \item Security
+        \item Privacy
+        \item Availability
+        \item Mobile Accessibility
+        \item Maintainability
+        \item Operation in a Remote Area
+    \end{itemize}
 \end{frame}
 
 \begin{frame}
-    \frametitle{\small Backup Slide}
-    \framesubtitle{NLP Pipeline for Generic Needs and Desires Extraction}
+    \frametitle{\small System Need Analysis: System Architecture}
+    \framesubtitle{Functions, actors, and functional exchanges at the system level}
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{images/bertopic.png}
-        \caption{Process of extracting generic needs and desires about IoT systems in rural aqueducts from published literature.}
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{system_architecture.graphviz.png}
     \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small System Need Analysis: Functional Chains}
+    \framesubtitle{FC: Provide Supply \& Demand Data}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{fc_provide_sd_data.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small System Need Analysis: Functional Chains}
+    \framesubtitle{FC: Provide Water Loss Data}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{fc_provide_wl_data.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small System Need Analysis: Functional Chains}
+    \framesubtitle{FC: Alert Insufficient Supply}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{fc_alert_insufficient_supply.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small System Need Analysis: Functional Chains}
+    \framesubtitle{FC: Alert Water Loss}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{fc_alert_water_loss.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small System Need Analysis: Functional Chains}
+    \framesubtitle{FC: Configure Alerts}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{fc_configure_alerts.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small System Need Analysis: Functional Chains}
+    \framesubtitle{FC: Share Data with External Entities}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{fc_share_external_data.graphviz.png}
+    \end{figure}
+\end{frame}
+
+% ═══════════════════════════════════════════════════════════════════════
+% MISSION DEFINITION REVIEW
+% ═══════════════════════════════════════════════════════════════════════
+\begin{frame}
+    \begin{center}
+        {\LARGE \textbf{Mission Definition Review}} \\
+        \vspace{0.5cm}
+        {ASADA Paso Ancho} \\
+        \vspace{0.25cm}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Mission Definition Review}
+
+    {\textbf{Contents}}
+    \begin{itemize}
+        \item System Need Analysis
+    \end{itemize}
+    \vspace{0.25cm}
+    {\textbf{Goals}}
+    \begin{itemize}
+        \item Determine Mission Feasibility
+    \end{itemize}
+\end{frame}
+
+% ═══════════════════════════════════════════════════════════════════════
+% SYSTEM DEFINITION REVIEW
+% ═══════════════════════════════════════════════════════════════════════
+\begin{frame}
+    \begin{center}
+        {\LARGE \textbf{System Definition Review}} \\
+        \vspace{0.5cm}
+        {ASADA Paso Ancho} \\
+        \vspace{0.25cm}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{System Definition Review}
+
+    {\textbf{Contents}}
+    \begin{itemize}
+        \item System Need Analysis
+    \end{itemize}
+    \vspace{0.25cm}
+    {\textbf{Goals}}
+    \begin{itemize}
+        \item Approve System Need Analysis
+    \end{itemize}
+\end{frame}
+
+% ═══════════════════════════════════════════════════════════════════════
+% PRELIMINARY DESIGN REVIEW
+% ═══════════════════════════════════════════════════════════════════════
+\begin{frame}
+    \begin{center}
+        {\LARGE \textbf{Preliminary Design Review}} \\
+        \vspace{0.5cm}
+        {ASADA Paso Ancho} \\
+        \vspace{0.25cm}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Preliminary Design Review}
+
+    {\textbf{Contents}}
+    \begin{itemize}
+        \item Logical Architecture
+    \end{itemize}
+    \vspace{0.25cm}
+    {\textbf{Goals}}
+    \begin{itemize}
+        \item Approve Logical Architecture
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Logical Architecture: Components and Functions}
+    \framesubtitle{Logical components, functions, and functional exchanges}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{logical_architecture.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Logical Architecture: Component Exchanges}
+    \framesubtitle{Communication patterns between logical components}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{logical_architecture_ce.graphviz.png}
+    \end{figure}
+\end{frame}
+
+% ═══════════════════════════════════════════════════════════════════════
+% CRITICAL DESIGN REVIEW
+% ═══════════════════════════════════════════════════════════════════════
+\begin{frame}
+    \begin{center}
+        {\LARGE \textbf{Critical Design Review}} \\
+        \vspace{0.5cm}
+        {ASADA Paso Ancho} \\
+        \vspace{0.25cm}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Critical Design Review}
+
+    {\textbf{Contents}}
+    \begin{itemize}
+        \item Physical Architecture
+    \end{itemize}
+    \vspace{0.25cm}
+    {\textbf{Goals}}
+    \begin{itemize}
+        \item Approve Physical Architecture
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Physical Architecture: Field Node}
+    \framesubtitle{Solar-powered sensor node with cellular uplink}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{Field Node PA.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Physical Architecture: Server Node}
+    \framesubtitle{Portable containerized deployment host}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{Server Node PA.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Physical Architecture: Scenario}
+    \framesubtitle{Authenticate User}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_authenticate_user.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Physical Architecture: Scenario}
+    \framesubtitle{Ingest and Validate Node Data}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_ingest_validate_node_data.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Physical Architecture: Scenario}
+    \framesubtitle{Backup Time-Series Database}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_backup_time_series_db.graphviz.png}
+    \end{figure}
+\end{frame}
+
+% ═══════════════════════════════════════════════════════════════════════
+% PRODUCTION READINESS REVIEW
+% ═══════════════════════════════════════════════════════════════════════
+\begin{frame}
+    \begin{center}
+        {\LARGE \textbf{Production Readiness Review}} \\
+        \vspace{0.5cm}
+        {ASADA Paso Ancho} \\
+        \vspace{0.25cm}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Production Readiness Review}
+
+    {\textbf{Contents}}
+    \begin{itemize}
+        \item Deadline
+        \item Bill of Materials
+        \item Team Members
+    \end{itemize}
+    \vspace{0.25cm}
+    {\textbf{Goals}}
+    \begin{itemize}
+        \item Determine Production Readiness
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Bill of Materials (Field Node)}
+
+    \footnotesize
+    \begin{tabularx}{\textwidth}{l X}
+        \toprule
+        Component & Part \\
+        \midrule
+        Microcontroller    & Seeed XIAO ESP32-C3 \\
+        Expansion board    & Seeed Studio Expansion Base for XIAO (RTC + MicroSD) \\
+        RS-485 interface   & Seeed Grove RS485 \\
+        LTE modem          & Waveshare SIM7600G-H 4G Module \\
+        Cellular antenna   & Waveshare 4G/3G/2G/LPWA Outdoor Antenna \\
+        Solar panel        & Waveshare Solar Panel 18\,V 10\,W \\
+        Power manager      & Waveshare Solar Power Manager (D) --- MPPT + 5\,V output \\
+        Battery            & 18650 3P1S Li-ion Pack + Holder \\
+        Battery monitor    & INA219 \\
+        Level sensor       & Submersible Water Level Sensor (0.5--4.5\,V) \\
+        Flow meter         & Octave Water Meter (existing, RS-485 Modbus) \\
+        \bottomrule
+    \end{tabularx}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Power Subsystem Components}
+
+    \begin{columns}[T]
+        \begin{column}{0.25\textwidth}
+            \centering
+            \includegraphics[width=\linewidth,height=2.8cm,keepaspectratio]{prod_solar_panel.jpg} \\[0.2em]
+            {\small \textbf{Solar Panel 18\,V 10\,W}} \\
+            {\footnotesize Waveshare} \\[0.2em]
+            {\large \$11.99}
+        \end{column}
+        \begin{column}{0.25\textwidth}
+            \centering
+            \includegraphics[width=\linewidth,height=2.8cm,keepaspectratio]{prod_solar_manager.jpg} \\[0.2em]
+            {\small \textbf{Solar Power Manager (D)}} \\
+            {\footnotesize Waveshare} \\[0.2em]
+            {\large \$12.99}
+        \end{column}
+        \begin{column}{0.25\textwidth}
+            \centering
+            \includegraphics[width=\linewidth,height=2.8cm,keepaspectratio]{prod_18650.jpg} \\[0.2em]
+            {\small \textbf{18650 Li-ion Cell $\times$3}} \\
+            {\footnotesize 3.7\,V 2200\,mAh, 3P1S pack} \\[0.2em]
+            {\large \$9.95 $\times$ 3}
+        \end{column}
+        \begin{column}{0.25\textwidth}
+            \centering
+            \includegraphics[width=\linewidth,height=2.8cm,keepaspectratio]{prod_ina219.jpg} \\[0.2em]
+            {\small \textbf{INA219 Battery Monitor}} \\
+            {\footnotesize Adafruit breakout} \\[0.2em]
+            {\large \$9.95}
+        \end{column}
+    \end{columns}
+
+    \vfill
+    \centering
+    \footnotesize
+    Subtotal (power subsystem): \textbf{\$64.78} \quad|\quad
+    Sources: Waveshare, Adafruit
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Server Runtime Services}
+
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.32\textwidth}
+            \centering
+            \includegraphics[height=0.55cm]{server_services/traefikproxy.png} \\[0.05em]
+            {\footnotesize \textbf{Traefik}} \\[0.1em]
+            {\tiny
+            • Edge TLS termination \\
+            • Single controlled ingress path
+            }
+
+            \vspace{0.2em}
+            \includegraphics[height=0.55cm]{server_services/keycloak.png} \\[0.05em]
+            {\footnotesize \textbf{Keycloak}} \\[0.1em]
+            {\tiny
+            • OIDC SSO and token issuance \\
+            • Password handling isolated from app containers
+            }
+        \end{column}
+        \begin{column}{0.32\textwidth}
+            \centering
+            \includegraphics[height=0.55cm]{server_services/grafana.png} \\[0.05em]
+            {\footnotesize \textbf{Grafana}} \\[0.1em]
+            {\tiny
+            • Keycloak-backed SSO \\
+            • RBAC can restrict threshold editing
+            }
+
+            \vspace{0.2em}
+            \includegraphics[height=0.55cm]{server_services/fastapi.png} \\[0.05em]
+            {\footnotesize \textbf{FastAPI}} \\[0.1em]
+            {\tiny
+            • Auditable ingestion/config/export API \\
+            • Token, node-identity, and input validation
+            }
+        \end{column}
+        \begin{column}{0.32\textwidth}
+            \centering
+            \includegraphics[height=0.55cm]{server_services/influxdb.png} \\[0.05em]
+            {\footnotesize \textbf{InfluxDB OSS 2.7}} \\[0.1em]
+            {\tiny
+            • Bucket and token separation \\
+            • Write-only node tokens; read-only export tokens
+            }
+
+            \vspace{0.2em}
+            \includegraphics[height=0.55cm]{server_services/postgresql.png} \\[0.05em]
+            {\footnotesize \textbf{PostgreSQL 16}} \\[0.1em]
+            {\tiny
+            • Central config and identity store \\
+            • Kept off the public internet
+            }
+        \end{column}
+    \end{columns}
+
+    \vfill
+    \centering
+    {\tiny Additional custom containers: Python analytics worker, notification worker, and Restic backup job.}
+\end{frame}
+
+% ═══════════════════════════════════════════════════════════════════════
+% SYSTEM INTEGRATION REVIEW
+% ═══════════════════════════════════════════════════════════════════════
+\begin{frame}
+    \begin{center}
+        {\LARGE \textbf{System Integration Review}} \\
+        \vspace{0.5cm}
+        {ASADA Paso Ancho} \\
+        \vspace{0.25cm}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{System Integration Review}
+
+    {\textbf{Contents}}
+    \begin{itemize}
+        \item Functional Versions
+        \item IVV Plan
+    \end{itemize}
+    \vspace{0.25cm}
+    {\textbf{Goals}}
+    \begin{itemize}
+        \item Approve Functional Versions
+        \item Approve IVV Plan
+    \end{itemize}
+\end{frame}
+
+% ═══════════════════════════════════════════════════════════════════════
+% CLOSING
+% ═══════════════════════════════════════════════════════════════════════
+\begin{frame}
+    \frametitle{2026-03 Meeting Review}
+
+    {\textbf{Covered}}
+    \begin{itemize}
+        \item Pre-Phase A: Concept Studies
+        \item Phase A: Concept and Technology Development
+        \item Phase B: Preliminary Design and Technology Completion
+        \item Phase C: Final Design and Fabrication
+    \end{itemize}
+    \vspace{0.25cm}
+    {\textbf{Next Steps}}
+    \begin{itemize}
+        \item Phase D: System Assembly, Integration and Test, Launch
+        \item Phase E: Operations and Sustainment
+        \item Phase F: Closeout
+    \end{itemize}
 \end{frame}
 
 \end{document}

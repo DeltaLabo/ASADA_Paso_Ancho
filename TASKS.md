@@ -1,3 +1,0 @@
-- [ ] Fix background colors on OA
-- [ ] Introduce existing sensors to SA
-- [ ] Create skill for ARCADIA color styling, functional chain concept, scenario concept, inter-phase consistency. Document how to create reduced views i.e. to hide functional exchanges in the LA.

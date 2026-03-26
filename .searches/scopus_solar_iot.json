@@ -1,0 +1,110 @@
+{
+  "query": "solar powered IoT remote monitoring battery mppt",
+  "total": 296,
+  "pages_retrieved": 1,
+  "results": [
+    {
+      "paperId": "105031733207",
+      "doi": "10.1007/s43621-026-02701-3",
+      "title": "Photovoltaic system performance in Sub-Saharan Africa under environmental, technical and policy constraints",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105027552862",
+      "doi": "10.6180/jase.202607_30.018",
+      "title": "Intelligent Interconnected Water Management System For Arid Zones Using Solar Photovoltaic Power",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105030207128",
+      "doi": "10.1016/j.rser.2026.116790",
+      "title": "A coordinated framework for integrating technologies, challenges, and management strategies of distributed energy resources in microgrids",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105028910442",
+      "doi": "10.1016/j.apenergy.2026.127461",
+      "title": "Current trends and challenges in solar PV-integrated battery energy storage technology: Key components, methods, and future prospects",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105032487505",
+      "doi": "10.1016/j.nxener.2026.100552",
+      "title": "Robust optimization of a battery-supercapacitor microgrid under load demand uncertainty",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105031606371",
+      "doi": "10.1016/j.ohx.2026.e00753",
+      "title": "Low-cost solar-powered urban soundscape sensor",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105027382714",
+      "doi": "10.1016/j.nwnano.2026.100179",
+      "title": "Self-powered sensors and wearables: Energy harvesting with nanomaterials for the IoT era",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105028671087",
+      "doi": "10.1016/j.compag.2026.111415",
+      "title": "Solar-powered agricultural robots: a systematic review of technological synergies, sustainability impacts, and future pathways for autonomous farming",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105022119899",
+      "doi": "10.1016/j.solmat.2025.114075",
+      "title": "Utilizing solar energy for UAVs: Advancements, challenges and future perspectives in defense and military applications - A review",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    },
+    {
+      "paperId": "105027934929",
+      "doi": "10.1016/j.compeleceng.2026.110948",
+      "title": "A real-time smart energy management system for greenhouses using a hybrid optimization algorithm: Experimental implementation for efficient and sustainable operation",
+      "authors": [],
+      "year": 2026,
+      "abstract": "",
+      "citationCount": 0,
+      "openAccess_pdf": {}
+    }
+  ],
+  "output_metadata": {
+    "extracted_at": "2026-03-26T02:22:22.091492"
+  }
+}

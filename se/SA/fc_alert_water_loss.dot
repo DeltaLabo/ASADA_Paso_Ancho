@@ -1,0 +1,96 @@
+digraph FC_AlertWaterLoss {
+  graph [
+    label="Functional Chain: Alert Water Loss";
+    labelloc=t;
+    rankdir=LR;
+    splines=spline;
+    nodesep=0.40;
+    ranksep=1.05;
+    pad=0.35;
+    bgcolor="white";
+    fontname="Helvetica";
+    fontsize=14;
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="Helvetica",
+    margin="0.15,0.10",
+    penwidth=2
+  ];
+
+  edge [
+    color="#4A4A97",
+    penwidth=2,
+    fontname="Helvetica",
+    fontsize=9
+  ];
+
+  // ── Sensors ───────────────────────────────────────────────────────────
+  F_MEASURE_VOLUME [
+    label=<<B>Measure water<BR/>volume</B><BR/><FONT POINT-SIZE="9"><I>Octave Water Meter</I></FONT>>,
+    fillcolor="#f9e79f", color="#b7950b"
+  ];
+  F_MEASURE_FLOW [
+    label=<<B>Measure current<BR/>flow</B><BR/><FONT POINT-SIZE="9"><I>Octave Water Meter</I></FONT>>,
+    fillcolor="#f9e79f", color="#b7950b"
+  ];
+  F_MEASURE_LEVEL [
+    label=<<B>Measure water<BR/>level</B><BR/><FONT POINT-SIZE="9"><I>Level Sensor</I></FONT>>,
+    fillcolor="#f9e79f", color="#b7950b"
+  ];
+
+  // ── System – shared ───────────────────────────────────────────────────
+  SF_AQ10 [
+    label=<<B>Collect S/D<BR/>measurements</B><BR/><FONT POINT-SIZE="9"><I>System</I></FONT>>,
+    fillcolor="#90ee90", color="#228b22"
+  ];
+  SF_AQ8 [
+    label=<<B>Quantify<BR/>water loss</B><BR/><FONT POINT-SIZE="9"><I>System</I></FONT>>,
+    fillcolor="#90ee90", color="#228b22"
+  ];
+
+  // Path A – significant event
+  SF_AQ7 [
+    label=<<B>Notify of significant<BR/>water loss events</B><BR/><FONT POINT-SIZE="9"><I>System — Path A: Significant event</I></FONT>>,
+    fillcolor="#90ee90", color="#228b22"
+  ];
+
+  // Path B – predictive
+  SF_AQ16 [
+    label=<<B>Predict water loss<BR/>event risk</B><BR/><FONT POINT-SIZE="9"><I>System — Path B: Predictive</I></FONT>>,
+    fillcolor="#90ee90", color="#228b22"
+  ];
+  SF_AQ11 [
+    label=<<B>Notify of high water loss<BR/>event probability</B><BR/><FONT POINT-SIZE="9"><I>System — Path B: Predictive</I></FONT>>,
+    fillcolor="#90ee90", color="#228b22"
+  ];
+
+  // ── Actor ─────────────────────────────────────────────────────────────
+  F_IMPL_WL_MIT [
+    label=<<B>Implement water loss<BR/>mitigation strategy</B><BR/><FONT POINT-SIZE="9"><I>Employee</I></FONT>>,
+    fillcolor="#f9e79f", color="#b7950b"
+  ];
+
+  // ── Chain ─────────────────────────────────────────────────────────────
+  F_MEASURE_VOLUME -> SF_AQ10 [label="Water Volume"];
+  F_MEASURE_FLOW   -> SF_AQ10 [label="Current Flow"];
+  F_MEASURE_LEVEL  -> SF_AQ10 [label="Water Level"];
+  SF_AQ10          -> SF_AQ8  [label="S/D
+measurements"];
+
+  // Path A
+  SF_AQ8  -> SF_AQ7  [label="Water loss
+quantification"];
+  SF_AQ7  -> F_IMPL_WL_MIT [label="Significant water loss
+event"];
+
+  // Path B
+  SF_AQ8  -> SF_AQ16 [label="Water loss
+quantification"];
+  SF_AQ16 -> SF_AQ11 [label="Water loss risk
+prediction"];
+  SF_AQ11 -> F_IMPL_WL_MIT [label="High water loss event
+probability"];
+}

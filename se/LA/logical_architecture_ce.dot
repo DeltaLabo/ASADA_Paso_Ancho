@@ -1,0 +1,68 @@
+digraph LogicalArchitectureCE {
+  graph [
+    rankdir=TB,
+    splines=ortho,
+    nodesep=0.45,
+    ranksep=0.7,
+    pad=0.2,
+    compound=true,
+    bgcolor="white",
+    fontname="Helvetica"
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    penwidth=2,
+    fontname="Helvetica",
+    margin="0.12,0.08"
+  ];
+
+  edge [
+    color="#4A4A97",
+    penwidth=2,
+    fontname="Helvetica",
+    fontsize=10
+  ];
+
+  employee [label="ASADA Paso Ancho Employee (LA)", fillcolor="#E6FFE6", color="#009900", width=3.4, height=1.0];
+  ext_agg [label="External data aggregators (LA)", fillcolor="#E6FFE6", color="#009900"];
+  sensor_octave [label="Octave Water Meter (LA)\n\nMeasure Water Output", fillcolor="#E6FFE6", color="#009900"];
+  sensor_level [label="Submersible Water Level Sensor (LA)\n\nMeasure Water Level", fillcolor="#E6FFE6", color="#009900"];
+
+  subgraph cluster_system {
+    label="System";
+    color="#333333";
+    penwidth=3;
+    style="rounded,filled";
+    fillcolor="#F0F0F0";
+
+    notifier [label="Notifier (LC)", fillcolor="#87CEEB", color="#0066CC", penwidth=3];
+    dashboard [label="Dashboard (LC)", fillcolor="#87CEEB", color="#0066CC", penwidth=3];
+    long_term_storage [label="Long-term storage (LC)", fillcolor="#87CEEB", color="#0066CC", penwidth=3];
+    data_processing [label="Data Processing (LC)", fillcolor="#87CEEB", color="#0066CC", penwidth=3];
+    event_detection [label="Event detection (LC)", fillcolor="#87CEEB", color="#0066CC", penwidth=3];
+    data_acquisition [label="Data Acquisition (LC)", fillcolor="#87CEEB", color="#0066CC", penwidth=3];
+    measurement_window [label="Measurement window (LC)", fillcolor="#87CEEB", color="#0066CC", penwidth=3];
+  }
+
+  employee -> dashboard [style=invis, weight=20];
+
+  dashboard -> employee:ne [xlabel="C/S", constraint=false, minlen=2];
+  employee:e -> event_detection:w [xlabel="Req/Resp", constraint=false, minlen=2];
+  employee:se -> notifier:n [xlabel="Push / Req/Resp", dir=both, constraint=false, minlen=2];
+  long_term_storage -> ext_agg [xlabel="Export"];
+  event_detection -> notifier [xlabel="Pub/Sub"];
+  data_processing -> notifier [xlabel="Pub/Sub"];
+  dashboard -> long_term_storage [xlabel="Req/Resp"];
+  long_term_storage -> data_processing [xlabel="Req/Resp"];
+  measurement_window -> event_detection [xlabel="Pub/Sub"];
+  measurement_window -> data_processing [xlabel="Pub/Sub"];
+  data_acquisition -> measurement_window [xlabel="Queue"];
+  data_acquisition -> sensor_octave [xlabel="Modbus"];
+  data_acquisition -> sensor_level [xlabel="0.5-4.5 V"];
+  data_acquisition -> long_term_storage [xlabel="Queue"];
+  data_processing -> long_term_storage [xlabel="Queue"];
+  event_detection -> long_term_storage [xlabel="Queue"];
+  notifier -> long_term_storage [xlabel="Queue"];
+}
