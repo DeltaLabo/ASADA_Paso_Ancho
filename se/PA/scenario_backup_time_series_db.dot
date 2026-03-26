@@ -29,6 +29,8 @@ digraph ScenarioBackupTimeSeriesDB {
     fontsize=10
   ];
 
+  do_spaces [label="DigitalOcean Spaces\nBackup Bucket"];
+
   subgraph cluster_server_host {
     label="DigitalOcean Premium AMD Droplet\n(4 vCPU / 8 GiB RAM / 160 GiB SSD)";
     color="#7B694F";
@@ -83,27 +85,17 @@ digraph ScenarioBackupTimeSeriesDB {
       }
     }
 
-    subgraph cluster_backup_repository {
-      label="Backup Repository";
-      color="#D0D0D0";
-      penwidth=1.5;
-      style="rounded,filled";
-      fillcolor="white";
-
-      backup_store [label="Backup Storage"];
-    }
-
     schedule_c [label="{c}\nScheduled full + incremental backups\nwith restore verification and encryption", fillcolor="#F9E79F", color="#B7950B"];
     builtin_c [label="{c}\nRestic backup functionality shown here is\nproduct-provided, not custom-developed logic", fillcolor="#F9E79F", color="#B7950B"];
 
     schedule_c -> builtin_c [style=invis, weight=10];
   }
 
-  LF_LTS4:e -> LF_LTS5:w [xlabel="1.\nMeasurement\ndataset\nselected"];
-  LF_LTS6:e -> LF_LTS5:w [xlabel="2.\nEvent\ndataset\nselected"];
-  LF_LTS3:e -> LF_LTS5:w [xlabel="3.\nForecast\ndataset\nselected"];
-  LF_LTS5:e -> lc_backup:w [xlabel="4.\nConsistent export\n/ snapshot"];
-  lc_backup:e -> backup_store:w [xlabel="5.\nEncrypted backup\nartifact"];
+  LF_LTS4:e -> LF_LTS5:w [xlabel="Measurement\ndataset\nselected"];
+  LF_LTS6:e -> LF_LTS5:w [xlabel="Event\ndataset\nselected"];
+  LF_LTS3:e -> LF_LTS5:w [xlabel="Forecast\ndataset\nselected"];
+  LF_LTS5:e -> lc_backup:w [xlabel="Consistent export\n/ snapshot"];
+  lc_backup:e -> do_spaces:w [xlabel="Encrypted backup\nartifact"];
 
   schedule_c -> lc_backup [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
   builtin_c -> lc_backup [style=dotted, arrowhead=none, color="#B7950B", constraint=false];

@@ -113,13 +113,13 @@ digraph ScenarioAuthenticateUser {
     auth_c -> builtin_c [style=invis, weight=10];
   }
 
-  F_USER_LOGIN:e -> lc_gateway:w [xlabel="1.\nHTTPS\nlogin\nrequest"];
-  lc_gateway:e -> LF_D_AUTH:w [xlabel="2.\nRouted\ndashboard\nrequest"];
-  LF_D_AUTH:e -> lc_kc_auth:w [xlabel="3.\nOIDC auth\nrequest"];
-  lc_kc_auth:e -> lc_kc_token:w [xlabel="4.\nValid\ncredential\nassertion"];
-  lc_kc_token:w -> LF_D_AUTH:e [xlabel="5.\nIdentity\ntoken /\nclaims", constraint=false, minlen=2];
-  LF_D_AUTH:s -> LF_D_VIEW:n [xlabel="6.\nAuthorized\nsession"];
-  LF_D_VIEW:e -> F_CONSULT_SD:w [xlabel="7.\nAuthorized\ndashboard\nview", constraint=false, minlen=2];
+  F_USER_LOGIN:e -> lc_gateway:w [xlabel="HTTPS\nlogin\nrequest"];
+  lc_gateway:e -> LF_D_AUTH:w [xlabel="Routed\ndashboard\nrequest"];
+  LF_D_AUTH:e -> lc_kc_auth:w [xlabel="OIDC auth\nrequest"];
+  lc_kc_auth:e -> lc_kc_token:w [xlabel="Valid\ncredential\nassertion"];
+  lc_kc_token:w -> LF_D_AUTH:e [xlabel="Identity\ntoken /\nclaims", constraint=false, minlen=2];
+  LF_D_AUTH:s -> LF_D_VIEW:n [xlabel="Authorized\nsession"];
+  LF_D_VIEW:e -> F_CONSULT_SD:w [xlabel="Authorized\ndashboard\nview", constraint=false, minlen=2];
 
   auth_c -> lc_gateway [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
   builtin_c -> lc_kc_auth [style=dotted, arrowhead=none, color="#B7950B", constraint=false];

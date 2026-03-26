@@ -174,21 +174,21 @@ digraph ScenarioNotifyEventsAndRisks {
     F_RECEIVE_EVENT -> F_RECEIVE_RISK [style=invis, weight=15];
   }
 
-  lc_rel_config:e -> LF_ED_CONF:w [xlabel="1.\nThreshold\ndefinitions"];
-  lc_rel_config:e -> LF_N_SUB:w [xlabel="2.\nSubscriber\nregistry"];
-  LF_ED_CONF:e -> LF_ED3:w [xlabel="3.\nWater loss\nthresholds"];
-  LF_ED_CONF:e -> LF_ED4:w [xlabel="4.\nSupply\nthresholds"];
-  LF_ED_CONF:s -> LF_DP3:n [xlabel="5.\nRisk\nthresholds"];
-  LF_DP1:e -> LF_DP3:w [xlabel="6.\nS/D\nforecast"];
-  LF_ED3:e -> LF_N_EV:w [xlabel="7.\nDetected water\nloss event"];
-  LF_ED4:e -> LF_N_EV:w [xlabel="8.\nDetected insufficient\nsupply event"];
-  LF_DP3:e -> LF_N_PRED:w [xlabel="9.\nHigh-risk\nprediction"];
-  LF_N_SUB:e -> LF_N_EV:w [xlabel="10.\nSubscriber\nregistry"];
-  LF_N_SUB:e -> LF_N_PRED:w [xlabel="11.\nSubscriber\nregistry"];
-  LF_N_EV:e -> F_RECEIVE_EVENT:w [xlabel="12.\nEvent\nnotification"];
-  LF_N_PRED:e -> F_RECEIVE_RISK:w [xlabel="13.\nHigh-risk\nnotification"];
-  LF_N_EV:s -> LF_LTS6:n [xlabel="14.\nNotification\nrecord"];
-  LF_N_PRED:s -> LF_LTS6:n [xlabel="15.\nPrediction notification\nrecord"];
+  lc_rel_config:e -> LF_ED_CONF:w [xlabel="Threshold\ndefinitions"];
+  lc_rel_config:e -> LF_N_SUB:w [xlabel="Subscriber\nregistry"];
+  LF_ED_CONF:e -> LF_ED3:w [xlabel="Water loss\nthresholds"];
+  LF_ED_CONF:e -> LF_ED4:w [xlabel="Supply\nthresholds"];
+  LF_ED_CONF:s -> LF_DP3:n [xlabel="Risk\nthresholds"];
+  LF_DP1:e -> LF_DP3:w [xlabel="S/D\nforecast"];
+  LF_ED3:e -> LF_N_EV:w [xlabel="Detected water\nloss event"];
+  LF_ED4:e -> LF_N_EV:w [xlabel="Detected insufficient\nsupply event"];
+  LF_DP3:e -> LF_N_PRED:w [xlabel="High-risk\nprediction"];
+  LF_N_SUB:e -> LF_N_EV:w [xlabel="Subscriber\nregistry"];
+  LF_N_SUB:e -> LF_N_PRED:w [xlabel="Subscriber\nregistry"];
+  LF_N_EV:e -> F_RECEIVE_EVENT:w [xlabel="Event\nnotification"];
+  LF_N_PRED:e -> F_RECEIVE_RISK:w [xlabel="High-risk\nnotification"];
+  LF_N_EV:s -> LF_LTS6:n [xlabel="Notification\nrecord"];
+  LF_N_PRED:s -> LF_LTS6:n [xlabel="Prediction notification\nrecord"];
 
   threshold_c -> LF_ED_CONF [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
 }

@@ -43,22 +43,26 @@ digraph ScenarioIngestValidateNodeData {
       style="rounded,filled";
       fillcolor="white";
 
-      xiao [label="Seeed XIAO ESP32-C3"];
-
-      subgraph cluster_da_lc {
-        label="Data Acquisition (LC)";
-        color="#0066CC";
+      subgraph cluster_xiao {
+        label="Seeed XIAO ESP32-C3";
+        color="#7B694F";
         penwidth=2;
         style="rounded,filled";
-        fillcolor="#87CEEB";
+        fillcolor="#FFFCB7";
 
-        LF_DA1 [label="Collect and window\nwater S/D measurements", fillcolor="#90EE90", color="#228B22"];
-        LF_DA2 [label="Monitor\nsensor health", fillcolor="#90EE90", color="#228B22"];
+        subgraph cluster_da_lc {
+          label="Data Acquisition (LC)";
+          color="#0066CC";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#87CEEB";
 
-        LF_DA1 -> LF_DA2 [style=invis, weight=15];
+          LF_DA1 [label="Collect and window\nwater S/D measurements", fillcolor="#90EE90", color="#228B22"];
+          LF_DA2 [label="Monitor\nsensor health", fillcolor="#90EE90", color="#228B22"];
+
+          LF_DA1 -> LF_DA2 [style=invis, weight=15];
+        }
       }
-
-      xiao -> LF_DA1 [style=invis, weight=20];
     }
   }
 
@@ -169,13 +173,12 @@ digraph ScenarioIngestValidateNodeData {
     validation_c -> transport_c [style=invis, weight=10];
   }
 
-  xiao -> LF_DA1 [style=dashed, arrowhead=none, color="#0066CC", constraint=false];
-  LF_ED_CONF:e -> lc_config:w [xlabel="1.\nActive\nvalidation\npolicy"];
-  lc_config:e -> lc_ingest:w [xlabel="2.\nValidation\nrules"];
-  LF_DA1:e -> LF_DA2:w [xlabel="3.\nWindowed\nreadings"];
-  LF_DA2:e -> lc_gateway:w [xlabel="4.\nHTTPS\nupload"];
-  lc_gateway:e -> lc_ingest:w [xlabel="5.\nRouted\ningest\nrequest"];
-  lc_ingest:e -> LF_LTS4:w [xlabel="6.\nValidated batch\n+ health status"];
+  LF_ED_CONF:e -> lc_config:w [xlabel="Active\nvalidation\npolicy"];
+  lc_config:e -> lc_ingest:w [xlabel="Validation\nrules"];
+  LF_DA1:e -> LF_DA2:w [xlabel="Windowed\nreadings"];
+  LF_DA2:e -> lc_gateway:w [xlabel="HTTPS\nupload"];
+  lc_gateway:e -> lc_ingest:w [xlabel="Routed\ningest\nrequest"];
+  lc_ingest:e -> LF_LTS4:w [xlabel="Validated batch\n+ health status"];
 
   validation_c -> lc_ingest [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
   transport_c -> lc_gateway [style=dotted, arrowhead=none, color="#B7950B", constraint=false];

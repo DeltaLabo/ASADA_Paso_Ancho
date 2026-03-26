@@ -43,31 +43,26 @@ digraph ScenarioMonitorSensorHealth {
       style="rounded,filled";
       fillcolor="white";
 
-      octave [label="Octave Water Meter"];
-      level_sensor [label="Submersible Water\nLevel Sensor"];
-      ina219 [label="INA219 Battery\nMonitor"];
-      lte_modem [label="Waveshare SIM7600G-H\n4G Module"];
-      xiao [label="Seeed XIAO ESP32-C3"];
-
-      subgraph cluster_da_lc {
-        label="Data Acquisition (LC)";
-        color="#0066CC";
+      subgraph cluster_xiao {
+        label="Seeed XIAO ESP32-C3";
+        color="#7B694F";
         penwidth=2;
         style="rounded,filled";
-        fillcolor="#87CEEB";
+        fillcolor="#FFFCB7";
 
-        LF_DA1 [label="Collect and window\nwater S/D measurements", fillcolor="#90EE90", color="#228B22"];
-        LF_DA2 [label="Assemble sensor\nhealth telemetry", fillcolor="#90EE90", color="#228B22"];
+        subgraph cluster_da_lc {
+          label="Data Acquisition (LC)";
+          color="#0066CC";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#87CEEB";
+
+          LF_DA1 [label="Collect and window\nwater S/D measurements", fillcolor="#90EE90", color="#228B22"];
+          LF_DA2 [label="Assemble sensor\nhealth telemetry", fillcolor="#90EE90", color="#228B22"];
+
+          LF_DA1 -> LF_DA2 [style=invis, weight=15];
+        }
       }
-
-      { rank=same; octave; level_sensor; ina219; lte_modem; xiao; }
-      { rank=same; LF_DA1; LF_DA2; }
-      octave -> level_sensor [style=invis, weight=10];
-      level_sensor -> ina219 [style=invis, weight=10];
-      ina219 -> lte_modem [style=invis, weight=10];
-      lte_modem -> xiao [style=invis, weight=10];
-      xiao -> LF_DA1 [style=invis, weight=20];
-      LF_DA1 -> LF_DA2 [style=invis, weight=15];
     }
   }
 
@@ -101,8 +96,6 @@ digraph ScenarioMonitorSensorHealth {
         penwidth=2;
         style="rounded,filled";
         fillcolor="#DCE8F7";
-
-        lc_config [label="Configuration API", fillcolor="#87CEEB", color="#0066CC"];
 
         subgraph cluster_ingest_lc {
           label="Node Ingestion (LC)";
@@ -163,37 +156,28 @@ digraph ScenarioMonitorSensorHealth {
       }
     }
 
-    policy_c [label="{c}\nHealth state is reported as healthy / degraded / failed\nusing configurable freshness, anomaly, battery, and link thresholds", fillcolor="#F9E79F", color="#B7950B"];
+    policy_c [label="{c}\nHealth state is reported as\nhealthy / degraded / failed", fillcolor="#F9E79F", color="#B7950B"];
 
-    { rank=same; lc_gateway; lc_config; LF_H_RX; }
+    { rank=same; lc_gateway; LF_H_RX; }
     { rank=same; LF_H_FRESH; LF_H_POWER; }
     { rank=same; LF_H_STATE; LF_LTS4; LF_D_STATUS; policy_c; }
 
-    lc_gateway -> lc_config [style=invis, weight=8];
-    lc_config -> LF_H_RX [style=invis, weight=8];
+    lc_gateway -> LF_H_RX [style=invis, weight=20];
     LF_H_RX -> LF_H_FRESH [style=invis, weight=20];
     LF_H_FRESH -> LF_H_STATE [style=invis, weight=20];
     LF_LTS4 -> LF_D_STATUS [style=invis, weight=12];
     LF_D_STATUS -> policy_c [style=invis, weight=8];
   }
 
-  octave:e -> LF_DA1:w [xlabel="RS485 flow /\nvolume samples"];
-  level_sensor:e -> LF_DA1:w [xlabel="Analog level\nsamples"];
-  ina219:e -> LF_DA2:w [xlabel="Battery voltage /\ncurrent telemetry"];
-  lte_modem:e -> LF_DA2:w [xlabel="RSSI + upload\nresult telemetry"];
-  xiao -> LF_DA2 [style=dashed, arrowhead=none, color="#0066CC", constraint=false];
   LF_DA1:e -> LF_DA2:w [xlabel="Windowed readings +\nmeasurement timestamps"];
   LF_DA2:e -> lc_gateway:w [xlabel="HTTPS sensor\ntelemetry\nupload"];
   lc_gateway:e -> LF_H_RX:w [xlabel="Routed HTTPS\ntelemetry\nupload"];
   LF_H_RX:e -> LF_H_FRESH:w [xlabel="Heartbeat timing +\nmeasurement timestamps"];
   LF_H_RX:s -> LF_H_POWER:n [xlabel="Battery + modem\ntelemetry"];
-  lc_config:e -> LF_H_FRESH:w [xlabel="Heartbeat timeout +\nfreshness / flatline limits"];
-  lc_config:s -> LF_H_POWER:n [xlabel="Battery / signal /\nretry thresholds"];
   LF_H_FRESH:e -> LF_H_STATE:w [xlabel="Staleness + sensor\nplausibility indicators"];
   LF_H_POWER:e -> LF_H_STATE:w [xlabel="Power + cellular\nlink indicators"];
   LF_H_STATE:s -> LF_LTS4:n [xlabel="Health state +\ndiagnostic indicators"];
   LF_LTS4:s -> LF_D_STATUS:n [xlabel="Current health state\nand recent degradations"];
 
   policy_c -> LF_H_STATE [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
-  policy_c -> lc_config [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
 }
