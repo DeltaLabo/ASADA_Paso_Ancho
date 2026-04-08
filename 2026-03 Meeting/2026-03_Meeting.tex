@@ -180,7 +180,7 @@
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{fc_configure_alerts.graphviz.png}
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{fc_configure_alerts.graphviz.png}
     \end{figure}
 \end{frame}
 
@@ -273,22 +273,22 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{\small Logical Architecture: Components and Functions}
-    \framesubtitle{Logical components, functions, and functional exchanges}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{logical_architecture.graphviz.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
     \frametitle{\small Logical Architecture: Component Exchanges}
     \framesubtitle{Communication patterns between logical components}
 
     \begin{figure}
         \centering
         \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{logical_architecture_ce.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Logical Architecture: Components and Functions}
+    \framesubtitle{Logical components, functions, and functional exchanges}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{logical_architecture.graphviz.png}
     \end{figure}
 \end{frame}
 
@@ -340,11 +340,41 @@
 
 \begin{frame}
     \frametitle{\small Physical Architecture: Scenario}
+    \framesubtitle{Account Provisioning and Password Validation}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_account_provisioning_and_password_validation.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Physical Architecture: Scenario}
     \framesubtitle{Authenticate User}
 
     \begin{figure}
         \centering
         \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_authenticate_user.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Physical Architecture: Scenario}
+    \framesubtitle{Monitor Sensor Health}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_monitor_sensor_health.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Physical Architecture: Scenario}
+    \framesubtitle{Notify Events and Risks}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_notify_events_and_risks.graphviz.png}
     \end{figure}
 \end{frame}
 
@@ -549,6 +579,54 @@
         \item Approve Functional Versions
         \item Approve IVV Plan
     \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{IVV Approach}
+    \framesubtitle{Model-based Integration, Verification, and Validation}
+
+    \begin{itemize}
+        \item \textbf{The ARCADIA model is the source of truth:} verification activities should be defined in the model as functional chains or scenarios, including stimuli, expected behavior, pass criteria, constraints, and context.
+        \item \textbf{Reports are by reference:} test reports should point to the modeled verification definition, then record only baseline, as-tested configuration, evidence, results, and deviations.
+        \item \textbf{Minimum IADT coverage for every modeled element:}
+        \begin{itemize}
+            \item physical components and physical links: \textit{inspection} for presence/absence,
+            \item component exchanges and functional allocation: \textit{analysis},
+            \item functional chains and scenarios: \textit{demonstration/testing} with explicit pass conditions.
+        \end{itemize}
+        \item \textbf{Constraint coverage is mandatory:} every constraint must be assigned to at least one verification activity, or drive creation of a new one.
+        \item \textbf{Traceability is preserved:} each verification activity should link back to the relevant mission, capability, use case, feared event, or constraint.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Functional Versions and IVV Roadmap}
+    \framesubtitle{2-week integration increments after long-lead hardware receipt}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{functional_versions_gantt.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Functional Version 1}
+    \framesubtitle{Simulated telemetry backbone before the real field node is available}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{FV1_simulated_telemetry_backbone.graphviz.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Functional Version 2}
+    \framesubtitle{Bench field node with real controller, modem, and dummy sensor substitutes}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth,height=0.70\textheight,keepaspectratio]{FV2_bench_field_node.graphviz.png}
+    \end{figure}
 \end{frame}
 
 % ═══════════════════════════════════════════════════════════════════════

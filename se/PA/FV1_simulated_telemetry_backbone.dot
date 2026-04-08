@@ -1,0 +1,106 @@
+digraph FV1SimulatedTelemetryBackbone {
+  graph [
+    rankdir=LR,
+    splines=ortho,
+    newrank=true,
+    nodesep=0.6,
+    ranksep=0.7,
+    pad=0.3,
+    compound=true,
+    forcelabels=true,
+    bgcolor="white",
+    fontname="Helvetica",
+    label="Functional Version 1 — Simulated Telemetry Backbone",
+    labelloc=t,
+    fontsize=18
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fillcolor="#FFFCB7",
+    color="#7B694F",
+    penwidth=2,
+    fontname="Helvetica",
+    margin="0.12,0.08"
+  ];
+
+  edge [
+    color="#EF2929",
+    penwidth=2,
+    fontname="Helvetica",
+    fontsize=10
+  ];
+
+  subgraph cluster_bench_source {
+    label="Developer Laptop";
+    color="#7B694F";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#FFF9D6";
+
+    lc_sim [label="Node Telemetry\nSimulator", fillcolor="#87CEEB", color="#0066CC"];
+  }
+
+  subgraph cluster_server_host {
+    label="DigitalOcean Premium AMD Droplet\n(4 vCPU / 8 GiB RAM / 160 GiB SSD)";
+    color="#7B694F";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#FFF9D6";
+
+    subgraph cluster_traefik {
+      label="Traefik Reverse Proxy Container";
+      color="#4A4A97";
+      penwidth=2;
+      style="rounded,filled";
+      fillcolor="#DCE8F7";
+
+      lc_gateway [label="Reverse Proxy /\nTLS Gateway", fillcolor="#87CEEB", color="#0066CC"];
+    }
+
+    subgraph cluster_fastapi {
+      label="FastAPI Application Container";
+      color="#4A4A97";
+      penwidth=2;
+      style="rounded,filled";
+      fillcolor="#DCE8F7";
+
+      lc_ingest [label="Node Ingestion", fillcolor="#87CEEB", color="#0066CC"];
+    }
+
+    subgraph cluster_influxdb {
+      label="InfluxDB OSS 2.7 Container";
+      color="#4A4A97";
+      penwidth=2;
+      style="rounded,filled";
+      fillcolor="#DCE8F7";
+
+      lc_storage [label="Long-term Storage", fillcolor="#87CEEB", color="#0066CC"];
+    }
+
+    subgraph cluster_grafana {
+      label="Grafana Dashboard Container";
+      color="#4A4A97";
+      penwidth=2;
+      style="rounded,filled";
+      fillcolor="#DCE8F7";
+
+      lc_dashboard [label="Dashboard", fillcolor="#87CEEB", color="#0066CC"];
+    }
+
+    version_c [label="{c}\nThis version substitutes the final Field Node and sensors with a software simulator,\nand exits when accepted data is stored and visible in the dashboard", fillcolor="#F9E79F", color="#B7950B"];
+
+    { rank=same; lc_gateway; lc_ingest; lc_storage; lc_dashboard; }
+    lc_gateway -> lc_ingest -> lc_storage -> lc_dashboard [style=invis, weight=20];
+  }
+
+  lc_sim -> lc_gateway [color="#0066CC", xlabel="HTTPS telemetry upload\n(replay + fault cases)"];
+  lc_gateway -> lc_ingest [color="#0066CC", xlabel="Routed ingest\nrequest"];
+  lc_ingest -> lc_storage [color="#0066CC", xlabel="Validated batch"];
+  lc_dashboard -> lc_storage [color="#0066CC", xlabel="Stored data query"];
+
+  version_c -> lc_sim       [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+  version_c -> lc_ingest    [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+  version_c -> lc_dashboard [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+}

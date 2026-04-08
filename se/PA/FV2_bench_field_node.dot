@@ -1,0 +1,215 @@
+digraph FV2BenchFieldNode {
+  graph [
+    rankdir=LR,
+    splines=ortho,
+    newrank=true,
+    nodesep=0.5,
+    ranksep=0.85,
+    pad=0.3,
+    compound=true,
+    forcelabels=true,
+    bgcolor="white",
+    fontname="Helvetica",
+    label="Functional Version 2 — Bench Field Node with Real Controller and Dummy Sensors",
+    labelloc=t,
+    fontsize=18
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fillcolor="#FFFCB7",
+    color="#7B694F",
+    penwidth=2,
+    fontname="Helvetica",
+    margin="0.12,0.08"
+  ];
+
+  edge [
+    color="#EF2929",
+    penwidth=2,
+    fontname="Helvetica",
+    fontsize=10
+  ];
+
+  subgraph cluster_field_node {
+    label="Bench Field Node";
+    color="#7B694F";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#FFF9D6";
+
+    subgraph cluster_substituted_sources {
+      label="Bench Substitutes";
+      color="#7B694F";
+      penwidth=2;
+      style="rounded";
+
+      bench_supply   [label="Bench DC Supply"];
+      modbus_sim     [label="Modbus RTU\nFlow Simulator"];
+      level_emulator [label="Analog Depth\nEmulator"];
+    }
+
+    subgraph cluster_controller_pcb {
+      label="Controller PCB";
+      color="#7B694F";
+      penwidth=2;
+      style="rounded,filled";
+      fillcolor="#FFFCB7";
+
+      subgraph cluster_power {
+        label="Power Subsystem";
+        color="#7B694F";
+        penwidth=2;
+        style="rounded";
+
+        solar_manager  [label="Waveshare Solar Power Manager (D)\nMPPT Charger + 5 V Output"];
+        battery_holder [label="18650 Battery Holder\n+ 3P1S Li-ion Pack"];
+        ina219         [label="INA219 Battery Monitor"];
+        power_entry    [label="Molex MicroFit 43045\n4-pin Power Header"];
+      }
+
+      subgraph cluster_compute {
+        label="Compute";
+        color="#7B694F";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#FFFCB7";
+
+        subgraph cluster_expansion {
+          label="Seeed Studio Expansion Board Base for XIAO\n(includes RTC + MicroSD slot)";
+          color="#7B694F";
+          penwidth=2;
+          style="rounded,filled";
+          fillcolor="#FFFCB7";
+
+          subgraph cluster_xiao {
+            label="Seeed XIAO ESP32-C3";
+            color="#7B694F";
+            penwidth=2;
+            style="rounded,filled";
+            fillcolor="#FFFCB7";
+
+            lc_da [label="Data Acquisition", fillcolor="#87CEEB", color="#0066CC"];
+          }
+
+          xiao [label="GPIO / I²C / UART\nPin Header", fontsize=10];
+        }
+      }
+
+      subgraph cluster_sensor_if {
+        label="Sensor Interfaces";
+        color="#7B694F";
+        penwidth=2;
+        style="rounded";
+
+        rs485         [label="Seeed Grove\nRS485"];
+        level_divider [label="Analog\nDivider"];
+      }
+
+      subgraph cluster_wan_if {
+        label="WAN Interface";
+        color="#7B694F";
+        penwidth=2;
+        style="rounded";
+
+        lte [label="Waveshare SIM7600G-H\n4G Module"];
+      }
+    }
+
+    subgraph cluster_antenna {
+      label="Antenna";
+      color="#7B694F";
+      penwidth=2;
+      style="rounded";
+
+      cellular_antenna [label="Waveshare 4G/3G/2G/LPWA\nOutdoor Antenna"];
+    }
+
+    bench_c [label="{c}\nBench DC input temporarily substitutes the final solar panel\nwhile controller, battery, and charger behavior are integrated", fillcolor="#F9E79F", color="#B7950B"];
+    flow_c  [label="{c}\nModbus RTU simulator temporarily substitutes the final flow source\nfor interface and parser verification", fillcolor="#F9E79F", color="#B7950B"];
+    level_c [label="{c}\nAnalog emulator temporarily substitutes the final Seeed depth sensor\nfor scaling and health-state verification", fillcolor="#F9E79F", color="#B7950B"];
+    exit_c  [label="{c}\nExit when the real XIAO-based node reads both substitutes,\nreports power/modem health, and uploads successfully", fillcolor="#F9E79F", color="#B7950B"];
+  }
+
+  subgraph cluster_server_host {
+    label="Server Ingress Subset";
+    color="#7B694F";
+    penwidth=2;
+    style="rounded,filled";
+    fillcolor="#FFF9D6";
+
+    subgraph cluster_ingress {
+      label="Ingress & Storage";
+      color="#D0D0D0";
+      penwidth=1.5;
+      style="rounded,filled";
+      fillcolor="white";
+
+      subgraph cluster_traefik {
+        label="Traefik Reverse Proxy Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_gateway [label="Reverse Proxy /\nTLS Gateway", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      subgraph cluster_fastapi {
+        label="FastAPI Application Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_ingest [label="Node Ingestion", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      subgraph cluster_influxdb {
+        label="InfluxDB OSS 2.7 Container";
+        color="#4A4A97";
+        penwidth=2;
+        style="rounded,filled";
+        fillcolor="#DCE8F7";
+
+        lc_storage [label="Long-term Storage", fillcolor="#87CEEB", color="#0066CC"];
+      }
+
+      lc_gateway -> lc_ingest [style=invis, weight=20];
+      lc_ingest  -> lc_storage [style=invis, weight=20];
+    }
+  }
+
+  battery_holder -> ina219         [style=invis];
+  ina219         -> solar_manager  [style=invis];
+  solar_manager  -> power_entry    [style=invis];
+  modbus_sim     -> level_emulator [style=invis];
+  rs485          -> level_divider  [style=invis];
+
+  bench_supply   -> solar_manager  [xlabel="DC input"];
+  battery_holder -> solar_manager  [xlabel="2-wire JST"];
+  battery_holder -> ina219         [xlabel="BAT+ / BAT−"];
+  solar_manager  -> power_entry    [xlabel="5 V + GND"];
+  power_entry    -> xiao           [xlabel="5 V + GND"];
+  power_entry    -> lte            [xlabel="5 V + GND"];
+
+  xiao -> ina219         [xlabel="SDA/SCL + 3.3 V + GND"];
+  xiao -> rs485          [xlabel="TX/RX + 5 V + GND"];
+  xiao -> level_divider  [xlabel="A0 + GND"];
+  xiao -> lte            [xlabel="TX/RX + PWK + GND"];
+
+  modbus_sim     -> rs485         [xlabel="RS485 A/B + GND"];
+  level_emulator -> level_divider [xlabel="VOUT + 5 V + GND"];
+  cellular_antenna -> lte         [xlabel="RF coax"];
+
+  lte        -> lc_gateway [color="#0066CC", xlabel="HTTPS telemetry upload\nover cellular or lab WAN"];
+  lc_gateway -> lc_ingest  [color="#0066CC", xlabel="Routed ingest\nrequest"];
+  lc_ingest  -> lc_storage [color="#0066CC", xlabel="Validated batch +\nhealth status"];
+
+  bench_c -> bench_supply   [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+  flow_c  -> modbus_sim     [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+  level_c -> level_emulator [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+  exit_c  -> lc_da          [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+  exit_c  -> lc_ingest      [style=dotted, arrowhead=none, color="#B7950B", constraint=false];
+}

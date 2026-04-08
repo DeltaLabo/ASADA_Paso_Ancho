@@ -75,7 +75,7 @@ digraph ScenarioNotifyEventsAndRisks {
           style="rounded,filled";
           fillcolor="#87CEEB";
 
-          LF_ED_CONF [label="Manage detection\nthresholds", fillcolor="#90EE90", color="#228B22"];
+          LF_ED_CONF [label="Manage point /\ntrend\nthresholds", fillcolor="#90EE90", color="#228B22"];
           LF_ED3 [label="Identify significant\nwater loss events", fillcolor="#90EE90", color="#228B22"];
           LF_ED4 [label="Identify insufficient\nsupply events", fillcolor="#90EE90", color="#228B22"];
         }
@@ -158,7 +158,7 @@ digraph ScenarioNotifyEventsAndRisks {
       }
     }
 
-    threshold_c [label="{c}\nHigh-risk thresholds are configurable\nand drive both detection and prediction alerts", fillcolor="#F9E79F", color="#B7950B"];
+    threshold_c [label="{c}\nConfigurable event / risk criteria can trigger from\nan individual data point threshold\nor a trend threshold over a time window\n(e.g. water level rise rate > X for 1 min)", fillcolor="#F9E79F", color="#B7950B"];
   }
 
   subgraph cluster_employee_device {
@@ -174,15 +174,15 @@ digraph ScenarioNotifyEventsAndRisks {
     F_RECEIVE_EVENT -> F_RECEIVE_RISK [style=invis, weight=15];
   }
 
-  lc_rel_config:e -> LF_ED_CONF:w [xlabel="Threshold\ndefinitions"];
+  lc_rel_config:e -> LF_ED_CONF:w [xlabel="Point + trend\ncriteria"];
   lc_rel_config:e -> LF_N_SUB:w [xlabel="Subscriber\nregistry"];
-  LF_ED_CONF:e -> LF_ED3:w [xlabel="Water loss\nthresholds"];
-  LF_ED_CONF:e -> LF_ED4:w [xlabel="Supply\nthresholds"];
-  LF_ED_CONF:s -> LF_DP3:n [xlabel="Risk\nthresholds"];
+  LF_ED_CONF:e -> LF_ED3:w [xlabel="Water loss\ncriteria"];
+  LF_ED_CONF:e -> LF_ED4:w [xlabel="Supply\ncriteria"];
+  LF_ED_CONF:s -> LF_DP3:n [xlabel="Point / trend\nrisk criteria"];
   LF_DP1:e -> LF_DP3:w [xlabel="S/D\nforecast"];
   LF_ED3:e -> LF_N_EV:w [xlabel="Detected water\nloss event"];
   LF_ED4:e -> LF_N_EV:w [xlabel="Detected insufficient\nsupply event"];
-  LF_DP3:e -> LF_N_PRED:w [xlabel="High-risk\nprediction"];
+  LF_DP3:e -> LF_N_PRED:w [xlabel="Threshold-based\nhigh-risk\nprediction"];
   LF_N_SUB:e -> LF_N_EV:w [xlabel="Subscriber\nregistry"];
   LF_N_SUB:e -> LF_N_PRED:w [xlabel="Subscriber\nregistry"];
   LF_N_EV:e -> F_RECEIVE_EVENT:w [xlabel="Event\nnotification"];

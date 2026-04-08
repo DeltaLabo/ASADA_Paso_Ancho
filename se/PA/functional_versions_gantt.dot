@@ -1,0 +1,91 @@
+digraph FunctionalVersionsGantt {
+  graph [
+    rankdir=LR,
+    pad=0.2,
+    nodesep=0.3,
+    ranksep=0.4,
+    bgcolor="white",
+    fontname="Helvetica",
+    label="IVV Gantt",
+    labelloc=t,
+    fontsize=20
+  ];
+
+  node [fontname="Helvetica"];
+
+  schedule [
+    shape=plain,
+    label=<
+      <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#7B694F">
+        <TR>
+          <TD BGCOLOR="#EAECEE"><B>Workstream</B></TD>
+          <TD BGCOLOR="#EAECEE"><B>2026-03-26 to 2026-04-26</B><BR/>Logistics + early server work</TD>
+          <TD BGCOLOR="#EAECEE"><B>2026-04-27 to 2026-05-10</B><BR/>FV2</TD>
+          <TD BGCOLOR="#EAECEE"><B>2026-05-11 to 2026-05-24</B><BR/>FV3</TD>
+          <TD BGCOLOR="#EAECEE"><B>2026-05-25 to 2026-06-07</B><BR/>FV4</TD>
+          <TD BGCOLOR="#EAECEE"><B>2026-06-08 to 2026-06-21</B><BR/>FV5</TD>
+        </TR>
+        <TR>
+          <TD ALIGN="LEFT"><B>Logistics</B></TD>
+          <TD BGCOLOR="#F9E79F">Waveshare and Seeed components procurement</TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+        </TR>
+        <TR>
+          <TD ALIGN="LEFT"><B>FV1</B><BR/>Server ingest</TD>
+          <TD BGCOLOR="#AED6F1">2026-03-26 to 2026-04-08<BR/>Telemetry simulator,<BR/>ingest validation,<BR/>storage, dashboard visibility</TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+        </TR>
+        <TR>
+          <TD ALIGN="LEFT"><B>Server development</B></TD>
+          <TD BGCOLOR="#EBF5FB">2026-04-09 to 2026-04-26<BR/>Deployment automation,<BR/>bench setup preparation</TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+        </TR>
+        <TR>
+          <TD ALIGN="LEFT"><B>FV2</B><BR/>Bench field node</TD>
+          <TD></TD>
+          <TD BGCOLOR="#D5F5E3">XIAO + modem + power path,<BR/>dummy Modbus + analog depth sources</TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+        </TR>
+        <TR>
+          <TD ALIGN="LEFT"><B>FV3</B><BR/>Operations and alerts</TD>
+          <TD></TD>
+          <TD></TD>
+          <TD BGCOLOR="#AED6F1">Threshold editing,<BR/>dashboard operations,<BR/>event/risk notifications</TD>
+          <TD></TD>
+          <TD></TD>
+        </TR>
+        <TR>
+          <TD ALIGN="LEFT"><B>FV4</B><BR/>Security and recoverability</TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+          <TD BGCOLOR="#AED6F1">Keycloak, account admin,<BR/>TLS access path,<BR/>backup + restore verification</TD>
+          <TD></TD>
+        </TR>
+        <TR>
+          <TD ALIGN="LEFT"><B>FV5</B><BR/>Final integrated baseline</TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+          <TD></TD>
+          <TD BGCOLOR="#D5F5E3">Final sensors, enclosure,<BR/>solar-powered baseline,</TD>
+        </TR>
+        <TR>
+          <TD ALIGN="LEFT"><B>Projection</B></TD>
+          <TD COLSPAN="5" BGCOLOR="#E8F8F5" ALIGN="LEFT"><B>Delivery projection: 2026-06-21.</B></TD>
+        </TR>
+      </TABLE>
+    >
+  ];
+}
