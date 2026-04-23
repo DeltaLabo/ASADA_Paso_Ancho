@@ -1,0 +1,345 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+direction: right
+
+classes: {
+  func: {
+    shape: rectangle
+    style: {
+      fill: "#BDFB9B"
+      stroke: "#166534"
+      stroke-width: 2
+      font-size: 36
+    }
+  }
+  lc: {
+    style: {
+      fill: "#A9C7E6"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 48
+    }
+  }
+  ea: {
+    shape: rectangle
+    style: {
+      fill: "#BFEAF4"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  note: {
+    style: {
+      fill: "#FFF5B0"
+      stroke: "#D1B24A"
+      font-size: 32
+    }
+  }
+  chain: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  fe: {
+    style: {
+      stroke: "#1F7A4D"
+      font-color: "#1F7A4D"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  ce: {
+    style: {
+      stroke: "#5B65C9"
+      font-color: "#5B65C9"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  cstr: {
+    style: {
+      stroke: "#333333"
+      stroke-dash: 3
+      font-size: 26
+    }
+  }
+}
+
+sensor_octave: "[EA] Octave Water Meter" {
+  class: ea
+  shape: rectangle
+  direction: down
+  grid-columns: 1
+
+  measure_volume: "[F] Measure water\nvolume" {
+    class: func
+    shape: rectangle
+  }
+  measure_flow: "[F] Measure current\nflow" {
+    class: func
+    shape: rectangle
+  }
+}
+
+sensor_level: "[EA] Submersible Water\nLevel Sensor" {
+  class: ea
+  shape: rectangle
+  direction: down
+  grid-columns: 1
+
+  measure_level: "[F] Measure water\nlevel" {
+    class: func
+    shape: rectangle
+  }
+}
+
+system: "[System] Aqueduct monitoring,\nalerting, and data sharing system" {
+  class: sys
+  direction: right
+  grid-columns: 4
+
+  data_acquisition: "[LC] Data Acquisition" {
+    class: lc
+    direction: down
+    grid-columns: 1
+
+    collect_window: "[F] Collect and window\nwater S/D measurements" {
+      class: func
+      shape: rectangle
+    }
+    monitor_health: "[F] Monitor sensor\nhealth" {
+      class: func
+      shape: rectangle
+    }
+    c_collect: "[C] Real-time and remote\nConfigurable collection frequency\nConfigurable window size" {
+      class: note
+      shape: page
+    }
+
+    c_collect -> collect_window: {
+      class: cstr
+    }
+  }
+
+  data_processing: "[LC] Data Processing" {
+    class: lc
+    direction: down
+    grid-columns: 1
+
+    predict_sd: "[F] Predict water supply\nand demand (S/D)" {
+      class: func
+      shape: rectangle
+    }
+    quantify_wl: "[F] Quantify\nwater loss" {
+      class: func
+      shape: rectangle
+    }
+    predict_wl_risk: "[F] Predict water loss\nevent risk" {
+      class: func
+      shape: rectangle
+    }
+    c_quantify: "[C] Link data to specific\ncomponents vulnerable to\nwater loss" {
+      class: note
+      shape: page
+    }
+
+    c_quantify -> quantify_wl: {
+      class: cstr
+    }
+  }
+
+  event_detection: "[LC] Event detection" {
+    class: lc
+    direction: down
+    grid-columns: 1
+
+    identify_wl_events: "[F] Identify significant\nwater loss events" {
+      class: func
+      shape: rectangle
+    }
+    identify_low_supply: "[F] Identify insufficient\nsupply events" {
+      class: func
+      shape: rectangle
+    }
+    manage_thresholds: "[F] Manage detection\nthresholds" {
+      class: func
+      shape: rectangle
+    }
+    c_wl_events: "[C] e.g. tank overflow,\npipe burst" {
+      class: note
+      shape: page
+    }
+
+    c_wl_events -> identify_wl_events: {
+      class: cstr
+    }
+  }
+
+  notifier: "[LC] Notifier" {
+    class: lc
+    direction: down
+    grid-columns: 1
+
+    notify_detected: "[F] Notify of\ndetected events" {
+      class: func
+      shape: rectangle
+    }
+    notify_predicted: "[F] Notify of\npredicted risk events" {
+      class: func
+      shape: rectangle
+    }
+    manage_subscribers: "[F] Manage notification\nsubscribers and channels" {
+      class: func
+      shape: rectangle
+    }
+  }
+
+  dashboard: "[LC] Dashboard" {
+    class: lc
+    direction: down
+    grid-columns: 1
+
+    authenticate_user: "[F] Authenticate user" {
+      class: func
+      shape: rectangle
+    }
+    present_data: "[F] Present stored data" {
+      class: func
+      shape: rectangle
+    }
+    manage_alert_config: "[F] Manage alert\nconfiguration" {
+      class: func
+      shape: rectangle
+    }
+    display_live_status: "[F] Display live\nevent status" {
+      class: func
+      shape: rectangle
+    }
+    c_present: "[C] Time series graphs\nFiltered" {
+      class: note
+      shape: page
+    }
+
+    c_present -> present_data: {
+      class: cstr
+    }
+  }
+
+  long_term_storage: "[LC] Long-term storage" {
+    class: lc
+    direction: down
+    grid-columns: 1
+
+    store_forecasts: "[F] Store forecasts\nand estimates" {
+      class: func
+      shape: rectangle
+    }
+    store_measurements: "[F] Store\nmeasurements" {
+      class: func
+      shape: rectangle
+    }
+    query_data: "[F] Query stored\ndata" {
+      class: func
+      shape: rectangle
+    }
+    store_events: "[F] Store event\ndata" {
+      class: func
+      shape: rectangle
+    }
+    c_store_measurements: "[C] Configurable storage\nfrequency\nTimestamped" {
+      class: note
+      shape: page
+    }
+
+    c_store_measurements -> store_measurements: {
+      class: cstr
+    }
+  }
+
+  data_export: "[LC] Data Export" {
+    class: lc
+    direction: down
+    grid-columns: 1
+
+    export_data: "[F] Make data accessible\nto aggregators" {
+      class: func
+      shape: rectangle
+    }
+  }
+}
+
+employee: "[EA] ASADA Paso Ancho\nemployee" {
+  class: ea
+  shape: rectangle
+  direction: down
+  grid-columns: 1
+
+  consult_sd: "[F] Consult water supply\nand demand data" {
+    class: func
+    shape: rectangle
+  }
+  define_rules: "[F] Define water\ndistribution rules" {
+    class: func
+    shape: rectangle
+  }
+  consult_wl: "[F] Consult\nwater loss data" {
+    class: func
+    shape: rectangle
+  }
+  implement_mitigation: "[F] Implement water loss\nmitigation strategy" {
+    class: func
+    shape: rectangle
+  }
+}
+
+external_aggs: "[EA] External data\naggregators" {
+  class: ea
+  shape: rectangle
+  direction: down
+  grid-columns: 1
+
+  receive_export: "[F] Receive exported\naqueduct data" {
+    class: func
+    shape: rectangle
+  }
+}
+
+sensor_octave -> sensor_level: {
+  style: {
+    opacity: 0
+  }
+}
+sensor_level -> system: {
+  style: {
+    opacity: 0
+  }
+}
+system -> employee: {
+  style: {
+    opacity: 0
+  }
+}
+employee -> external_aggs: {
+  style: {
+    opacity: 0
+  }
+}

@@ -1,0 +1,132 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+direction: right
+
+classes: {
+  func: {
+    shape: rectangle
+    style: {
+      fill: "#BDFB9B"
+      stroke: "#166534"
+      stroke-width: 2
+      font-size: 36
+    }
+  }
+  lc: {
+    style: {
+      fill: "#A9C7E6"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 48
+    }
+  }
+  ea: {
+    shape: rectangle
+    style: {
+      fill: "#BFEAF4"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  chain: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  fe: {
+    style: {
+      stroke: "#1F7A4D"
+      font-color: "#1F7A4D"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+}
+
+provide_sd_data: "Functional Chain — Provide supply and demand data" {
+  class: chain
+  direction: right
+
+  measure_volume: "[F] Measure water\nvolume" {
+    class: func
+    shape: rectangle
+  }
+  measure_flow: "[F] Measure current\nflow" {
+    class: func
+    shape: rectangle
+  }
+  measure_level: "[F] Measure water\nlevel" {
+    class: func
+    shape: rectangle
+  }
+  collect_window: "[F] Collect and window\nwater S/D measurements" {
+    class: func
+    shape: rectangle
+  }
+  store_measurements: "[F] Store\nmeasurements" {
+    class: func
+    shape: rectangle
+  }
+  query_data: "[F] Query stored\ndata" {
+    class: func
+    shape: rectangle
+  }
+  authenticate_user: "[F] Authenticate user" {
+    class: func
+    shape: rectangle
+  }
+  present_data: "[F] Present stored data" {
+    class: func
+    shape: rectangle
+  }
+  consult_sd: "[F] Consult water supply\nand demand data" {
+    class: func
+    shape: rectangle
+  }
+
+  # Derived FC path: store -> query -> present is inferred from the
+  # source LA allocation and FE structure in logical_architecture.dot.
+  measure_volume -> collect_window: "[FE] Volume" {
+    class: fe
+  }
+  measure_flow -> collect_window: "[FE] Flow" {
+    class: fe
+  }
+  measure_level -> collect_window: "[FE] Level" {
+    class: fe
+  }
+  collect_window -> store_measurements: "[FE] S/D data" {
+    class: fe
+  }
+  store_measurements -> query_data: "[FE] Stored measurements" {
+    class: fe
+  }
+  query_data -> present_data: "[FE] Stored data" {
+    class: fe
+  }
+  authenticate_user -> present_data: "[FE] Token" {
+    class: fe
+  }
+  present_data -> consult_sd: "[FE] S/D view" {
+    class: fe
+  }
+}

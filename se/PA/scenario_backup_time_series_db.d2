@@ -1,0 +1,208 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+classes: {
+  func: {
+    shape: rectangle
+    style: {
+      fill: "#BDFB9B"
+      stroke: "#166534"
+      stroke-width: 2
+      font-size: 36
+    }
+  }
+  lc: {
+    style: {
+      fill: "#A9C7E6"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  pc: {
+    style: {
+      fill: "#FFF8BF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      font-size: 40
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 48
+    }
+  }
+  ea: {
+    shape: rectangle
+    style: {
+      fill: "#BFEAF4"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  note: {
+    style: {
+      fill: "#FFF5B0"
+      stroke: "#D1B24A"
+      font-size: 32
+    }
+  }
+  chain: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  fe: {
+    style: {
+      stroke: "#1F7A4D"
+      font-color: "#1F7A4D"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  ce: {
+    style: {
+      stroke: "#5B65C9"
+      font-color: "#5B65C9"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  pl: {
+    style: {
+      stroke: "#E11D28"
+      font-color: "#E11D28"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  cstr: {
+    style: {
+      stroke: "#333333"
+      stroke-dash: 3
+      font-size: 26
+    }
+  }
+}
+
+
+direction: right
+
+platform: "[System] Aqueduct monitoring platform" {
+  class: sys
+  direction: right
+  grid-columns: 2
+
+  server_host: "[PC] DigitalOcean Premium AMD Droplet\n(4 vCPU / 8 GiB RAM / 160 GiB SSD)" {
+    class: pc
+    direction: right
+    grid-columns: 2
+
+    influxdb_container: "[LC] InfluxDB OSS 2.7 Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      long_term_storage: "[LC] Long-term Storage" {
+        class: lc
+        direction: right
+        grid-columns: 2
+
+        store_measurements: "[F] Store\nmeasurements" {
+          class: func
+          shape: rectangle
+        }
+        store_event_data: "[F] Store event\ndata" {
+          class: func
+          shape: rectangle
+        }
+        store_forecasts: "[F] Store forecasts\nand estimates" {
+          class: func
+          shape: rectangle
+        }
+        query_stored_data: "[F] Query stored\ndata" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+
+    restic_container: "[LC] Restic Backup Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      backup_job_lc: "[LC] Encrypted\nBackup Job" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        execute_backup_job: "[F] Produce encrypted\nbackup artifact" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+  }
+
+  schedule_note: "[C] Scheduled full + incremental backups\nwith restore verification and encryption" {
+    class: note
+    shape: page
+  }
+  builtin_note: "[C] Restic backup functionality shown here is\nproduct-provided, not custom-developed logic" {
+    class: note
+    shape: page
+  }
+}
+
+spaces_bucket: "[EA] DigitalOcean Spaces\nBackup Bucket" {
+  class: ea
+  shape: rectangle
+  direction: down
+  grid-columns: 1
+
+  receive_backup_artifact: "[F] Receive encrypted\nbackup artifact" {
+    class: func
+    shape: rectangle
+  }
+}
+
+platform -> spaces_bucket: {
+  style: { opacity: 0 }
+}
+
+platform.server_host.influxdb_container.long_term_storage.store_measurements -> platform.server_host.influxdb_container.long_term_storage.query_stored_data: "[FE] Measurement\ndataset selected" {
+  class: fe
+}
+platform.server_host.influxdb_container.long_term_storage.store_event_data -> platform.server_host.influxdb_container.long_term_storage.query_stored_data: "[FE] Event dataset\nselected" {
+  class: fe
+}
+platform.server_host.influxdb_container.long_term_storage.store_forecasts -> platform.server_host.influxdb_container.long_term_storage.query_stored_data: "[FE] Forecast dataset\nselected" {
+  class: fe
+}
+platform.server_host.influxdb_container.long_term_storage.query_stored_data -> platform.server_host.restic_container.backup_job_lc.execute_backup_job: "[FE] Consistent export\n/ snapshot" {
+  class: fe
+}
+platform.server_host.restic_container.backup_job_lc.execute_backup_job -> spaces_bucket.receive_backup_artifact: "[FE] Encrypted backup\nartifact" {
+  class: fe
+}
+
+platform.schedule_note -> platform.server_host.restic_container.backup_job_lc {
+  class: cstr
+}
+platform.builtin_note -> platform.server_host.restic_container.backup_job_lc {
+  class: cstr
+}

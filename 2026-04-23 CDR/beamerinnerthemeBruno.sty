@@ -1,0 +1,97 @@
+%% Bruno Beamer theme — Version 1.0
+%% A lightweight Beamer theme inspired from the Metropolis theme
+%%
+%% Written in 2017-2019 by:
+%% — Rémi Cérès <remiceres@msn.com>
+%% — Mattéo Delabre <bonjour@matteodelabre.me>
+%%
+%% This work is released under the CC0 1.0 Universal license. See the
+%% accompanying LICENSE file for details. To the extent possible under
+%% law, Rémi Cérès and Mattéo Delabre have waived all copyright and
+%% related or neighboring rights to the Bruno Beamer theme. This work
+%% is published from France.
+
+\mode<presentation>
+
+\setbeamertemplate{sections/subsections in toc}[square]
+\setbeamertemplate{itemize item}[square]
+\setbeamertemplate{itemize subitem}[circle]
+
+% Allow multi-slide frames
+\setbeamertemplate{frametitle continuation}{}
+
+% Horizontal separator
+\setbeamertemplate{separator}{%
+    \usebeamercolor{separator}%
+    \textcolor{fg}{\rule{.7\textwidth}{.5pt}}%
+}
+
+% Separate authors with newlines
+\renewcommand{\beamer@andtitle}{\\}
+
+% Title page. If you want to add a background image on the title slide,
+% use the \background command to set the path to that image. Otherwise,
+% no image will be included
+\RequirePackage{tikz}
+\usetikzlibrary{fadings}
+\newcommand{\background}[1]%
+    {\newcommand{\bruno@background}{#1}}
+
+\tikzfading[
+    name=title page picture fading,
+    left color=transparent!0,
+    right color=transparent!100,
+]
+
+\setbeamertemplate{title page}{%
+    \begin{minipage}{.7\textwidth}
+        \raggedright
+        \usebeamerfont{title}
+        \inserttitle
+
+        \usebeamertemplate{separator}
+
+        \usebeamerfont{author}
+        \vspace{2em}
+        \insertauthor
+
+        \vspace{2em}
+        \usebeamerfont{details}
+        \insertinstitute
+
+        \insertdate
+    \end{minipage}
+
+    % Include faded image on the right if defined
+    \ifdefined\bruno@background
+    \begin{tikzpicture}[remember picture, overlay]
+        % Crop image to a trapezium on the right
+        \clip (current page.south east)
+           -- (current page.north east)
+           -- ++(-5.1, 0)
+           -- ++(-3, -\paperheight)
+           -- cycle;
+
+        % Include background image
+        \node[
+            anchor=south east,
+            inner sep=0,
+            outer sep=0
+        ] at (current page.south east) {
+            \includegraphics[height=\paperheight]
+                {\bruno@background}
+        };
+
+        % Add a slight shadow
+        \fill[
+            black, path fading=title page picture fading,
+            fading angle=-15
+        ]
+            (current page.south east)
+            rectangle
+            ++(-10, \dimexpr\paperheight+1cm);
+    \end{tikzpicture}
+    \fi
+}
+
+\mode<all>

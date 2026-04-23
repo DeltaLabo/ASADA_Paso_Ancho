@@ -1,0 +1,111 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+direction: right
+
+classes: {
+  func: {
+    shape: rectangle
+    style: {
+      fill: "#BDFB9B"
+      stroke: "#166534"
+      stroke-width: 2
+      font-size: 36
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 48
+    }
+  }
+  ea: {
+    shape: rectangle
+    style: {
+      fill: "#BFEAF4"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  note: {
+    style: {
+      fill: "#FFF5B0"
+      stroke: "#D1B24A"
+      font-size: 32
+    }
+  }
+  chain: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  fe: {
+    style: {
+      stroke: "#1F7A4D"
+      font-color: "#1F7A4D"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  cstr: {
+    style: {
+      stroke: "#333333"
+      stroke-dash: 3
+      font-size: 26
+    }
+  }
+}
+
+configure_alerts: "Functional Chain — Configure alerts" {
+  class: chain
+  direction: right
+
+  define_rules: "[F] Define water\ndistribution rules" {
+    class: func
+    shape: rectangle
+  }
+  implement_mitigation: "[F] Implement water loss\nmitigation strategy" {
+    class: func
+    shape: rectangle
+  }
+  notify_is_event: "[F] Notify of insufficient\nsupply events" {
+    class: func
+    shape: rectangle
+  }
+  notify_is_risk: "[F] Notify of high insufficient\nsupply probability" {
+    class: func
+    shape: rectangle
+  }
+  quantify_wl: "[F] Quantify\nwater loss" {
+    class: func
+    shape: rectangle
+  }
+  notify_wl_risk: "[F] Notify of high water loss\nevent probability" {
+    class: func
+    shape: rectangle
+  }
+
+  define_rules -> notify_is_event: "[FE] Insufficient supply\nalert criteria" {
+    class: fe
+  }
+  define_rules -> notify_is_risk: "[FE] Insufficient supply\nprobability criteria" {
+    class: fe
+  }
+  implement_mitigation -> quantify_wl: "[FE] Water loss detection\ncriteria" {
+    class: fe
+  }
+  implement_mitigation -> notify_wl_risk: "[FE] Water loss probability\ncriteria" {
+    class: fe
+  }
+}

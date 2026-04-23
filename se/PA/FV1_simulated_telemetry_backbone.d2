@@ -1,0 +1,191 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+classes: {
+  func: {
+    shape: rectangle
+    style: {
+      fill: "#BDFB9B"
+      stroke: "#166534"
+      stroke-width: 2
+      font-size: 36
+    }
+  }
+  lc: {
+    style: {
+      fill: "#A9C7E6"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  pc: {
+    style: {
+      fill: "#FFF8BF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      font-size: 40
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 48
+    }
+  }
+  ea: {
+    shape: rectangle
+    style: {
+      fill: "#BFEAF4"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  note: {
+    style: {
+      fill: "#FFF5B0"
+      stroke: "#D1B24A"
+      font-size: 32
+    }
+  }
+  chain: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  fe: {
+    style: {
+      stroke: "#1F7A4D"
+      font-color: "#1F7A4D"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  ce: {
+    style: {
+      stroke: "#5B65C9"
+      font-color: "#5B65C9"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  pl: {
+    style: {
+      stroke: "#E11D28"
+      font-color: "#E11D28"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  cstr: {
+    style: {
+      stroke: "#333333"
+      stroke-dash: 3
+      font-size: 26
+    }
+  }
+}
+
+direction: right
+
+simulated_backbone: "[System] Functional Version 1 —\nSimulated Telemetry Backbone" {
+  class: sys
+  direction: right
+  grid-columns: 2
+
+  developer_laptop: "[PC] Developer Laptop" {
+    class: pc
+    direction: down
+    grid-columns: 1
+
+    telemetry_simulator: "[LC] Node Telemetry\nSimulator" {
+      class: lc
+    }
+  }
+
+  server_host: "[PC] DigitalOcean Premium AMD Droplet\n(4 vCPU / 8 GiB RAM / 160 GiB SSD)" {
+    class: pc
+    direction: right
+    grid-columns: 4
+
+    traefik_container: "[LC] Traefik Reverse Proxy Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      gateway: "[LC] Reverse Proxy /\nTLS Gateway" {
+        class: lc
+      }
+    }
+
+    fastapi_container: "[LC] FastAPI Application Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      node_ingestion: "[LC] Node Ingestion" {
+        class: lc
+      }
+    }
+
+    influxdb_container: "[LC] InfluxDB OSS 2.7 Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      long_term_storage: "[LC] Long-term Storage" {
+        class: lc
+      }
+    }
+
+    grafana_container: "[LC] Grafana Dashboard Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      dashboard: "[LC] Dashboard" {
+        class: lc
+      }
+    }
+
+    version_scope: "[C] This version substitutes the final Field Node\nand sensors with a software simulator,\nand exits when accepted data is stored\nand visible in the dashboard" {
+      class: note
+      shape: page
+    }
+  }
+}
+
+simulated_backbone.developer_laptop.telemetry_simulator -> simulated_backbone.server_host.traefik_container.gateway: "[CE] HTTPS telemetry upload\n(replay + fault cases)" {
+  class: ce
+}
+simulated_backbone.server_host.traefik_container.gateway -> simulated_backbone.server_host.fastapi_container.node_ingestion: "[CE] Routed ingest\nrequest" {
+  class: ce
+}
+simulated_backbone.server_host.fastapi_container.node_ingestion -> simulated_backbone.server_host.influxdb_container.long_term_storage: "[CE] Validated batch" {
+  class: ce
+}
+simulated_backbone.server_host.grafana_container.dashboard -> simulated_backbone.server_host.influxdb_container.long_term_storage: "[CE] Stored data query" {
+  class: ce
+}
+
+simulated_backbone.server_host.version_scope -> simulated_backbone.developer_laptop.telemetry_simulator: {
+  class: cstr
+}
+simulated_backbone.server_host.version_scope -> simulated_backbone.server_host.fastapi_container.node_ingestion: {
+  class: cstr
+}
+simulated_backbone.server_host.version_scope -> simulated_backbone.server_host.grafana_container.dashboard: {
+  class: cstr
+}

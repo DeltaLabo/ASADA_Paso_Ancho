@@ -1,0 +1,167 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+direction: right
+
+classes: {
+  func: {
+    shape: rectangle
+    style: {
+      fill: "#BDFB9B"
+      stroke: "#166534"
+      stroke-width: 2
+      font-size: 36
+    }
+  }
+  lc: {
+    style: {
+      fill: "#A9C7E6"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 44
+    }
+  }
+  ea: {
+    shape: rectangle
+    style: {
+      fill: "#BFEAF4"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  note: {
+    style: {
+      fill: "#FFF5B0"
+      stroke: "#D1B24A"
+      font-size: 32
+    }
+  }
+  chain: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  fe: {
+    style: {
+      stroke: "#1F7A4D"
+      font-color: "#1F7A4D"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  ce: {
+    style: {
+      stroke: "#5B65C9"
+      font-color: "#5B65C9"
+      stroke-width: 3
+      font-size: 20
+    }
+  }
+  cstr: {
+    style: {
+      stroke: "#333333"
+      stroke-dash: 3
+      font-size: 26
+    }
+  }
+}
+
+sensor_octave: "[EA] Octave\nWater Meter" {
+  class: ea
+  shape: rectangle
+}
+
+sensor_level: "[EA] Submersible Water\nLevel Sensor" {
+  class: ea
+  shape: rectangle
+}
+
+system: "[System] Aqueduct monitoring,\nalerting, and data sharing system" {
+  class: sys
+  direction: down
+  grid-columns: 1
+
+  data_acquisition: "[LC] Data\nAcquisition" {
+    class: lc
+  }
+  event_detection: "[LC] Event\ndetection" {
+    class: lc
+  }
+  dashboard: "[LC] Dashboard" {
+    class: lc
+  }
+  notifier: "[LC] Notifier" {
+    class: lc
+  }
+  long_term_storage: "[LC] Long-term\nstorage" {
+    class: lc
+  }
+}
+
+employee: "[EA] ASADA Paso\nAncho employee" {
+  class: ea
+  shape: rectangle
+}
+
+external_aggs: "[EA] External data\naggregators" {
+  class: ea
+  shape: rectangle
+}
+
+sensor_octave -> sensor_level: {
+  style: {
+    opacity: 0
+  }
+}
+sensor_level -> system: {
+  style: {
+    opacity: 0
+  }
+}
+system -> employee: {
+  style: {
+    opacity: 0
+  }
+}
+employee -> external_aggs: {
+  style: {
+    opacity: 0
+  }
+}
+
+sensor_octave <-> system.data_acquisition: "[CE]\n↔ Modbus" {
+  class: ce
+}
+sensor_level -> system.data_acquisition: "[CE]\n→ 0.5–4.5 V" {
+  class: ce
+}
+system.dashboard <-> employee: "[CE]\n↔ C/S" {
+  class: ce
+}
+employee -> system.event_detection: "[CE]\n→ Req/Resp" {
+  class: ce
+}
+employee <-> system.notifier: "[CE]\n↔ Push /\nReq/Resp" {
+  class: ce
+}
+system.long_term_storage -> external_aggs: "[CE]\n→ Export" {
+  class: ce
+}

@@ -1,0 +1,282 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+direction: right
+
+classes: {
+  act: {
+    shape: rectangle
+    style: {
+      fill: "#f9e79f"
+      stroke: "#b7950b"
+      stroke-width: 2
+      font-size: 36
+    }
+  }
+  org: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 48
+    }
+  }
+  ha: {
+    shape: rectangle
+    style: {
+      fill: "#e67e22"
+      stroke: "#a04000"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  note: {
+    style: {
+      fill: "#FFF5B0"
+      stroke: "#D1B24A"
+      font-size: 32
+    }
+  }
+  chain: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  oe: {
+    style: {
+      stroke: "#a04000"
+      font-color: "#a04000"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  cstr: {
+    style: {
+      stroke: "#333333"
+      stroke-dash: 3
+      font-size: 26
+    }
+  }
+}
+
+layers: {
+  sv1_activity_allocation: {
+    label: "SV1 — Activity allocation"
+    direction: right
+    grid-columns: 2
+
+    asada: "[O] ASADA Paso Ancho" {
+      class: org
+      direction: right
+      grid-columns: 3
+
+      water_loss_role: "[HA] Water loss operator" {
+        class: ha
+        shape: rectangle
+        direction: down
+        grid-columns: 1
+
+        c_detect: "[C] Detect discrete water loss events\n(tank overflow, pipe burst)" {
+          class: note
+          shape: page
+        }
+        c_realtime: "[C] Real-time and remote" {
+          class: note
+          shape: page
+        }
+        monitor_loss: "[A] Monitor\nwater loss" {
+          class: act
+          shape: rectangle
+        }
+        implement_mitigation: "[A] Implement water loss\nmitigation strategy" {
+          class: act
+          shape: rectangle
+        }
+
+        c_detect -> monitor_loss: {
+          class: cstr
+        }
+        c_realtime -> monitor_loss: {
+          class: cstr
+        }
+      }
+
+      sd_role: "[HA] Supply and demand planner" {
+        class: ha
+        shape: rectangle
+        direction: down
+        grid-columns: 1
+
+        c_metrics: "[C] Metrics include tank level\nand water volume outflow" {
+          class: note
+          shape: page
+        }
+        monitor_sd: "[A] Monitor water supply\nand demand (S/D)" {
+          class: act
+          shape: rectangle
+        }
+        predict_sd: "[A] Predict water\nsupply and demand" {
+          class: act
+          shape: rectangle
+        }
+        define_rules: "[A] Define water\ndistribution rules" {
+          class: act
+          shape: rectangle
+        }
+
+        c_metrics -> monitor_sd: {
+          class: cstr
+        }
+      }
+
+      data_sharing_role: "[HA] Data sharing coordinator" {
+        class: ha
+        shape: rectangle
+        direction: down
+        grid-columns: 1
+
+        c_share: "[C] Share water quality,\ninfrastructure status,\noperational data" {
+          class: note
+          shape: page
+        }
+        share_external: "[A] Share data with\nexternal entities" {
+          class: act
+          shape: rectangle
+        }
+
+        c_share -> share_external: {
+          class: cstr
+        }
+      }
+    }
+
+    external_aggs: "[O] External data aggregators" {
+      class: org
+      direction: down
+
+      aggregator_staff: "[HA] Aggregator staff" {
+        class: ha
+        shape: rectangle
+        direction: down
+        grid-columns: 1
+
+        receive_data: "[A] Receive\naqueduct data" {
+          class: act
+          shape: rectangle
+        }
+      }
+    }
+  }
+
+  chain_water_loss_monitoring: {
+    label: "Operational Chain — Water loss monitoring and mitigation"
+    direction: right
+
+    water_loss_chain: "Water loss monitoring and mitigation" {
+      class: chain
+      direction: right
+
+      monitor_loss: "[A] Monitor\nwater loss" {
+        class: act
+        shape: rectangle
+      }
+      implement_mitigation: "[A] Implement water loss\nmitigation strategy" {
+        class: act
+        shape: rectangle
+      }
+      c_detect: "[C] Detect discrete water loss events\n(tank overflow, pipe burst)" {
+        class: note
+        shape: page
+      }
+      c_realtime: "[C] Real-time and remote" {
+        class: note
+        shape: page
+      }
+
+      monitor_loss -> implement_mitigation: "[OE] Water loss data" {
+        class: oe
+      }
+      c_detect -> monitor_loss: {
+        class: cstr
+      }
+      c_realtime -> monitor_loss: {
+        class: cstr
+      }
+    }
+  }
+
+  chain_supply_demand_management: {
+    label: "Operational Chain — Supply and demand monitoring, forecasting, and rule definition"
+    direction: right
+
+    supply_demand_chain: "Supply and demand monitoring and planning" {
+      class: chain
+      direction: right
+
+      monitor_sd: "[A] Monitor water supply\nand demand (S/D)" {
+        class: act
+        shape: rectangle
+      }
+      predict_sd: "[A] Predict water\nsupply and demand" {
+        class: act
+        shape: rectangle
+      }
+      define_rules: "[A] Define water\ndistribution rules" {
+        class: act
+        shape: rectangle
+      }
+      c_metrics: "[C] Metrics include tank level\nand water volume outflow" {
+        class: note
+        shape: page
+      }
+
+      monitor_sd -> predict_sd: "[OE] S/D data" {
+        class: oe
+      }
+      predict_sd -> define_rules: "[OE] S/D forecast" {
+        class: oe
+      }
+      c_metrics -> monitor_sd: {
+        class: cstr
+      }
+    }
+  }
+
+  chain_external_data_sharing: {
+    label: "Operational Chain — External aqueduct data sharing"
+    direction: right
+
+    external_data_chain: "External aqueduct data sharing" {
+      class: chain
+      direction: right
+
+      share_external: "[A] Share data with\nexternal entities" {
+        class: act
+        shape: rectangle
+      }
+      receive_data: "[A] Receive\naqueduct data" {
+        class: act
+        shape: rectangle
+      }
+      c_share: "[C] Share water quality,\ninfrastructure status,\noperational data" {
+        class: note
+        shape: page
+      }
+
+      share_external -> receive_data: "[OE] Shareable data" {
+        class: oe
+      }
+      c_share -> share_external: {
+        class: cstr
+      }
+    }
+  }
+}

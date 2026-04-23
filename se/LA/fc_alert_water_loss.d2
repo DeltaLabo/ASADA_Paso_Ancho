@@ -1,0 +1,172 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+direction: right
+
+classes: {
+  func: {
+    shape: rectangle
+    style: {
+      fill: "#BDFB9B"
+      stroke: "#166534"
+      stroke-width: 2
+      font-size: 36
+    }
+  }
+  lc: {
+    style: {
+      fill: "#A9C7E6"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 48
+    }
+  }
+  ea: {
+    shape: rectangle
+    style: {
+      fill: "#BFEAF4"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  note: {
+    style: {
+      fill: "#FFF5B0"
+      stroke: "#D1B24A"
+      font-size: 32
+    }
+  }
+  chain: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  fe: {
+    style: {
+      stroke: "#1F7A4D"
+      font-color: "#1F7A4D"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  cstr: {
+    style: {
+      stroke: "#333333"
+      stroke-dash: 3
+      font-size: 26
+    }
+  }
+}
+
+alert_water_loss: "Functional Chain — Alert water loss" {
+  class: chain
+  direction: right
+
+  measure_volume: "[F] Measure water\nvolume" {
+    class: func
+    shape: rectangle
+  }
+  measure_flow: "[F] Measure current\nflow" {
+    class: func
+    shape: rectangle
+  }
+  measure_level: "[F] Measure water\nlevel" {
+    class: func
+    shape: rectangle
+  }
+  collect_window: "[F] Collect and window\nwater S/D measurements" {
+    class: func
+    shape: rectangle
+  }
+  quantify_wl: "[F] Quantify\nwater loss" {
+    class: func
+    shape: rectangle
+  }
+  identify_wl_events: "[F] Identify significant\nwater loss events" {
+    class: func
+    shape: rectangle
+  }
+  predict_sd: "[F] Predict water supply\nand demand (S/D)" {
+    class: func
+    shape: rectangle
+  }
+  predict_wl_risk: "[F] Predict water loss\nevent risk" {
+    class: func
+    shape: rectangle
+  }
+  notify_detected: "[F] Notify of\ndetected events" {
+    class: func
+    shape: rectangle
+  }
+  notify_predicted: "[F] Notify of\npredicted risk events" {
+    class: func
+    shape: rectangle
+  }
+  implement_mitigation: "[F] Implement water loss\nmitigation strategy" {
+    class: func
+    shape: rectangle
+  }
+  c_loss_events: "[C] e.g. tank overflow,\npipe burst" {
+    class: note
+    shape: page
+  }
+
+  c_loss_events -> identify_wl_events: {
+    class: cstr
+  }
+
+  measure_volume -> collect_window: "[FE] Volume" {
+    class: fe
+  }
+  measure_flow -> collect_window: "[FE] Flow" {
+    class: fe
+  }
+  measure_level -> collect_window: "[FE] Level" {
+    class: fe
+  }
+  collect_window -> quantify_wl: "[FE] Window" {
+    class: fe
+  }
+  collect_window -> identify_wl_events: "[FE] Window" {
+    class: fe
+  }
+  collect_window -> predict_sd: "[FE] Window" {
+    class: fe
+  }
+  quantify_wl -> predict_wl_risk: "[FE] Loss estimate" {
+    class: fe
+  }
+  predict_sd -> predict_wl_risk: "[FE] S/D forecast" {
+    class: fe
+  }
+  identify_wl_events -> notify_detected: "[FE] Loss evt." {
+    class: fe
+  }
+  predict_wl_risk -> notify_predicted: "[FE] Risk pred." {
+    class: fe
+  }
+  notify_detected -> implement_mitigation: "[FE] Event" {
+    class: fe
+  }
+  notify_predicted -> implement_mitigation: "[FE] Risk" {
+    class: fe
+  }
+}

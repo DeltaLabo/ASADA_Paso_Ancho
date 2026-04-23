@@ -1,0 +1,238 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+classes: {
+  func: {
+    shape: rectangle
+    style: {
+      fill: "#BDFB9B"
+      stroke: "#166534"
+      stroke-width: 2
+      font-size: 36
+    }
+  }
+  lc: {
+    style: {
+      fill: "#A9C7E6"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  pc: {
+    style: {
+      fill: "#FFF8BF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      font-size: 40
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 48
+    }
+  }
+  ea: {
+    shape: rectangle
+    style: {
+      fill: "#BFEAF4"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  note: {
+    style: {
+      fill: "#FFF5B0"
+      stroke: "#D1B24A"
+      font-size: 32
+    }
+  }
+  chain: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  fe: {
+    style: {
+      stroke: "#1F7A4D"
+      font-color: "#1F7A4D"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  ce: {
+    style: {
+      stroke: "#5B65C9"
+      font-color: "#5B65C9"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  pl: {
+    style: {
+      stroke: "#E11D28"
+      font-color: "#E11D28"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  cstr: {
+    style: {
+      stroke: "#333333"
+      stroke-dash: 3
+      font-size: 26
+    }
+  }
+}
+
+
+direction: right
+
+employee_device: "[EA] Employee Client Device" {
+  class: ea
+  shape: rectangle
+  direction: down
+  grid-columns: 1
+
+  authenticate_dashboard_access: "[F] Authenticate to access\nthe dashboard" {
+    class: func
+    shape: rectangle
+  }
+  consult_sd_data: "[F] Consult water supply\nand demand data" {
+    class: func
+    shape: rectangle
+  }
+}
+
+platform: "[System] Aqueduct monitoring platform" {
+  class: sys
+  direction: down
+  grid-columns: 1
+
+  server_host: "[PC] DigitalOcean Premium AMD Droplet\n(4 vCPU / 8 GiB RAM / 160 GiB SSD)" {
+    class: pc
+    direction: right
+    grid-columns: 3
+
+    traefik_container: "[LC] Traefik Reverse Proxy Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      gateway: "[LC] Reverse Proxy /\nTLS Gateway" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        route_dashboard_request: "[F] Terminate TLS and\nroute dashboard request" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+
+    grafana_container: "[LC] Grafana Dashboard Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      dashboard_lc: "[LC] Dashboard" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        authenticate_user: "[F] Authenticate\nuser" {
+          class: func
+          shape: rectangle
+        }
+        present_stored_data: "[F] Present stored\ndata" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+
+    keycloak_container: "[LC] Keycloak Identity Container" {
+      class: lc
+      direction: right
+      grid-columns: 2
+
+      credential_validation_lc: "[LC] Credential\nValidation" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        validate_credentials: "[F] Validate supplied\ncredentials" {
+          class: func
+          shape: rectangle
+        }
+      }
+
+      token_issuance_lc: "[LC] OIDC Token\nIssuance" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        issue_identity_token: "[F] Issue identity\ntoken and claims" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+  }
+
+  auth_note: "[C] OIDC login via Keycloak\nwith TLS at Traefik" {
+    class: note
+    shape: page
+  }
+  builtin_note: "[C] Keycloak logical components shown are\nproduct-provided capabilities" {
+    class: note
+    shape: page
+  }
+}
+
+employee_device -> platform: {
+  style: { opacity: 0 }
+}
+
+employee_device.authenticate_dashboard_access -> platform.server_host.traefik_container.gateway.route_dashboard_request: "[FE] HTTPS login\nrequest" {
+  class: fe
+}
+platform.server_host.traefik_container.gateway.route_dashboard_request -> platform.server_host.grafana_container.dashboard_lc.authenticate_user: "[FE] Routed dashboard\nrequest" {
+  class: fe
+}
+platform.server_host.grafana_container.dashboard_lc.authenticate_user -> platform.server_host.keycloak_container.credential_validation_lc.validate_credentials: "[FE] OIDC auth\nrequest" {
+  class: fe
+}
+platform.server_host.keycloak_container.credential_validation_lc.validate_credentials -> platform.server_host.keycloak_container.token_issuance_lc.issue_identity_token: "[FE] Valid credential\nassertion" {
+  class: fe
+}
+platform.server_host.keycloak_container.token_issuance_lc.issue_identity_token -> platform.server_host.grafana_container.dashboard_lc.authenticate_user: "[FE] Identity token\n/ claims" {
+  class: fe
+}
+platform.server_host.grafana_container.dashboard_lc.authenticate_user -> platform.server_host.grafana_container.dashboard_lc.present_stored_data: "[FE] Authorized\nsession" {
+  class: fe
+}
+platform.server_host.grafana_container.dashboard_lc.present_stored_data -> employee_device.consult_sd_data: "[FE] Authorized\ndashboard view" {
+  class: fe
+}
+
+platform.auth_note -> platform.server_host.traefik_container.gateway {
+  class: cstr
+}
+platform.builtin_note -> platform.server_host.keycloak_container {
+  class: cstr
+}

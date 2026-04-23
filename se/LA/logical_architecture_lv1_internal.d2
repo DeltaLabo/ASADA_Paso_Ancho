@@ -1,0 +1,64 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+direction: right
+
+classes: {
+  lc: {
+    style: {
+      fill: "#A9C7E6"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 32
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 40
+    }
+  }
+  ce: {
+    style: {
+      stroke: "#5B65C9"
+      font-color: "#5B65C9"
+      stroke-width: 3
+      font-size: 18
+    }
+  }
+}
+
+system: "[System] Internal logical exchanges —\nmeasurement distribution" {
+  class: sys
+  direction: down
+  grid-columns: 2
+
+  data_acquisition: "[LC] Data\nAcquisition" {
+    class: lc
+  }
+  data_processing: "[LC] Data\nProcessing" {
+    class: lc
+  }
+  measurement_window: "[LC] Measurement\nwindow" {
+    class: lc
+  }
+  event_detection: "[LC] Event\ndetection" {
+    class: lc
+  }
+}
+
+system.data_acquisition -> system.measurement_window: "[CE]\n→ Queue" {
+  class: ce
+}
+system.measurement_window -> system.data_processing: "[CE]\n→ Pub/Sub" {
+  class: ce
+}
+system.measurement_window -> system.event_detection: "[CE]\n→ Pub/Sub" {
+  class: ce
+}

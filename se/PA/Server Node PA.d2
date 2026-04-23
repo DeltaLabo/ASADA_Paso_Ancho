@@ -1,0 +1,283 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+classes: {
+  func: {
+    shape: rectangle
+    style: {
+      fill: "#BDFB9B"
+      stroke: "#166534"
+      stroke-width: 2
+      font-size: 36
+    }
+  }
+  lc: {
+    style: {
+      fill: "#A9C7E6"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  pc: {
+    style: {
+      fill: "#FFF8BF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      font-size: 40
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 48
+    }
+  }
+  ea: {
+    shape: rectangle
+    style: {
+      fill: "#BFEAF4"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  note: {
+    style: {
+      fill: "#FFF5B0"
+      stroke: "#D1B24A"
+      font-size: 32
+    }
+  }
+  chain: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  fe: {
+    style: {
+      stroke: "#1F7A4D"
+      font-color: "#1F7A4D"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  ce: {
+    style: {
+      stroke: "#5B65C9"
+      font-color: "#5B65C9"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  pl: {
+    style: {
+      stroke: "#E11D28"
+      font-color: "#E11D28"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  cstr: {
+    style: {
+      stroke: "#333333"
+      stroke-dash: 3
+      font-size: 26
+    }
+  }
+}
+
+direction: right
+
+employee_device: "[PC] Employee Client Device" {
+  class: pc
+  direction: down
+  grid-columns: 1
+
+  dashboard_client: "[LC] Dashboard Client" {
+    class: lc
+  }
+}
+
+remote_field_node: "[PC] Remote Field Node" {
+  class: pc
+  direction: down
+  grid-columns: 1
+
+  field_data_acquisition: "[LC] Data Acquisition" {
+    class: lc
+  }
+}
+
+server_node: "[System] Server Node" {
+  class: sys
+  direction: down
+  grid-columns: 1
+
+  droplet: "[PC] DigitalOcean Premium AMD Droplet\n(4 vCPU / 8 GiB RAM / 160 GiB SSD)" {
+    class: pc
+    direction: right
+    grid-columns: 4
+
+    ubuntu_host: "[PC] Ubuntu Server LTS" {
+      class: pc
+    }
+    docker_runtime: "[LC] Docker Engine +\nDocker Compose" {
+      class: lc
+    }
+    traefik_container: "[LC] Traefik Reverse Proxy Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      gateway: "[LC] Reverse Proxy /\nTLS Gateway" {
+        class: lc
+      }
+    }
+    keycloak_container: "[LC] Keycloak Identity Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      iam: "[LC] Identity and Access\nManagement" {
+        class: lc
+      }
+    }
+    grafana_container: "[LC] Grafana Dashboard Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      dashboard: "[LC] Dashboard" {
+        class: lc
+      }
+    }
+    fastapi_container: "[LC] FastAPI Application Container" {
+      class: lc
+      direction: right
+      grid-columns: 2
+
+      node_ingestion: "[LC] Node Ingestion" {
+        class: lc
+      }
+      configuration_api: "[LC] Configuration API" {
+        class: lc
+      }
+      measurement_window: "[LC] Measurement\nWindow" {
+        class: lc
+      }
+      data_export: "[LC] Data Export" {
+        class: lc
+      }
+    }
+    analytics_container: "[LC] Python Analytics Worker Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      data_processing: "[LC] Data Processing" {
+        class: lc
+      }
+      event_detection: "[LC] Event Detection" {
+        class: lc
+      }
+    }
+    notification_container: "[LC] Python Notification Worker Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      notifier: "[LC] Notifier" {
+        class: lc
+      }
+    }
+    influxdb_container: "[LC] InfluxDB OSS 2.7 Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      long_term_storage: "[LC] Long-term Storage" {
+        class: lc
+      }
+    }
+    postgres_container: "[LC] PostgreSQL 16 Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      relational_store: "[LC] Relational Configuration\nand Identity Store" {
+        class: lc
+      }
+    }
+    restic_container: "[LC] Restic Backup Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      backup_management: "[LC] Backup Management" {
+        class: lc
+      }
+    }
+  }
+
+  do_volume: "[PC] DigitalOcean Block\nStorage Volume" {
+    class: pc
+  }
+}
+
+do_spaces: "[PC] DigitalOcean Spaces\nBackup Bucket" {
+  class: pc
+  direction: down
+  grid-columns: 1
+
+  spaces_backup_api: "[LC] S3-compatible\nBackup Interface" {
+    class: lc
+  }
+}
+
+external_aggregator: "[PC] External Aggregator\nEndpoint" {
+  class: pc
+  direction: down
+  grid-columns: 1
+
+  aggregator_api: "[LC] Aggregator API" {
+    class: lc
+  }
+}
+
+employee_device -> server_node: {
+  style: { opacity: 0 }
+}
+remote_field_node -> server_node: {
+  style: { opacity: 0 }
+}
+server_node -> do_spaces: {
+  style: { opacity: 0 }
+}
+server_node -> external_aggregator: {
+  style: { opacity: 0 }
+}
+
+employee_device.dashboard_client -> server_node.droplet.traefik_container: "[CE] HTTPS dashboard access\nover public WAN" {
+  class: ce
+}
+remote_field_node.field_data_acquisition -> server_node.droplet.traefik_container: "[CE] HTTPS telemetry upload\nover cellular WAN" {
+  class: ce
+}
+server_node.droplet.fastapi_container -> external_aggregator.aggregator_api: "[CE] Export API / HTTPS" {
+  class: ce
+}
+server_node.droplet.restic_container -> do_spaces.spaces_backup_api: "[CE] S3-compatible\nbackup exchange" {
+  class: ce
+}

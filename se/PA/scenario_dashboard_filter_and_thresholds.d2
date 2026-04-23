@@ -1,0 +1,385 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+classes: {
+  func: {
+    shape: rectangle
+    style: {
+      fill: "#BDFB9B"
+      stroke: "#166534"
+      stroke-width: 2
+      font-size: 36
+    }
+  }
+  lc: {
+    style: {
+      fill: "#A9C7E6"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  pc: {
+    style: {
+      fill: "#FFF8BF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      font-size: 40
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 48
+    }
+  }
+  ea: {
+    shape: rectangle
+    style: {
+      fill: "#BFEAF4"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 40
+    }
+  }
+  note: {
+    style: {
+      fill: "#FFF5B0"
+      stroke: "#D1B24A"
+      font-size: 32
+    }
+  }
+  chain: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#D1B24A"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 36
+    }
+  }
+  fe: {
+    style: {
+      stroke: "#1F7A4D"
+      font-color: "#1F7A4D"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  ce: {
+    style: {
+      stroke: "#5B65C9"
+      font-color: "#5B65C9"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  pl: {
+    style: {
+      stroke: "#E11D28"
+      font-color: "#E11D28"
+      stroke-width: 2
+      font-size: 30
+    }
+  }
+  cstr: {
+    style: {
+      stroke: "#333333"
+      stroke-dash: 3
+      font-size: 26
+    }
+  }
+}
+
+
+direction: right
+
+employee_device: "[EA] Employee Client Device" {
+  class: ea
+  shape: rectangle
+  direction: down
+  grid-columns: 1
+
+  authenticate_dashboard_access: "[F] Authenticate to access\nthe dashboard" {
+    class: func
+    shape: rectangle
+  }
+  define_distribution_rules: "[F] Define water\ndistribution rules" {
+    class: func
+    shape: rectangle
+  }
+  implement_mitigation: "[F] Implement water loss\nmitigation strategy" {
+    class: func
+    shape: rectangle
+  }
+  consult_sd_data: "[F] Consult water supply\nand demand data" {
+    class: func
+    shape: rectangle
+  }
+  consult_water_loss_data: "[F] Consult\nwater loss data" {
+    class: func
+    shape: rectangle
+  }
+}
+
+platform: "[System] Aqueduct monitoring platform" {
+  class: sys
+  direction: down
+  grid-columns: 1
+
+  server_host: "[PC] DigitalOcean Premium AMD Droplet\n(4 vCPU / 8 GiB RAM / 160 GiB SSD)" {
+    class: pc
+    direction: right
+    grid-columns: 4
+
+    traefik_container: "[LC] Traefik Reverse Proxy Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      gateway: "[LC] Reverse Proxy /\nTLS Gateway" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        route_dashboard_request: "[F] Terminate TLS and\nroute dashboard request" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+
+    grafana_container: "[LC] Grafana Dashboard Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      dashboard_lc: "[LC] Dashboard" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        authenticate_user: "[F] Authenticate\nuser" {
+          class: func
+          shape: rectangle
+        }
+        present_filtered_data: "[F] Present stored\ndata" {
+          class: func
+          shape: rectangle
+        }
+        manage_alert_configuration: "[F] Manage alert\nconfiguration" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+
+    keycloak_container: "[LC] Keycloak Identity Container" {
+      class: lc
+      direction: right
+      grid-columns: 2
+
+      credential_validation_lc: "[LC] Credential\nValidation" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        validate_credentials: "[F] Validate supplied\ncredentials" {
+          class: func
+          shape: rectangle
+        }
+      }
+
+      token_issuance_lc: "[LC] OIDC Token\nIssuance" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        issue_identity_token: "[F] Issue identity\ntoken and claims" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+
+    influxdb_container: "[LC] InfluxDB OSS 2.7 Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      long_term_storage: "[LC] Long-term Storage" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        query_stored_data: "[F] Query stored\ndata" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+
+    fastapi_container: "[LC] FastAPI Application Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      configuration_api: "[LC] Configuration API" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        process_configuration_command: "[F] Process threshold\nand subscription changes" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+
+    postgres_container: "[LC] PostgreSQL 16 Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      relational_store: "[LC] Relational Configuration\nand Identity Store" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        persist_configuration_data: "[F] Persist thresholds\nand subscriptions" {
+          class: func
+          shape: rectangle
+        }
+        provide_threshold_definitions: "[F] Provide threshold\ndefinitions" {
+          class: func
+          shape: rectangle
+        }
+        provide_notification_subscriptions: "[F] Provide notification\nsubscriptions" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+
+    analytics_container: "[LC] Python Analytics Worker Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      event_detection: "[LC] Event Detection" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        manage_detection_thresholds: "[F] Manage detection\nthresholds" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+
+    notifier_container: "[LC] Python Notification Worker Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      notifier_lc: "[LC] Notifier" {
+        class: lc
+        direction: down
+        grid-columns: 1
+
+        manage_notification_subscribers: "[F] Manage notification\nsubscribers and channels" {
+          class: func
+          shape: rectangle
+        }
+      }
+    }
+  }
+
+  security_note: "[C] OIDC via Keycloak, TLS via Traefik,\nRBAC for threshold editing" {
+    class: note
+    shape: page
+  }
+  dashboard_note: "[C] Grafana dashboards support time-range filtering\nand per-user saved preferences" {
+    class: note
+    shape: page
+  }
+  builtin_note: "[C] Keycloak logical components shown are\nproduct-provided capabilities" {
+    class: note
+    shape: page
+  }
+}
+
+employee_device -> platform: {
+  style: { opacity: 0 }
+}
+
+employee_device.authenticate_dashboard_access -> platform.server_host.traefik_container.gateway.route_dashboard_request: "[FE] HTTPS dashboard\nrequest" {
+  class: fe
+}
+platform.server_host.traefik_container.gateway.route_dashboard_request -> platform.server_host.grafana_container.dashboard_lc.authenticate_user: "[FE] Routed dashboard\nrequest" {
+  class: fe
+}
+platform.server_host.grafana_container.dashboard_lc.authenticate_user -> platform.server_host.keycloak_container.credential_validation_lc.validate_credentials: "[FE] OIDC auth\nrequest" {
+  class: fe
+}
+platform.server_host.keycloak_container.credential_validation_lc.validate_credentials -> platform.server_host.keycloak_container.token_issuance_lc.issue_identity_token: "[FE] Valid credential\nassertion" {
+  class: fe
+}
+platform.server_host.keycloak_container.token_issuance_lc.issue_identity_token -> platform.server_host.grafana_container.dashboard_lc.authenticate_user: "[FE] Identity token\n/ claims" {
+  class: fe
+}
+platform.server_host.grafana_container.dashboard_lc.authenticate_user -> platform.server_host.grafana_container.dashboard_lc.present_filtered_data: "[FE] Authorized\nsession" {
+  class: fe
+}
+platform.server_host.grafana_container.dashboard_lc.present_filtered_data -> platform.server_host.influxdb_container.long_term_storage.query_stored_data: "[FE] Time-range\nquery" {
+  class: fe
+}
+platform.server_host.influxdb_container.long_term_storage.query_stored_data -> platform.server_host.grafana_container.dashboard_lc.present_filtered_data: "[FE] Filtered historical\ndata" {
+  class: fe
+}
+platform.server_host.grafana_container.dashboard_lc.present_filtered_data -> employee_device.consult_sd_data: "[FE] Filtered S/D\ndashboard" {
+  class: fe
+}
+platform.server_host.grafana_container.dashboard_lc.present_filtered_data -> employee_device.consult_water_loss_data: "[FE] Filtered water\nloss dashboard" {
+  class: fe
+}
+
+employee_device.define_distribution_rules -> platform.server_host.grafana_container.dashboard_lc.manage_alert_configuration: "[FE] Edit supply\nrisk criteria" {
+  class: fe
+}
+employee_device.implement_mitigation -> platform.server_host.grafana_container.dashboard_lc.manage_alert_configuration: "[FE] Edit water loss\nrisk criteria" {
+  class: fe
+}
+platform.server_host.grafana_container.dashboard_lc.manage_alert_configuration -> platform.server_host.fastapi_container.configuration_api.process_configuration_command: "[FE] Configuration\ncommand" {
+  class: fe
+}
+platform.server_host.fastapi_container.configuration_api.process_configuration_command -> platform.server_host.postgres_container.relational_store.persist_configuration_data: "[FE] Persist thresholds\n/ subscriptions" {
+  class: fe
+}
+platform.server_host.postgres_container.relational_store.provide_threshold_definitions -> platform.server_host.analytics_container.event_detection.manage_detection_thresholds: "[FE] Threshold\ndefinitions" {
+  class: fe
+}
+platform.server_host.postgres_container.relational_store.provide_notification_subscriptions -> platform.server_host.notifier_container.notifier_lc.manage_notification_subscribers: "[FE] Notification\nsubscriptions" {
+  class: fe
+}
+
+platform.security_note -> platform.server_host.traefik_container.gateway {
+  class: cstr
+}
+platform.security_note -> platform.server_host.keycloak_container {
+  class: cstr
+}
+platform.dashboard_note -> platform.server_host.grafana_container.dashboard_lc.present_filtered_data {
+  class: cstr
+}
+platform.builtin_note -> platform.server_host.keycloak_container {
+  class: cstr
+}

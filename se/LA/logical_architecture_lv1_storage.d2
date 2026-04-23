@@ -1,0 +1,64 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+direction: right
+
+classes: {
+  lc: {
+    style: {
+      fill: "#A9C7E6"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 32
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 40
+    }
+  }
+  ce: {
+    style: {
+      stroke: "#5B65C9"
+      font-color: "#5B65C9"
+      stroke-width: 3
+      font-size: 18
+    }
+  }
+}
+
+system: "[System] Internal logical exchanges —\nmeasurement and analytics storage" {
+  class: sys
+  direction: down
+  grid-columns: 2
+
+  data_acquisition: "[LC] Data\nAcquisition" {
+    class: lc
+  }
+  long_term_storage: "[LC] Long-term\nstorage" {
+    class: lc
+  }
+  data_processing: "[LC] Data\nProcessing" {
+    class: lc
+  }
+}
+
+system.data_acquisition -> system.data_processing: {
+  style: {
+    opacity: 0
+  }
+}
+
+system.data_acquisition -> system.long_term_storage: "[CE]\n→ Queue" {
+  class: ce
+}
+system.data_processing -> system.long_term_storage: "[CE]\n→ Queue" {
+  class: ce
+}

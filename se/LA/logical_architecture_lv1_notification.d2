@@ -1,0 +1,64 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+direction: right
+
+classes: {
+  lc: {
+    style: {
+      fill: "#A9C7E6"
+      stroke: "#5B65C9"
+      stroke-width: 2
+      border-radius: 20
+      font-size: 32
+    }
+  }
+  sys: {
+    style: {
+      fill: "#E6E6E6"
+      stroke: "#9A9A9A"
+      stroke-width: 2
+      font-size: 40
+    }
+  }
+  ce: {
+    style: {
+      stroke: "#5B65C9"
+      font-color: "#5B65C9"
+      stroke-width: 3
+      font-size: 18
+    }
+  }
+}
+
+system: "[System] Internal logical exchanges —\nalert publication" {
+  class: sys
+  direction: down
+  grid-columns: 2
+
+  data_processing: "[LC] Data\nProcessing" {
+    class: lc
+  }
+  notifier: "[LC] Notifier" {
+    class: lc
+  }
+  event_detection: "[LC] Event\ndetection" {
+    class: lc
+  }
+}
+
+system.data_processing -> system.event_detection: {
+  style: {
+    opacity: 0
+  }
+}
+
+system.data_processing -> system.notifier: "[CE]\n→ Pub/Sub" {
+  class: ce
+}
+system.event_detection -> system.notifier: "[CE]\n→ Pub/Sub" {
+  class: ce
+}
