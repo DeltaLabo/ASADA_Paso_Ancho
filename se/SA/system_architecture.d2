@@ -183,7 +183,7 @@ employee: "[EA] ASADA Paso Ancho\nemployee" {
   class: ea
   shape: rectangle
   direction: down
-  grid-columns: 1
+  grid-columns: 2
 
   consult_wl: "[F] Consult water\nloss data" {
     class: func
@@ -200,6 +200,22 @@ employee: "[EA] ASADA Paso Ancho\nemployee" {
   define_rules: "[F] Define water\ndistribution rules" {
     class: func
     shape: rectangle
+  }
+  c_quality_vars: "[C] Monitor all Regulation\n38924-S required variables" {
+    class: note
+    shape: page
+  }
+  monitor_quality: "[F] Monitor\nwater quality" {
+    class: func
+    shape: rectangle
+  }
+  implement_quality_compliance: "[F] Implement water quality\nstandards compliance\nstrategy" {
+    class: func
+    shape: rectangle
+  }
+
+  c_quality_vars -> monitor_quality: {
+    class: cstr
   }
 }
 

@@ -137,6 +137,30 @@ layers: {
         }
       }
 
+      water_quality_role: "[HA] Water quality operator" {
+        class: ha
+        shape: rectangle
+        direction: down
+        grid-columns: 1
+
+        c_reg38924: "[C] Monitor all Regulation\n38924-S required variables" {
+          class: note
+          shape: page
+        }
+        monitor_quality: "[A] Monitor\nwater quality" {
+          class: act
+          shape: rectangle
+        }
+        implement_quality_compliance: "[A] Implement water quality\nstandards compliance\nstrategy" {
+          class: act
+          shape: rectangle
+        }
+
+        c_reg38924 -> monitor_quality: {
+          class: cstr
+        }
+      }
+
       data_sharing_role: "[HA] Data sharing coordinator" {
         class: ha
         shape: rectangle
@@ -245,6 +269,36 @@ layers: {
         class: oe
       }
       c_metrics -> monitor_sd: {
+        class: cstr
+      }
+    }
+  }
+
+  chain_water_quality_compliance: {
+    label: "Operational Chain — Water quality monitoring and standards compliance"
+    direction: right
+
+    water_quality_chain: "Water quality monitoring and standards compliance" {
+      class: chain
+      direction: right
+
+      monitor_quality: "[A] Monitor\nwater quality" {
+        class: act
+        shape: rectangle
+      }
+      implement_quality_compliance: "[A] Implement water quality\nstandards compliance\nstrategy" {
+        class: act
+        shape: rectangle
+      }
+      c_reg38924: "[C] Monitor all Regulation\n38924-S required variables" {
+        class: note
+        shape: page
+      }
+
+      monitor_quality -> implement_quality_compliance: "[OE] Water quality data" {
+        class: oe
+      }
+      c_reg38924 -> monitor_quality: {
         class: cstr
       }
     }

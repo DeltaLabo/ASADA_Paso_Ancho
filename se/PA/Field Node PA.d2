@@ -102,8 +102,8 @@ direction: right
 
 field_node: "[System] Field Node" {
   class: sys
-  direction: right
-  grid-columns: 5
+  direction: down
+  grid-columns: 3
 
   solar_panel: "[PC] Waveshare Solar Panel\n(18V 10W)" {
     class: pc
@@ -114,81 +114,90 @@ field_node: "[System] Field Node" {
   level_sensor: "[PC] Submersible Water\nLevel Sensor" {
     class: pc
   }
-  enclosure: "[PC] IP67 Enclosure" {
+  aquedct_piping_enclosure: "[PC] Aquedct Piping Enclosure" {
     class: pc
     direction: down
-    grid-columns: 1
 
-    controller_pcb: "[PC] Controller PCB" {
+    lock: "[PC] Lock" {
       class: pc
-      direction: right
-      grid-columns: 4
+    }
 
-      power_subsystem: "[PC] Power Subsystem" {
+    enclosure: "[PC] IP65 100x100x70mm\nIP65 Enclosure" {
+      class: pc
+      direction: down
+      grid-columns: 1
+
+      controller_pcb: "[PC] Controller PCB" {
         class: pc
         direction: down
-        grid-columns: 1
+        grid-columns: 2
 
-        solar_manager: "[PC] Waveshare Solar Power Manager (D)\nMPPT Charger + 5 V Output" {
-          class: pc
-        }
-        battery_pack: "[PC] 18650 Battery Holder\n+ 3P1S Li-ion Pack" {
-          class: pc
-        }
-        battery_monitor: "[PC] INA219 Battery Monitor" {
-          class: pc
-        }
-        power_header: "[PC] Molex MicroFit 43045\n4-pin Power Header" {
-          class: pc
-        }
-      }
-
-      compute_subsystem: "[PC] Compute" {
-        class: pc
-        direction: down
-        grid-columns: 1
-
-        expansion_board: "[PC] Seeed Studio Expansion Board Base for XIAO\n(includes RTC + MicroSD slot)" {
+        power_subsystem: "[PC] Power Subsystem" {
           class: pc
           direction: down
           grid-columns: 1
 
-          xiao_module: "[PC] Seeed XIAO ESP32-C3" {
+          solar_manager: "[PC] Waveshare Solar Power Manager (D)\nMPPT Charger + 5 V Output" {
+            class: pc
+          }
+          battery_pack: "[PC] 18650 Battery Holder\n+ 3P1S Li-ion Pack" {
+            class: pc
+          }
+          battery_monitor: "[PC] INA219 Battery Monitor" {
+            class: pc
+          }
+          power_header: "[PC] Molex MicroFit 43045\n4-pin Power Header" {
+            class: pc
+          }
+        }
+
+        compute_subsystem: "[PC] Compute" {
+          class: pc
+          direction: down
+          grid-columns: 1
+
+          expansion_board: "[PC] Seeed Studio Expansion Board Base for XIAO\n(includes RTC + MicroSD slot)" {
             class: pc
             direction: down
             grid-columns: 1
 
-            data_acquisition: "[LC] Data Acquisition" {
-              class: lc
+            xiao_module: "[PC] Seeed XIAO ESP32-C3" {
+              class: pc
+              direction: down
+              grid-columns: 1
+
+              data_acquisition: "[LC] Data Acquisition" {
+                class: lc
+              }
+            }
+
+            xiao_header: "[PC] GPIO / I²C / UART\nPin Header" {
+              class: pc
             }
           }
+        }
 
-          xiao_header: "[PC] GPIO / I²C / UART\nPin Header" {
+        sensor_interfaces: "[PC] Sensor Interfaces" {
+          class: pc
+          direction: right
+          grid-columns: 2
+
+          rs485_interface: "[PC] Seeed Grove\nRS485" {
+            class: pc
+          }
+          analog_divider: "[PC] Analog\nDivider" {
             class: pc
           }
         }
-      }
 
-      sensor_interfaces: "[PC] Sensor Interfaces" {
-        class: pc
-        direction: right
-        grid-columns: 2
-
-        rs485_interface: "[PC] Seeed Grove\nRS485" {
+        wan_interface: "[PC] WAN Interface" {
           class: pc
-        }
-        analog_divider: "[PC] Analog\nDivider" {
-          class: pc
-        }
-      }
+          direction: down
+          grid-columns: 1
 
-      wan_interface: "[PC] WAN Interface" {
-        class: pc
-        direction: down
-        grid-columns: 1
-
-        lte_module: "[PC] Waveshare SIM7600G-H\n4G Module" {
-          class: pc
+          lte_module: "[PC] Waveshare SIM7600G-H\n4G Module" {
+            class: pc
+          }
         }
       }
     }
@@ -199,57 +208,57 @@ field_node: "[System] Field Node" {
   }
 }
 
-field_node.enclosure.controller_pcb.power_subsystem.battery_pack -> field_node.enclosure.controller_pcb.power_subsystem.battery_monitor: {
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.battery_pack -> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.battery_monitor: {
   style: { opacity: 0 }
 }
-field_node.enclosure.controller_pcb.power_subsystem.battery_monitor -> field_node.enclosure.controller_pcb.power_subsystem.solar_manager: {
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.battery_monitor -> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.solar_manager: {
   style: { opacity: 0 }
 }
-field_node.enclosure.controller_pcb.power_subsystem.solar_manager -> field_node.enclosure.controller_pcb.power_subsystem.power_header: {
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.solar_manager -> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.power_header: {
   style: { opacity: 0 }
 }
-field_node.enclosure.controller_pcb.sensor_interfaces.rs485_interface -> field_node.enclosure.controller_pcb.sensor_interfaces.analog_divider: {
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.sensor_interfaces.rs485_interface -> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.sensor_interfaces.analog_divider: {
   style: { opacity: 0 }
 }
 
-field_node.solar_panel <-> field_node.enclosure.controller_pcb.power_subsystem.solar_manager: "[PL] DC cable" {
+field_node.solar_panel <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.solar_manager: "[PL] DC cable" {
   class: pl
 }
-field_node.enclosure.controller_pcb.power_subsystem.battery_pack <-> field_node.enclosure.controller_pcb.power_subsystem.solar_manager: "[PL] JST lead" {
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.battery_pack <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.solar_manager: "[PL] JST lead" {
   class: pl
 }
-field_node.enclosure.controller_pcb.power_subsystem.battery_pack <-> field_node.enclosure.controller_pcb.power_subsystem.battery_monitor: "[PL] Sense lead" {
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.battery_pack <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.battery_monitor: "[PL] Sense lead" {
   class: pl
 }
-field_node.enclosure.controller_pcb.power_subsystem.solar_manager <-> field_node.enclosure.controller_pcb.power_subsystem.power_header: "[PL] 5 V rail" {
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.solar_manager <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.power_header: "[PL] 5 V rail" {
   class: pl
 }
-field_node.enclosure.controller_pcb.power_subsystem.power_header <-> field_node.enclosure.controller_pcb.compute_subsystem.expansion_board.xiao_header: "[PL] Power jumper" {
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.power_header <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.compute_subsystem.expansion_board.xiao_header: "[PL] Power jumper" {
   class: pl
 }
-field_node.enclosure.controller_pcb.power_subsystem.power_header <-> field_node.enclosure.controller_pcb.wan_interface.lte_module: "[PL] Modem power" {
-  class: pl
-}
-
-field_node.enclosure.controller_pcb.compute_subsystem.expansion_board.xiao_header <-> field_node.enclosure.controller_pcb.power_subsystem.battery_monitor: "[PL] I²C link" {
-  class: pl
-}
-field_node.enclosure.controller_pcb.compute_subsystem.expansion_board.xiao_header <-> field_node.enclosure.controller_pcb.sensor_interfaces.rs485_interface: "[PL] UART link" {
-  class: pl
-}
-field_node.enclosure.controller_pcb.compute_subsystem.expansion_board.xiao_header <-> field_node.enclosure.controller_pcb.sensor_interfaces.analog_divider: "[PL] Analog lead" {
-  class: pl
-}
-field_node.enclosure.controller_pcb.compute_subsystem.expansion_board.xiao_header <-> field_node.enclosure.controller_pcb.wan_interface.lte_module: "[PL] Modem UART" {
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.power_header <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.wan_interface.lte_module: "[PL] Modem power" {
   class: pl
 }
 
-field_node.flow_meter <-> field_node.enclosure.controller_pcb.sensor_interfaces.rs485_interface: "[PL] RS485 cable" {
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.compute_subsystem.expansion_board.xiao_header <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.power_subsystem.battery_monitor: "[PL] I²C link" {
   class: pl
 }
-field_node.level_sensor <-> field_node.enclosure.controller_pcb.sensor_interfaces.analog_divider: "[PL] Analog sensor cable" {
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.compute_subsystem.expansion_board.xiao_header <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.sensor_interfaces.rs485_interface: "[PL] UART link" {
   class: pl
 }
-field_node.cellular_antenna <-> field_node.enclosure.controller_pcb.wan_interface.lte_module: "[PL] RF coax" {
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.compute_subsystem.expansion_board.xiao_header <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.sensor_interfaces.analog_divider: "[PL] Analog lead" {
+  class: pl
+}
+field_node.aquedct_piping_enclosure.enclosure.controller_pcb.compute_subsystem.expansion_board.xiao_header <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.wan_interface.lte_module: "[PL] Modem UART" {
+  class: pl
+}
+
+field_node.flow_meter <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.sensor_interfaces.rs485_interface: "[PL] RS485 cable" {
+  class: pl
+}
+field_node.level_sensor <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.sensor_interfaces.analog_divider: "[PL] Analog sensor cable" {
+  class: pl
+}
+field_node.cellular_antenna <-> field_node.aquedct_piping_enclosure.enclosure.controller_pcb.wan_interface.lte_module: "[PL] RF coax" {
   class: pl
 }

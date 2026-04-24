@@ -71,3 +71,6 @@ venv/
 
 .DS_Store
 AGENTS.md
+.tmp
+.web-content
+.searches

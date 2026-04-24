@@ -53,111 +53,59 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{\small Physical Architecture: Field Node}
-    \framesubtitle{Solar-powered sensor node with cellular uplink}
+    \frametitle{Potable Water Regulation No. 38924-S}
+
+    \begin{columns}[T]
+        \begin{column}{0.3\textwidth}
+            \textbf{Artículo 11.} Todo ente operador de un sistema de suministro de agua, está obligado a confeccionar reportes de la calidad del agua potable y presentarlos \textbf{semestralmente}...
+        \end{column}
+        \begin{column}{0.7\textwidth}
+            \centering
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.7\textwidth]{Cuadro_B.1.png}
+                \caption{CUADRO B.1 Frecuencia mínima de muestreo y número de muestras a recolectar en las FUENTES DE ABASTECIMIENTO Y RED DE DISTRIBUCION para el CONTROL OPERATIVO (CO)}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{\small Physical Architecture: Power Infrastructure}
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{Field Node PA.graphviz.png}
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{Puesta_en_marcha.png}
     \end{figure}
 \end{frame}
 
 \begin{frame}
-    \frametitle{\small Physical Architecture: Server Node}
-    \framesubtitle{Portable containerized deployment host}
+    \frametitle{\small Physical Architecture: Physical Security}
+    \framesubtitle{On-site piping enclosure has a lock}
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{Server Node PA.graphviz.png}
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{Field Node PA without PLs.d2.png}
     \end{figure}
 \end{frame}
 
 \begin{frame}
-    \frametitle{\small Physical Architecture: Scenario}
-    \framesubtitle{Account Provisioning and Password Validation}
+    \frametitle{\small Physical Architecture: Firewall, SIEM, Tamper Detection}
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_account_provisioning_and_password_validation.graphviz.png}
+        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{Server Node PA.d2.png}
     \end{figure}
 \end{frame}
 
 \begin{frame}
-    \frametitle{\small Physical Architecture: Scenario}
-    \framesubtitle{Authenticate User}
+    \frametitle{\small Feared Event Scenario: Server Tamper Detection}
+    \framesubtitle{Host, container, and audit deviations become alerts and reviewable evidence}
 
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_authenticate_user.graphviz.png}
+        \includegraphics[width=\textwidth,height=0.72\textheight,keepaspectratio]{scenario_detect_server_tamper.d2.png}
     \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small Physical Architecture: Scenario}
-    \framesubtitle{Monitor Sensor Health}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_monitor_sensor_health.graphviz.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small Physical Architecture: Scenario}
-    \framesubtitle{Notify Events and Risks}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_notify_events_and_risks.graphviz.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small Physical Architecture: Scenario}
-    \framesubtitle{Ingest and Validate Node Data}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_ingest_validate_node_data.graphviz.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{\small Physical Architecture: Scenario}
-    \framesubtitle{Backup Time-Series Database}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{scenario_backup_time_series_db.graphviz.png}
-    \end{figure}
-\end{frame}
-
-% ═══════════════════════════════════════════════════════════════════════
-% PRODUCTION READINESS REVIEW
-% ═══════════════════════════════════════════════════════════════════════
-\begin{frame}
-    \begin{center}
-        {\LARGE \textbf{Production Readiness Review}} \\
-        \vspace{0.5cm}
-        {ASADA Paso Ancho} \\
-        \vspace{0.25cm}
-    \end{center}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Production Readiness Review}
-
-    {\textbf{Contents}}
-    \begin{itemize}
-        \item Deadline
-        \item Bill of Materials
-        \item Team Members
-    \end{itemize}
-    \vspace{0.25cm}
-    {\textbf{Goals}}
-    \begin{itemize}
-        \item Determine Production Readiness
-    \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -222,7 +170,6 @@
     \footnotesize
     Subtotal (power subsystem): \textbf{\$64.78} \quad|\quad
     Sources: Waveshare, Adafruit
-
 \end{frame}
 
 \begin{frame}
@@ -287,81 +234,32 @@
     {\tiny Additional custom containers: Python analytics worker, notification worker, and Restic backup job.}
 \end{frame}
 
-% ═══════════════════════════════════════════════════════════════════════
-% SYSTEM INTEGRATION REVIEW
-% ═══════════════════════════════════════════════════════════════════════
 \begin{frame}
-    \begin{center}
-        {\LARGE \textbf{System Integration Review}} \\
-        \vspace{0.5cm}
-        {ASADA Paso Ancho} \\
-        \vspace{0.25cm}
-    \end{center}
+    \frametitle{Main Reliability Scenarios}
+
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.49\textwidth}
+            \centering
+            \includegraphics[width=\linewidth,height=0.40\textheight,keepaspectratio]{scenario_ingest_validate_node_data.d2.png} \\
+            {\small \textbf{Upload path}} \\
+            {\scriptsize nominal upload + reject stale / malformed / unauthorized data}
+        \end{column}
+        \begin{column}{0.49\textwidth}
+            \centering
+            \includegraphics[width=\linewidth,height=0.40\textheight,keepaspectratio]{scenario_monitor_sensor_health.d2.png} \\
+            {\small \textbf{Health path}} \\
+            {\scriptsize sensor plausibility + battery + LTE + degraded / failed state}
+        \end{column}
+    \end{columns}
+
+    \vspace{0.15cm}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.38\textwidth}
+            \centering
+            \includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{FV2_bench_field_node.d2.png}
+        \end{column}
+    \end{columns}
 \end{frame}
 
-\begin{frame}
-    \frametitle{System Integration Review}
-
-    {\textbf{Contents}}
-    \begin{itemize}
-        \item Functional Versions
-        \item IVV Plan
-    \end{itemize}
-    \vspace{0.25cm}
-    {\textbf{Goals}}
-    \begin{itemize}
-        \item Approve Functional Versions
-        \item Approve IVV Plan
-    \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Functional Versions and IVV Roadmap}
-    \framesubtitle{2-week integration increments after long-lead hardware receipt}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{functional_versions_gantt.graphviz.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Functional Version 1}
-    \framesubtitle{Simulated telemetry backbone before the real field node is available}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{FV1_simulated_telemetry_backbone.graphviz.png}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Functional Version 2}
-    \framesubtitle{Bench field node with real controller, modem, and dummy sensor substitutes}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth,height=0.70\textheight,keepaspectratio]{FV2_bench_field_node.graphviz.png}
-    \end{figure}
-\end{frame}
-
-% ═══════════════════════════════════════════════════════════════════════
-% CLOSING
-% ═══════════════════════════════════════════════════════════════════════
-\begin{frame}
-    \frametitle{2026-03 Meeting Review}
-
-    {\textbf{Covered}}
-    \begin{itemize}
-        \item Phase C: Final Design and Fabrication
-    \end{itemize}
-    \vspace{0.25cm}
-    {\textbf{Next Steps}}
-    \begin{itemize}
-        \item Phase D: System Assembly, Integration and Test, Launch
-        \item Phase E: Operations and Sustainment
-        \item Phase F: Closeout
-    \end{itemize}
-\end{frame}
 
 \end{document}

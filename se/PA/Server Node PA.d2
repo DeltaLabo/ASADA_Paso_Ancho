@@ -132,9 +132,12 @@ server_node: "[System] Server Node" {
 
     ubuntu_host: "[PC] Ubuntu Server LTS" {
       class: pc
-    }
-    docker_runtime: "[LC] Docker Engine +\nDocker Compose" {
-      class: lc
+      direction: down
+      grid-columns: 1
+
+      host_firewall: "[LC] Host Firewall /\nIngress ACL" {
+        class: lc
+      }
     }
     traefik_container: "[LC] Traefik Reverse Proxy Container" {
       class: lc
@@ -153,6 +156,24 @@ server_node: "[System] Server Node" {
       iam: "[LC] Identity and Access\nManagement" {
         class: lc
       }
+    }
+    siem_container: "[LC] SIEM Container" {
+      class: lc
+      direction: down
+      grid-columns: 1
+
+      security_collection: "[LC] Security Event\nCollection" {
+        class: lc
+      }
+      integrity_monitoring: "[LC] Host / Container\nIntegrity Monitoring" {
+        class: lc
+      }
+      threat_correlation: "[LC] Correlation /\nAlerting" {
+        class: lc
+      }
+    }
+    docker_runtime: "[LC] Docker Engine +\nDocker Compose" {
+      class: lc
     }
     grafana_container: "[LC] Grafana Dashboard Container" {
       class: lc
@@ -219,6 +240,9 @@ server_node: "[System] Server Node" {
       relational_store: "[LC] Relational Configuration\nand Identity Store" {
         class: lc
       }
+      security_audit_store: "[LC] Security Audit\nand Evidence Store" {
+        class: lc
+      }
     }
     restic_container: "[LC] Restic Backup Container" {
       class: lc
@@ -269,10 +293,28 @@ server_node -> external_aggregator: {
   style: { opacity: 0 }
 }
 
-employee_device.dashboard_client -> server_node.droplet.traefik_container: "[CE] HTTPS dashboard access\nover public WAN" {
+employee_device.dashboard_client -> server_node.droplet.ubuntu_host.host_firewall: "[CE] HTTPS dashboard\nvia public WAN" {
   class: ce
 }
-remote_field_node.field_data_acquisition -> server_node.droplet.traefik_container: "[CE] HTTPS telemetry upload\nover cellular WAN" {
+remote_field_node.field_data_acquisition -> server_node.droplet.ubuntu_host.host_firewall: "[CE] HTTPS telemetry\nvia cellular WAN" {
+  class: ce
+}
+server_node.droplet.ubuntu_host.host_firewall -> server_node.droplet.traefik_container: "[CE] HTTPS" {
+  class: ce
+}
+server_node.droplet.ubuntu_host.host_firewall -> server_node.droplet.siem_container: "[CE] Firewall logs" {
+  class: ce
+}
+server_node.droplet.docker_runtime -> server_node.droplet.siem_container: "[CE] Container runtime\n/ config events" {
+  class: ce
+}
+server_node.droplet.traefik_container -> server_node.droplet.siem_container: "[CE] Access logs" {
+  class: ce
+}
+server_node.droplet.keycloak_container -> server_node.droplet.siem_container: "[CE] IAM audit" {
+  class: ce
+}
+server_node.droplet.postgres_container -> server_node.droplet.siem_container: "[CE] DB audit /\nschema events" {
   class: ce
 }
 server_node.droplet.fastapi_container -> external_aggregator.aggregator_api: "[CE] Export API / HTTPS" {
