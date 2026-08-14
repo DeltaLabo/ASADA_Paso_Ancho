@@ -1,0 +1,371 @@
+% Artículo generado a partir de:
+% - Tecnologia_en_Marcha/TFG_Alejandra.md
+% - Tecnologia_en_Marcha/TFG_Sergio_Solorzano_Alfaro.md
+% - Tecnologia_en_Marcha/conference_101719.md
+%
+% Compilación sugerida desde la raíz del repositorio:
+%   pdflatex Tecnologia_en_Marcha/latex_template/paper_asadas_transformacion_digital.tex
+%   pdflatex Tecnologia_en_Marcha/latex_template/paper_asadas_transformacion_digital.tex
+
+\documentclass[12pt,letterpaper]{article}
+
+% Idioma y codificación
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+
+% Tipografía similar a la plantilla Word (Calibri/Arial sans serif)
+\usepackage[scaled=0.95]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+% Márgenes de la plantilla original: carta, 3 cm laterales, 2.5 cm superior/inferior
+\usepackage[
+  letterpaper,
+  left=3cm,
+  right=3cm,
+  top=2.5cm,
+  bottom=2.5cm,
+  footskip=1.25cm
+]{geometry}
+
+% Formato general
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{cite}
+\usepackage{hyperref}
+
+\definecolor{temblue}{HTML}{2F5496}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55\baselineskip}
+\setcounter{secnumdepth}{0}
+\sloppy
+\urlstyle{same}
+
+\graphicspath{{./}{Tecnologia_en_Marcha/latex_template/}{latex_template/}}
+
+% Encabezados y pies: número de página a la derecha, como en la plantilla Word.
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Títulos de sección: equivalentes al estilo "Título 2" del DOCX.
+\titleformat{\section}
+  {\normalfont\color{temblue}\fontsize{13}{15}\selectfont}
+  {}{0pt}{}
+\titlespacing*{\section}{0pt}{0.75\baselineskip}{0.25\baselineskip}
+
+\titleformat{\subsection}
+  {\normalfont\color{temblue}\fontsize{12}{14}\selectfont}
+  {}{0pt}{}
+\titlespacing*{\subsection}{0pt}{0.6\baselineskip}{0.2\baselineskip}
+
+% Leyendas: "Figura" y "Cuadro", con etiqueta en negrita.
+\addto\captionsspanish{%
+  \renewcommand{\figurename}{Figura}%
+  \renewcommand{\tablename}{Cuadro}%
+  \renewcommand{\refname}{Referencias}%
+}
+\captionsetup{labelfont=bf,justification=centering,singlelinecheck=false}
+\captionsetup[table]{name=Cuadro,position=top}
+
+% Comandos auxiliares de la plantilla
+\newcommand{\TEMtitle}[1]{%
+  \begin{center}
+    {\fontsize{28}{32}\selectfont #1\par}
+  \end{center}
+}
+
+\newcommand{\TEMauthor}[4]{%
+  \noindent\textbf{#1}\\
+  #2\\
+  \href{mailto:#3}{#3}\\
+  ORCID: \href{https://orcid.org/#4}{#4}\par
+  \vspace{0.25\baselineskip}
+}
+
+\begin{document}
+
+\TEMtitle{Transformación digital en ASADAS costarricenses: una síntesis general de experiencias de monitoreo hídrico con IoT}
+
+\TEMtitle{Digital transformation in Costa Rican ASADAS: a general synthesis of water monitoring experiences with IoT}
+
+\vspace{0.5\baselineskip}
+
+\TEMauthor{Autor/a por definir}{Instituto Tecnológico de Costa Rica. Costa Rica}{pendiente@institucion.ac.cr}{0000-0000-0000-0000}
+
+\section{Resumen}
+Las Asociaciones Administradoras de Sistemas de Acueductos y Alcantarillados Comunales (ASADAS) son actores esenciales en el abastecimiento de agua potable en zonas rurales y suburbanas de Costa Rica. No obstante, muchas operan con recursos técnicos limitados, monitoreo manual y dificultades para estimar agua no facturada. Este artículo presenta una síntesis documental, de carácter general, de dos experiencias de digitalización hídrica desarrolladas en ASADAS: Playa Sámara de Nicoya y Paso Ancho y Boquerón, complementada con criterios de arquitectura modular derivados de una propuesta de ingeniería de sistemas basada en modelos (MBSE) y ARCADIA. La metodología consistió en revisar las fuentes documentales y organizar la información en categorías comunes: contexto operativo, necesidades hídricas, variables monitoreadas, arquitectura IoT, modularidad, comunicaciones, validación y recomendaciones. Los resultados muestran que las soluciones implementadas comparten un enfoque de nodo de medición, comunicación inalámbrica LoRa o LoRaWAN, puerta de enlace, plataforma en la nube y tablero de visualización. También evidencian que separar necesidades operativas, funciones del sistema y componentes físicos facilita adaptar cada solución al contexto de la ASADA sin perder trazabilidad. En Sámara se integraron dispositivos IoT ASADAS V1.0 para monitoreo y control de bombeo, con errores reportados de 0 \% en volumen y 0,73 \% en caudal promedio. En Paso Ancho y Boquerón se validó un prototipo para nivel, caudal y volumen mediante PLC, LoRa, Modbus y ThingSpeak. Se concluye que estas metodologías son replicables si se acompañan de auditoría hídrica, mantenimiento, capacitación, arquitectura modular y gestión responsable de datos.
+
+\section{Palabras clave}
+ASADAS; agua potable; agua no facturada; Internet de las cosas; LoRa; monitoreo remoto; gestión hídrica; arquitectura modular; MBSE; ARCADIA.
+
+\section{Abstract}
+Community-managed Water and Sewerage System Associations (ASADAS) are essential actors in drinking water supply for rural and suburban areas of Costa Rica. However, many of them operate with limited technical resources, manual monitoring, and difficulties in estimating non-revenue water. This article presents a general documentary synthesis of two water digitalization experiences developed in ASADAS: Playa Sámara de Nicoya and Paso Ancho y Boquerón, complemented with modular architecture criteria derived from a Model-Based Systems Engineering (MBSE) and ARCADIA proposal. The methodology consisted of reviewing the documentary sources and organizing their information into common categories: operational context, water needs, monitored variables, IoT architecture, modularity, communications, validation, and recommendations. The results show that the implemented solutions share a measurement-node approach, LoRa or LoRaWAN wireless communication, gateway, cloud platform, and visualization dashboard. They also show that separating operational needs, system functions, and physical components helps adapt each solution to the ASADA context while preserving traceability. In Sámara, IoT ASADAS V1.0 devices were integrated for water monitoring and pumping control, with reported errors of 0\% in volume and 0.73\% in average flow rate. In Paso Ancho y Boquerón, a prototype for level, flow rate, and volume was validated using PLC, LoRa, Modbus, and ThingSpeak. It is concluded that these methodologies are replicable if accompanied by water auditing, maintenance, training, modular architecture, and responsible data management.
+
+\section{Keywords}
+ASADAS; drinking water; non-revenue water; Internet of Things; LoRa; remote monitoring; water management; modular architecture; MBSE; ARCADIA.
+
+\section{Introducción}
+El abastecimiento de agua potable comprende la captación del recurso, su tratamiento o desinfección, el almacenamiento y la distribución hasta los puntos de consumo. En Costa Rica se ha alcanzado una cobertura elevada de agua para consumo humano; no obstante, la continuidad y sostenibilidad del servicio siguen expuestas a presiones asociadas con el cambio climático, el crecimiento de la demanda, el deterioro de la infraestructura y la disponibilidad desigual de capacidades técnicas entre operadores \cite{mora2021,paniagua2019,kapelan2020}. Estas condiciones hacen necesario fortalecer la gestión del agua con información oportuna y verificable que permita conocer el estado de los sistemas y fundamentar las decisiones operativas \cite{kapelan2020}.
+
+\subsection{ASADAS y gestión comunitaria del agua}
+Las Asociaciones Administradoras de Sistemas de Acueductos y Alcantarillados Comunales (ASADAS) son organizaciones comunales sin fines de lucro que prestan servicios de abastecimiento de agua y, cuando corresponde, de saneamiento. Esta administración se desarrolla mediante un esquema de delegación con el Instituto Costarricense de Acueductos y Alcantarillados (AyA) y dentro del marco institucional costarricense aplicable al recurso hídrico y a los servicios públicos \cite{direccionagua2023,aya2019}. Sus responsabilidades pueden comprender la operación de nacientes o pozos, tanques de almacenamiento, redes de distribución y sistemas de desinfección, así como la atención de averías, el mantenimiento de la infraestructura y la gestión del servicio con la comunidad usuaria \cite{direccionagua2023,paniagua2019}.
+
+Las ASADAS abastecen aproximadamente al 28,7 \% de la población costarricense, principalmente en comunidades rurales y suburbanas, y tienen bajo su responsabilidad una parte significativa de las fuentes de aprovechamiento de agua del país \cite{paniagua2019,aya2019,solorzano2021}. Pese a su importancia, se han documentado limitaciones relacionadas con disponibilidad de personal especializado, inversión en infraestructura, acceso a tecnología y generación sistemática de información operativa. Estas restricciones pueden mantener la dependencia de inspecciones manuales y dificultar el seguimiento de pérdidas, niveles de almacenamiento, caudales y consumo energético \cite{ayapnud2017,paniagua2019,solorzano2021,oviedo2024}.
+
+\subsection{Agua no facturada y necesidad de monitoreo}
+El agua no facturada (ANF), denominada \textit{non-revenue water} en la literatura técnica, corresponde a la diferencia entre el volumen que ingresa al sistema de abastecimiento y el consumo autorizado que genera ingresos. Este indicador comprende pérdidas reales, como fugas y rebalses; pérdidas aparentes, asociadas con errores de medición, manejo de datos o consumos no autorizados; y consumos autorizados que no se facturan \cite{kunkel2016}. Una expresión porcentual simplificada del indicador es:
+
+\begin{equation}
+  \mathrm{ANF}(\%)=\frac{V_{\text{ingresado}}-V_{\text{facturado}}}{V_{\text{ingresado}}}\times 100,
+  \label{eq:anf}
+\end{equation}
+
+donde $V_{\text{ingresado}}$ representa el volumen total incorporado al sistema durante el periodo de análisis y $V_{\text{facturado}}$ el volumen autorizado que produjo facturación en ese mismo periodo. La AWWA recomienda iniciar la gestión de pérdidas mediante una auditoría y un balance hídrico que permitan cuantificar los componentes del ANF, valorar su costo y examinar la calidad de los datos disponibles \cite{kunkel2016}. En el contexto de las ASADAS, la macromedición de producción y distribución, el registro de caudales y el monitoreo del nivel de los tanques constituyen insumos para elaborar esos balances y orientar acciones de mantenimiento e inversión \cite{ayapnud2017,solorzano2021,oviedo2024}.
+
+Los casos de Playa Sámara y Paso Ancho y Boquerón permiten delimitar el problema operativo abordado en este artículo. En Playa Sámara, el bombeo se programaba manualmente con tiempos estimados y debía responder a variaciones de demanda vinculadas con la actividad turística; una diferencia entre la demanda prevista y la real podía producir rebalses o vaciamiento del tanque principal. En Paso Ancho y Boquerón, la inspección del nivel de los tanques exigía desplazamientos hasta sitios de acceso limitado, lo que reducía la disponibilidad del personal para otras labores y retrasaba el conocimiento de las condiciones del sistema \cite{solorzano2021,oviedo2024}. Ambos escenarios evidencian la necesidad de disponer de mediciones remotas y oportunas para apoyar la continuidad del servicio, el control del almacenamiento y la evaluación de pérdidas \cite{solorzano2021,oviedo2024}.
+
+\subsection{Digitalización mediante sistemas IoT}
+Internet de las cosas (IoT) integra sensores o dispositivos, conectividad, procesamiento de datos e interfaces de usuario para recopilar información del entorno y ponerla a disposición de aplicaciones o personas responsables de tomar decisiones \cite{rose2015}. En acueductos con puntos de medición separados y acceso limitado a infraestructura de telecomunicaciones, LoRa ofrece un enlace inalámbrico de largo alcance y bajo consumo, mientras que LoRaWAN\textsuperscript{TM} define una arquitectura de red en la que los nodos transmiten información por medio de una puerta de enlace hacia servicios de procesamiento o almacenamiento \cite{lora2015}. Esta arquitectura puede complementarse con sensores de nivel, macromedidores ultrasónicos, protocolos industriales y plataformas en la nube para observar variables como nivel, volumen, caudal, estado energético e intensidad de señal \cite{arad2020,solorzano2021,oviedo2024}.
+
+En Playa Sámara se desarrolló un sistema que intercomunicó medidores ultrasónicos, sensores de nivel y elementos de control del bombeo mediante dispositivos IoT, comunicación LoRa y la plataforma Adafruit IO. En Paso Ancho y Boquerón se construyó un prototipo basado en un PLC, comunicación LoRa, adquisición de datos mediante Modbus y visualización en ThingSpeak. Aunque ambos trabajos respondieron a necesidades e infraestructuras diferentes, comparten etapas de diagnóstico, definición de variables, diseño de arquitectura, integración de nodos, transmisión hacia una puerta de enlace, publicación en la nube y validación funcional \cite{solorzano2021,oviedo2024}.
+
+\subsection{Arquitecturas modulares y diseño basado en modelos}
+La digitalización de una ASADA no consiste únicamente en incorporar sensores, sino en traducir necesidades operativas conocidas de forma empírica en requisitos técnicos verificables. La literatura reciente sobre arquitectura IoT para acueductos rurales señala que muchas propuestas describen capas tecnológicas o casos de estudio, pero no siempre ofrecen una trazabilidad explícita entre necesidades de usuarios, funciones del sistema y componentes físicos \cite{arguedas2025}. Esto dificulta adaptar soluciones a comunidades con condiciones hidráulicas, presupuestarias y organizacionales diferentes.
+
+La ingeniería de sistemas basada en modelos (MBSE) y el método ARCADIA proponen una ruta para reducir ese problema: primero se describe lo que la organización debe lograr sin asumir una tecnología específica; luego se define qué debe aportar el sistema IoT; posteriormente se construye una arquitectura lógica independiente de marcas o plataformas; y finalmente se instancia una arquitectura física con sensores, energía, comunicaciones y software concretos \cite{voirin2018,arguedas2025}. Esta separación evita sobredimensionar soluciones, facilita la modularidad y permite interpretar implementaciones como Sámara o Paso Ancho y Boquerón como casos particulares de una arquitectura más general.
+
+\subsection{Objetivo y alcance del artículo}
+Los trabajos revisados documentan de manera individual las soluciones desarrolladas para Playa Sámara y Paso Ancho y Boquerón \cite{solorzano2021,oviedo2024}. Al analizarlos junto con una propuesta de arquitectura IoT modular basada en MBSE/ARCADIA \cite{arguedas2025}, el problema de investigación se amplía hacia la identificación de características, diferencias, elementos metodológicos comunes y criterios de diseño que puedan orientar la digitalización de otros acueductos comunales. En consecuencia, el objetivo de este artículo es analizar y sintetizar ambas experiencias para: describir el papel y los retos operativos de las ASADAS; identificar las variables, componentes y protocolos empleados; comparar las metodologías de implementación y validación; relacionar los casos con principios de modularidad y trazabilidad; y derivar recomendaciones generales para la adopción de sistemas de monitoreo hídrico basados en IoT.
+
+El alcance se limita a una revisión documental de los dos casos seleccionados. Por tanto, no pretende representar la situación de todas las ASADAS del país ni efectuar una nueva validación experimental de los dispositivos; los resultados técnicos y operativos analizados corresponden a los reportados en los trabajos originales \cite{solorzano2021,oviedo2024}.
+
+\section{Materiales y métodos (metodología)}
+El artículo se elaboró mediante una revisión documental y comparativa de tres fuentes principales: dos trabajos finales de graduación del Instituto Tecnológico de Costa Rica ---el sistema de control y monitoreo hídrico basado en LoRaWAN\textsuperscript{TM} para la ASADA de Playa Sámara \cite{solorzano2021}, y el prototipo de recopilación y monitoreo remoto de datos hídricos para la ASADA Paso Ancho y Boquerón \cite{oviedo2024}--- y una propuesta de arquitectura IoT modular para acueductos rurales desarrollada con MBSE/ARCADIA \cite{arguedas2025}. Por tratarse de una síntesis general, no se realizaron nuevas mediciones de campo; los resultados numéricos corresponden a los reportados en las fuentes revisadas.
+
+La metodología de análisis se organizó en seis etapas:
+
+\begin{enumerate}
+  \item \textbf{Identificación del contexto ASADA:} se extrajeron definiciones, funciones, marco institucional, ubicación de los casos, infraestructura existente y retos operativos.
+  \item \textbf{Caracterización del problema:} se clasificaron necesidades vinculadas con monitoreo manual, rebalse o vaciamiento de tanques, agua no facturada, operación de bombeo, disponibilidad eléctrica y acceso a internet.
+  \item \textbf{Comparación de arquitecturas IoT:} se revisaron variables medidas, sensores, controladores, macromedidores, protocolos de comunicación, puertas de enlace y plataformas en la nube.
+  \item \textbf{Lectura MBSE/ARCADIA:} se identificó cómo las necesidades empíricas de las ASADAS podían relacionarse con análisis operacional, necesidades del sistema, arquitectura lógica y arquitectura física, según la propuesta modular revisada.
+  \item \textbf{Síntesis de validaciones:} se agruparon pruebas de laboratorio, pruebas de campo, indicadores de error, intensidad de señal, publicación de datos y visualización en tableros.
+  \item \textbf{Derivación de recomendaciones:} se identificaron condiciones de replicabilidad, mantenimiento, capacitación, respaldo de datos y criterios mínimos para futuras ASADAS interesadas en soluciones similares.
+\end{enumerate}
+
+La comparación se realizó con un enfoque descriptivo y exploratorio, coherente con ambos proyectos, pues las experiencias analizadas indagan tecnologías aplicadas a contextos reales de gestión hídrica comunal sin abarcar micromedición de todos los abonados ni rediseños hidráulicos integrales. Las nociones de generalidad, modularidad y trazabilidad se usaron como categorías transversales para distinguir entre necesidades de la ASADA, funciones que debe cumplir el sistema y tecnologías concretas de implementación.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Ejes de análisis utilizados para sintetizar los casos revisados.}
+  \label{tab:ejes}
+  \footnotesize
+  \begin{tabular}{p{0.22\textwidth} p{0.68\textwidth}}
+    \toprule
+    Eje & Criterios considerados \\
+    \midrule
+    Contexto operativo & Tipo de fuente, tanques, bombeo, macromedidores, disponibilidad eléctrica, conectividad y personal operativo. \\
+    Problema de gestión & ANF, monitoreo manual, tiempos de inspección, rebalse, vaciamiento, demanda variable y ausencia de datos históricos. \\
+    Arquitectura tecnológica & Nodo de medición, sensores, controlador, comunicación LoRa/LoRaWAN, puerta de enlace, plataforma IoT y tablero. \\
+    Arquitectura y modularidad & Separación entre necesidades operativas, funciones IoT, componentes lógicos, componentes físicos e intercambios de datos. \\
+    Validación & Pruebas funcionales, transmisión de datos, exactitud de medición, RSSI, cantidad de registros y visualización. \\
+    Replicabilidad & Costos, mantenimiento, capacitación, respaldo de datos, seguridad de acceso y compatibilidad con equipos existentes. \\
+    \bottomrule
+  \end{tabular}
+  \caption*{\raggedright Fuente: Elaboración propia con base en \cite{solorzano2021,oviedo2024,arguedas2025}.}
+\end{table}
+
+\section{Resultados}
+\subsection{La ASADA como operador comunitario de agua}
+Las ASADAS representan un modelo de gobernanza comunitaria del recurso hídrico. Su principal aporte es acercar la administración del agua potable a comunidades que, por ubicación o escala, no siempre son atendidas directamente por grandes operadores. Esta condición genera ventajas, como conocimiento local del sistema y participación comunal, pero también desafíos: dependencia de juntas directivas, recursos financieros limitados, poca disponibilidad de personal especializado y rezagos en instrumentación.
+
+Los casos revisados ilustran esta realidad. La ASADA de Playa Sámara abastece a una comunidad turística de Nicoya con más de 450 abonados, pozos, bombeo principal, tanque de almacenamiento y macromedidores Octave instalados en puntos críticos \cite{solorzano2021}. La ASADA Paso Ancho y Boquerón, ubicada en Cipreses de Oreamuno, opera sistemas basados en nacientes y tanques de almacenamiento; en sus recorridos de inspección, los operadores pueden invertir alrededor de una hora o más entre desplazamiento y tareas en sitio \cite{oviedo2024}.
+
+\subsection{Problemas comunes que justifican la digitalización}
+Las dos experiencias coinciden en que la gestión manual limita la respuesta ante eventos operativos. En Sámara, la programación manual de temporizadores de bombeo no respondía adecuadamente a cambios de demanda asociados a temporadas turísticas; esto podía provocar vaciamiento del tanque o rebalses cuando la demanda real difería de la esperada \cite{solorzano2021}. En Paso Ancho y Boquerón, la necesidad principal era observar remotamente el nivel, caudal y volumen del tanque para reducir visitas presenciales y anticipar condiciones de rebalse o vaciamiento \cite{oviedo2024}.
+
+También se observa la importancia del ANF. En Sámara se reportaron valores promedio cercanos al 40 \% y hasta 50 \% en algunas ocasiones; en Paso Ancho y Boquerón se mencionaron porcentajes entre 10 \% y 20 \% \cite{solorzano2021,oviedo2024}. Aunque estos valores pertenecen a contextos diferentes, ambos muestran que medir producción, distribución y almacenamiento es indispensable para avanzar hacia balances hídricos, auditorías de agua y decisiones de inversión.
+
+\subsection{Arquitectura general de monitoreo IoT}
+La arquitectura común identificada en ambos trabajos puede resumirse como una cadena de valor de datos: medición en campo, transmisión inalámbrica, recepción en una puerta de enlace, publicación en la nube y visualización por el personal de la ASADA. Esta arquitectura se presenta de forma conceptual en la figura \ref{fig:arquitectura_general}.
+
+\begin{figure}[htbp]
+  \centering
+  \fbox{%
+  \begin{minipage}{0.9\textwidth}
+  \centering
+  Nodo de medición\newline
+  \small Sensor de nivel + macromedidor Octave + controlador\\[0.4em]
+  $\Downarrow$ LoRa / LoRaWAN\textsuperscript{TM}\\[0.4em]
+  Puerta de enlace\newline
+  \small Recepción, interpretación y preparación de datos\\[0.4em]
+  $\Downarrow$ WiFi/celular + MQTT/API\\[0.4em]
+  Plataforma en la nube\newline
+  \small Adafruit IO o ThingSpeak: tablero, alertas, gráficas y respaldo
+  \end{minipage}}
+  \caption{Arquitectura general de digitalización hídrica observada en las experiencias de ASADAS. Fuente: Elaboración propia con base en \cite{solorzano2021,oviedo2024}.}
+  \label{fig:arquitectura_general}
+\end{figure}
+
+En términos metodológicos, el diseño no inicia por la compra de sensores, sino por la identificación de variables críticas: nivel del tanque, caudal de producción, caudal de demanda, volumen acumulado, estado de bombas, voltaje de baterías e intensidad de señal. Luego se selecciona un controlador compatible con esas variables y con las condiciones de campo. Sámara utilizó sistemas en chip ESP32 Heltec LoRa 32 V2 y una PCB propia llamada IoT ASADAS V1.0; Paso Ancho y Boquerón utilizó un PLC M-Duino 21+ LoRa, sensores de nivel y módulo Modbus para macromedidores Octave \cite{solorzano2021,oviedo2024}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Metodologías y decisiones técnicas observadas en los dos casos de estudio.}
+  \label{tab:metodologias}
+  \footnotesize
+  \begin{tabular}{@{}p{0.17\textwidth} p{0.25\textwidth} p{0.25\textwidth} p{0.23\textwidth}@{}}
+    \toprule
+    Eje & ASADA Sámara & Paso Ancho y Boquerón & Aprendizaje general \\
+    \midrule
+    Enfoque & Sistema de control y monitoreo en línea para automatizar bombeo y registrar datos hídricos. & Prototipo para recopilación y monitoreo remoto de nivel, caudal y volumen en tanques. & Definir primero el problema operativo y después la arquitectura tecnológica. \\
+    Medición & Tres flujómetros Octave, sensores de nivel, estado de bombas, batería y RSSI. & Sensor de nivel sumergible, macromedidores Octave mediante Modbus, batería y RSSI. & Priorizar variables que permitan balance hídrico y continuidad del servicio. \\
+    Controlador & Heltec LoRa 32 V2 con ESP32 y PCB IoT ASADAS V1.0. & PLC M-Duino 21+ LoRa programado desde Arduino IDE. & Elegir hardware según costo, robustez, mantenimiento y compatibilidad. \\
+    Comunicación & Red LoRa/LoRaWAN\textsuperscript{TM} clase C, MQTT y plataforma Adafruit IO. & Enlace LoRa nodo--puerta de enlace, WiFi y plataforma ThingSpeak. & Separar comunicación local de largo alcance y publicación en internet. \\
+    Energía & Baterías 18650, paneles solares, controlador de carga, gabinetes IP65. & Batería, convertidor DC/DC, alimentación solar prevista y gabinete de control. & La autonomía energética es crítica en tanques y puntos alejados. \\
+    Gestión & Dashboard, alertas, control manual/remoto, capacitación y recomendaciones de respaldo. & Gráficas en ThingSpeak, pruebas integrales y recomendaciones para replicar en tanques. & La plataforma debe ser comprensible para operadores, no solo para técnicos. \\
+    \bottomrule
+  \end{tabular}
+  \caption*{\raggedright Fuente: Elaboración propia con base en \cite{solorzano2021,oviedo2024}.}
+\end{table}
+
+\subsection{Lectura modular de las arquitecturas}
+La propuesta MBSE/ARCADIA revisada permite reinterpretar los casos de Sámara y Paso Ancho y Boquerón como implementaciones físicas de una arquitectura lógica común, no como soluciones aisladas. En el nivel operacional, las ASADAS comparten capacidades como suministrar agua de calidad, cumplir estándares, mitigar pérdidas, administrar oferta y demanda, controlar la distribución y compartir información con actores externos. En el nivel del sistema, esas capacidades se traducen en funciones como adquirir mediciones, procesarlas, detectar eventos, almacenar históricos, notificar condiciones anómalas y presentar datos al personal operativo \cite{arguedas2025}.
+
+Esta lectura es útil porque distingue entre lo que debe lograrse y la tecnología seleccionada para lograrlo. Por ejemplo, el nivel de un tanque puede medirse con sensores distintos, transmitirse por LoRa, LoRaWAN\textsuperscript{TM}, WiFi o red celular, y publicarse en Adafruit IO, ThingSpeak u otra plataforma. Si la arquitectura mantiene separadas las funciones de adquisición, procesamiento, almacenamiento, tablero y notificación, la ASADA puede sustituir o agregar módulos sin rediseñar completamente el sistema.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Criterios de modularidad derivados de la arquitectura MBSE/ARCADIA.}
+  \label{tab:mbse}
+  \footnotesize
+  \begin{tabular}{p{0.24\textwidth} p{0.66\textwidth}}
+    \toprule
+    Criterio & Aplicación en ASADAS \\
+    \midrule
+    Análisis operacional & Describir actividades y capacidades de la ASADA sin asumir sensores, plataformas o protocolos específicos. \\
+    Necesidades del sistema & Traducir esas capacidades en funciones IoT: medir, procesar, detectar eventos, almacenar, visualizar, notificar y controlar. \\
+    Arquitectura lógica & Separar componentes que interactúan con el ambiente, como sensores y adquisición, de componentes orientados al usuario, como almacenamiento, tablero y notificador. \\
+    Arquitectura física & Instanciar la lógica con hardware y software concretos: ESP32, PLC, medidores Octave, LoRa, Modbus, paneles solares o servicios en la nube. \\
+    Intercambios de datos & Usar buses, colas o canales \textit{publish/subscribe} para desacoplar productores y consumidores de datos, facilitando agregar variables o nodos. \\
+    \bottomrule
+  \end{tabular}
+  \caption*{\raggedright Fuente: Elaboración propia con base en \cite{arguedas2025}.}
+\end{table}
+
+\subsection{Medición, comunicaciones y plataformas}
+Los macromedidores ultrasónicos Octave fueron relevantes en ambos proyectos porque permiten medir caudal y volumen sin partes móviles y con opciones de comunicación eléctrica \cite{arad2020}. En Sámara se utilizó una salida digital por pulsos mediante módulo SSR; cada pulso representa un volumen programado y el caudal promedio se calcula a partir del intervalo entre pulsos. En Paso Ancho y Boquerón se planteó el uso de Modbus, que facilita obtener variables del medidor de forma digital siempre que el modelo sea compatible y se configure según los requerimientos del fabricante \cite{solorzano2021,oviedo2024}.
+
+La comunicación LoRa o LoRaWAN\textsuperscript{TM} resultó adecuada porque los puntos de medición suelen estar separados, con vegetación, topografía irregular y baja disponibilidad de redes cableadas. En Sámara se realizaron cálculos de presupuesto de potencia y validación de RSSI para enlaces de aproximadamente 200 m a 400 m, seleccionando antenas direccionales tipo Yagi para mejorar el enlace. En Paso Ancho y Boquerón se probó la transmisión desde un nodo hacia una puerta de enlace con antenas direccional y omnidireccional \cite{solorzano2021,oviedo2024}.
+
+Las plataformas en la nube cumplen el rol de interfaz de usuario. Adafruit IO permitió en Sámara publicar y suscribir datos mediante MQTT, crear \textit{feeds}, configurar \textit{triggers}, visualizar estados de bombas, enviar alertas y permitir control remoto. ThingSpeak permitió en Paso Ancho y Boquerón visualizar gráficas de voltaje, caudal, volumen, nivel de agua y RSSI. En ambos casos, el tablero convierte datos técnicos en información operativa accesible para la ASADA. Desde una perspectiva de arquitectura lógica, estas plataformas implementan funciones diferenciadas de almacenamiento histórico, tablero de consulta, notificación y, en algunos casos, canal de control. Mantener esa separación permite cambiar de plataforma o agregar nuevos servicios sin rediseñar el nodo de medición, siempre que se conserven los intercambios de datos necesarios.
+
+\subsection{Síntesis de resultados técnicos}
+El cuadro \ref{tab:resultados} resume los resultados más representativos reportados en las dos experiencias. Debe interpretarse como una comparación general, pues Sámara corresponde a una implementación con control de bombeo y Paso Ancho y Boquerón a un prototipo de monitoreo.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Resultados destacados de las experiencias revisadas.}
+  \label{tab:resultados}
+  \footnotesize
+  \begin{tabular}{p{0.25\textwidth} p{0.32\textwidth} p{0.32\textwidth}}
+    \toprule
+    Aspecto & ASADA Sámara & Paso Ancho y Boquerón \\
+    \midrule
+    Producto principal & Tres dispositivos IoT ASADAS V1.0 funcionando simultáneamente para monitoreo, comunicación y soporte al control de bombeo. & Prototipo funcional de nodo de medición y puerta de enlace para monitoreo remoto de tanque. \\
+    Variables visualizadas & Caudales y volúmenes de producción, demanda y rebombeo; nivel del tanque; estado de bombas; baterías; RSSI; alertas. & Voltaje general y de celda; caudal; volumen; nivel del agua; intensidad de señal RSSI. \\
+    Exactitud reportada & Error de 0 \% en volumen y 0,73 \% en caudal promedio al comparar con flujómetros Octave. & Recepción y publicación exitosa en ThingSpeak; caudal y volumen se trabajaron con valores supuestos derivados de pruebas por limitación del macromedidor disponible. \\
+    Comunicación & RSSI mínimo reportado de -118 dBm y -114 dBm en nodos durante operación, considerado suficiente para comunicación estable. & Transmisión LoRa nodo--puerta de enlace y envío a la nube mediante WiFi verificados en pruebas integrales. \\
+    Datos en plataforma & Adafruit IO con tablero, alertas, control remoto y recomendaciones de descarga cada 60 días. & ThingSpeak con 1107 entradas de prueba; caudal entre 32 m$^3$/h y 48 m$^3$/h en datos de prueba, volumen entre 10 000 m$^3$ y 50 000 m$^3$, y nivel aproximado de 0,80 m. \\
+    \bottomrule
+  \end{tabular}
+  \caption*{\raggedright Fuente: Elaboración propia con base en \cite{solorzano2021,oviedo2024}.}
+\end{table}
+
+\subsection{Aspectos organizacionales y de sostenibilidad}
+La tecnología por sí sola no garantiza una gestión hídrica eficiente. La propuesta de arquitectura modular resalta que las universidades y los proyectos estudiantiles pueden funcionar como intermediarios de transferencia tecnológica cuando existe un método trazable para convertir necesidades empíricas en requisitos, funciones y diseños verificables \cite{arguedas2025}. En Sámara se capacitó al personal de la ASADA en el uso de la plataforma, interpretación de alertas, limitaciones del sistema y tareas de mantenimiento. Además, se recomendó proteger credenciales de acceso, descargar datos periódicamente por límites de almacenamiento de la plataforma, revisar gabinetes, limpiar paneles solares e inspeccionar baterías \cite{solorzano2021}.
+
+En Paso Ancho y Boquerón se recomendó verificar compatibilidad de macromedidores Octave para Modbus, adaptar los tanques para instalar sensores de nivel, planificar postes, gabinetes, antenas y paneles solares, y replicar nodos similares para los diferentes tanques de la ASADA \cite{oviedo2024}. Estas recomendaciones evidencian que la digitalización requiere planificación técnica, pero también procedimientos operativos claros.
+
+\section{Conclusiones y/o recomendaciones (discusión)}
+Las experiencias revisadas muestran que una ASADA no es solamente un operador local de tuberías y tanques, sino una organización comunitaria que administra infraestructura crítica para la salud pública, el desarrollo local y la seguridad hídrica. Su fortalecimiento requiere datos confiables para tomar decisiones sobre bombeo, almacenamiento, mantenimiento, inversiones y control de pérdidas.
+
+Las metodologías implementadas comparten una lógica replicable: diagnóstico del problema, definición de variables hídricas, selección de sensores y macromedidores, diseño de nodos, validación de comunicación LoRa/LoRaWAN, integración de una puerta de enlace, publicación en una plataforma en la nube y capacitación de usuarios. Al incorporar la perspectiva MBSE/ARCADIA, esta lógica se vuelve más trazable: las necesidades de la ASADA se separan de las funciones del sistema y estas, a su vez, de los componentes físicos específicos. Así, la replicabilidad no implica copiar exactamente el hardware de Sámara o Paso Ancho y Boquerón, sino reutilizar una arquitectura modular adaptable al contexto local.
+
+Los resultados técnicos indican que el monitoreo remoto es viable para ASADAS costarricenses. Sámara demostró la posibilidad de integrar medición, comunicación, control de bombeo, visualización, alertas y análisis financiero. Paso Ancho y Boquerón demostró la viabilidad de un prototipo con PLC, LoRa, Modbus y ThingSpeak para observar variables de tanque en tiempo real. En ambos casos, el valor principal no es únicamente tecnológico, sino operativo: reducir visitas innecesarias, anticipar rebalses o vaciamientos, crear históricos y apoyar auditorías de agua. La arquitectura modular añade un valor metodológico adicional: permite agregar futuras variables, como calidad de agua o energía, sin rehacer por completo los componentes de almacenamiento, visualización y notificación.
+
+Como recomendaciones generales para futuras implementaciones se proponen las siguientes: (1) iniciar con una auditoría básica de agua y macromedición; (2) verificar compatibilidad de medidores existentes antes de comprar módulos; (3) validar cobertura LoRa en campo y no solo en cálculos; (4) diseñar autonomía energética con mantenimiento realista; (5) proteger gabinetes contra humedad, polvo, radiación solar y fauna; (6) capacitar al personal operativo en lectura de tableros y respuesta a alertas; (7) establecer reglas de acceso, respaldo y uso de datos; y (8) acompañar la inversión tecnológica con indicadores financieros y de reducción de ANF.
+
+Finalmente, la digitalización debe entenderse como un proceso gradual. Para ASADAS pequeñas, una primera etapa puede consistir en monitorear nivel de tanque y caudal de salida; una segunda etapa puede incorporar balances hídricos y alertas; y una tercera etapa podría integrar control automático, predicción de demanda, detección de fugas y gestión energética.
+
+\section{Trabajo futuro}
+Como continuidad de las experiencias analizadas, se propone implementar un sistema de control y monitoreo en la ASADA de Curime, ubicada en Nicoya, Guanacaste. La arquitectura prevista utilizará comunicación LoRa punto a punto (P2P), sin una red LoRaWAN\textsuperscript{TM} ni una puerta de enlace dedicada, para comunicar los sensores instalados en el acueducto con un controlador central ubicado en la oficina donde se encuentran las bombas.
+
+El controlador central recibirá y procesará localmente las mediciones y órdenes de operación transmitidas mediante LoRa P2P. Desde este punto, la información de monitoreo se enviará por WiFi a una plataforma en la nube. Los datos podrán consultarse en un tablero de visualización mediante un enlace de acceso disponible desde cualquier dispositivo con conexión a internet, sujeto a los permisos y mecanismos de autenticación que se establezcan.
+
+Esta arquitectura busca separar el control operativo de la conectividad a internet. La comunicación entre sensores, controlador y sistema de bombeo dependerá únicamente de la red local LoRa P2P, considerada más estable para las condiciones del sitio, mientras que internet se utilizará exclusivamente para publicar y consultar la información de monitoreo. Por tanto, una interrupción del acceso a internet no debería detener las funciones locales de adquisición de datos y control; únicamente suspendería temporalmente la actualización del tablero en la nube.
+
+Como parte del desarrollo futuro será necesario realizar un estudio de cobertura y presupuesto de enlace, definir la frecuencia y potencia de transmisión conforme a la normativa nacional, establecer mecanismos de confirmación y reintento de mensajes, almacenar localmente los datos durante interrupciones de internet e incorporar modos seguros de operación ante fallas de sensores o comunicación. También deberán validarse en campo la latencia, confiabilidad y continuidad del control, además de implementar gestión de credenciales, respaldo de información y capacitación para el personal de la ASADA.
+
+También se recomienda documentar la implementación futura como una instancia de arquitectura MBSE/ARCADIA. Esto permitiría mantener trazabilidad entre necesidades, requisitos, funciones, componentes físicos, pruebas y responsabilidades operativas, además de facilitar que nuevas generaciones de estudiantes o equipos técnicos reutilicen módulos validados en otras ASADAS.
+
+\section{Agradecimientos}
+Este artículo de síntesis se elaboró a partir de la información técnica contenida en los trabajos finales de graduación de Alejandra Oviedo Muñoz y Sergio Solórzano Alfaro, así como de la propuesta de arquitectura IoT modular basada en MBSE/ARCADIA desarrollada en el contexto del Instituto Tecnológico de Costa Rica y experiencias con ASADAS costarricenses.
+
+\begin{thebibliography}{99}
+
+\bibitem{oviedo2024}
+A. Oviedo Muñoz, ``Desarrollo de un prototipo para recopilación y monitoreo remoto de datos hídricos de los tanques, basado en dispositivos IoT, en la ASADA Paso Ancho y Boquerón'', Trabajo final de graduación, Instituto Tecnológico de Costa Rica, 2024.
+
+\bibitem{solorzano2021}
+S. Solórzano Alfaro, ``Sistema de control y monitoreo hídrico, basado en LoRaWAN\textsuperscript{TM}, para el acueducto principal de la Asociación Administradora del Acueducto Rural de Playa Sámara de Nicoya'', Trabajo final de graduación, Instituto Tecnológico de Costa Rica, 2021.
+
+\bibitem{arguedas2025}
+A. J. Arguedas-Rodríguez, M. J. Angulo-Campos, J. J. Montero-Jiménez y J. J. Rojas-Hernández, ``Towards a Modular IoT System Architecture for Rural Aqueducts Using Model Based Systems Engineering'', manuscrito de conferencia, Tecnológico de Costa Rica, 2025.
+
+\bibitem{voirin2018}
+J.-L. Voirin, \emph{Model-Based System and Architecture Engineering with the Arcadia Method}. ISTE Press--Elsevier, 2018.
+
+\bibitem{paniagua2019}
+H. Paniagua Alfaro y N. Rodríguez Alfaro, \emph{Guía de Gestión Integral de Riesgos para ASADAS (GIRA)}. Programa de Naciones Unidas para el Desarrollo, Costa Rica, 2019.
+
+\bibitem{aya2019}
+Instituto Costarricense de Acueductos y Alcantarillados, \emph{Anuario estadístico 2012--2018}. Dirección de Planificación, 2019.
+
+\bibitem{direccionagua2023}
+Dirección de Agua, ``ASADAS'', 2023. \url{https://da.go.cr/asadas/}
+
+\bibitem{mora2021}
+D. Mora Alvarado y C. Portuguez Barquero, ``Agua para consumo humano y saneamiento en Costa Rica al 2020: brechas en tiempos de pandemia'', Laboratorio Nacional de Aguas, AyA, 2021.
+
+\bibitem{ayapnud2017}
+AyA-PNUD-CRUSA, ``Fortalecimiento del sistema nacional de gestión de la información del recurso hídrico por medio de la consolidación del sistema de información de gestión de ASADAS y combate al agua no contabilizada'', Informe técnico, 2017.
+
+\bibitem{kunkel2016}
+G. A. Kunkel, American Water Works Association y AWWA, \emph{M36 Water Audits and Loss Control Programs}. American Water Works Association, Denver, CO, 2016.
+
+\bibitem{kapelan2020}
+Z. Kapelan, E. Weisbord y V. Babovic, ``Artificial intelligence solutions for the water sector'', Digital Water, International Water Association, 2020.
+
+\bibitem{rose2015}
+K. Rose, S. Eldridge y L. Chapin, ``La Internet de las cosas: una breve reseña'', Internet Society, 2015. \url{https://www.internetsociety.org/}
+
+\bibitem{lora2015}
+LoRa Alliance, ``A technical overview of LoRa\textsuperscript{TM} and LoRaWAN\textsuperscript{TM}'', Technical Marketing Workgroup 1.0, 2015.
+
+\bibitem{arad2020}
+ARAD Group, \emph{Installation Manual OCTAVE Ultrasonic Water Meters}. ARAD Group, 2020.
+
+\end{thebibliography}
+
+\end{document}
