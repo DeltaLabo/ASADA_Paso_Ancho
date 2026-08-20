@@ -1,0 +1,181 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{array}
+\graphicspath{{../paper/}}
+
+\renewcommand{\abstractname}{Resumen}
+\renewcommand{\IEEEkeywordsname}{Palabras clave}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{Paper ASADAS\thanks{Proyecto VIE 1341030.}}
+
+\author{
+\IEEEauthorblockN{María José Angulo-Campos}
+\IEEEauthorblockA{\textit{Tecnológico de Costa Rica}\\
+Cartago, Costa Rica\\
+https://orcid.org/0009-0005-5842-1101}
+\and
+\IEEEauthorblockN{Carlos}
+\IEEEauthorblockA{\textit{Tecnológico de Costa Rica}\\
+Cartago, Costa Rica}
+\and
+\IEEEauthorblockN{Juan José Montero-Jiménez}
+\IEEEauthorblockA{\textit{Tecnológico de Costa Rica}\\
+Cartago, Costa Rica\\
+https://orcid.org/0000-0002-3215-3736}
+\and
+\IEEEauthorblockN{Juan José Rojas-Hernández}
+\IEEEauthorblockA{\textit{Tecnológico de Costa Rica}\\
+Cartago, Costa Rica\\
+https://orcid.org/0000-0002-3261-5005}
+}
+
+\maketitle
+
+\begin{abstract}
+Las Asociaciones Administradoras de Sistemas de Acueductos y Alcantarillados Comunales (ASADAS) operan infraestructura crítica con recursos técnicos y financieros limitados. Aunque los sistemas de Internet de las Cosas (IoT) pueden mejorar el monitoreo, la reducción de pérdidas y la toma de decisiones, su desarrollo suele abordarse como proyectos aislados y altamente dependientes del contexto. Este artículo sintetiza tres implementaciones académicas previas en acueductos rurales de Costa Rica: Las Juntas de Abangares, Playa Sámara y Paso Ancho y Boquerón. A partir de sus problemas, limitaciones, visitas, verificaciones y decisiones tecnológicas, se reconstruye la evolución de un proceso de ingeniería que pasó de prototipos específicos a una arquitectura IoT modular basada en Ingeniería de Sistemas Basada en Modelos (MBSE) y el método ARCADIA. Como contribución, se propone un flujo de abordaje para nuevas ASADAS que separa necesidades operacionales, selección de módulos, arquitectura física, verificación y transferencia operativa. El proceso reduce el esfuerzo inicial de diagnóstico y diseño al reutilizar modelos, interfaces, criterios de verificación y patrones de implementación, permitiendo responder más rápidamente a necesidades locales sin sobredimensionar la solución.
+\end{abstract}
+
+\begin{IEEEkeywords}
+ASADA, acueductos rurales, Internet de las Cosas, ingeniería de sistemas, MBSE, ARCADIA, transferencia tecnológica, agua no facturada.
+\end{IEEEkeywords}
+
+\section{Introducción}
+El acceso al agua potable es una necesidad humana fundamental y un derecho reconocido internacionalmente \cite{un_resolution_2010}. En Costa Rica, una proporción importante de la gestión rural del recurso hídrico recae en ASADAS, organizaciones comunitarias que deben operar captaciones, tanques, redes de distribución, desinfección, mantenimiento y atención de abonados con recursos limitados. Esta condición vuelve frecuentes los procesos manuales de inspección, el bajo nivel de instrumentación y la dificultad para construir series históricas de datos confiables.
+
+Los sistemas IoT ofrecen una alternativa viable para digitalizar variables como nivel de tanque, caudal, volumen, presión, calidad de agua, estado energético y eventos de riesgo \cite{6844741}. Sin embargo, implementar IoT en una ASADA no es solamente seleccionar sensores y una plataforma en la nube. También implica comprender la operación del acueducto, su topología hidráulica, sus rutinas de mantenimiento, las restricciones de energía y conectividad, las capacidades del personal, la criticidad de los datos y las verificaciones necesarias para confiar en el sistema.
+
+En proyectos universitarios de transferencia tecnológica, esta complejidad se ha abordado históricamente mediante soluciones puntuales. Chavarría-Castro desarrolló un prototipo autónomo para monitorear nivel en Las Juntas de Abangares \cite{Chavarria2021}; Solórzano-Alfaro implementó un sistema de monitoreo y control hídrico basado en LoRa para la ASADA de Playa Sámara \cite{Solorzano2021}; y Oviedo-Muñoz construyó un prototipo de recopilación y visualización remota de datos para la ASADA Paso Ancho y Boquerón \cite{Oviedo2024}. Estos trabajos no solo aportaron hardware y software, sino también evidencia sobre cómo levantar requisitos, validar sensores, verificar comunicación, dimensionar energía, capacitar usuarios y reconocer límites de cada contexto.
+
+La motivación de este artículo es mostrar cómo esas lecciones habilitaron una arquitectura modular genérica para ASADAS, descrita en el trabajo base de arquitectura IoT mediante ARCADIA y Capella. A diferencia de una solución ad hoc, una arquitectura modular permite instanciar solamente los módulos requeridos por una ASADA nueva, manteniendo trazabilidad desde necesidades operativas hasta componentes físicos y pruebas. Por ello, la pregunta guía es: ¿cómo puede evolucionar el proceso de ingeniería para que el abordaje de una nueva ASADA sea más eficiente, rápido y verificable?
+
+\section{Metodología de síntesis}
+Este trabajo utiliza una metodología de estudio de casos documental. Se revisaron tres trabajos finales de graduación relacionados con IoT en ASADAS y el documento de arquitectura modular existente. Para cada caso se extrajeron las siguientes dimensiones: contexto de la ASADA, problema operacional, limitaciones, requisitos, tecnologías, proceso de levantamiento, existencia de visitas o pruebas en sitio, verificaciones de laboratorio y campo, resultados, costos o beneficios, y lecciones reutilizables.
+
+Posteriormente, las lecciones fueron agrupadas según las fases de ARCADIA: análisis de necesidades operacionales, análisis de necesidades del sistema, arquitectura lógica y arquitectura física \cite{arcadia,Roques2018}. Esta clasificación permitió separar lo que pertenece al problema de la ASADA (por ejemplo, medir nivel para evitar rebalse) de lo que pertenece a una implementación tecnológica concreta (por ejemplo, usar SIM7600, LoRa, Modbus o ThingSpeak). La síntesis resultante no busca reemplazar las metodologías particulares de cada proyecto, sino convertirlas en un proceso común y extensible.
+
+\section{Casos previos de implementación IoT}
+
+\subsection{Las Juntas de Abangares: de medición manual a prototipo autónomo}
+El primer caso corresponde a la ASADA ubicada en la comunidad de Las Juntas de Abangares. El problema consistía en la medición manual y esporádica del nivel de un tanque, realizada aproximadamente cada quince días mediante escala y libreta. Esta práctica no permitía modelar la demanda ni el suministro, especialmente en un acueducto abastecido superficialmente y sensible a variaciones climáticas y estacionales \cite{Chavarria2021}.
+
+Las principales restricciones fueron la ausencia de energía eléctrica cercana al tanque y la falta de conectividad WiFi. El sistema debía almacenar nivel, fecha y hora; tomar mediciones cada hora o cada veinte minutos en periodos de mayor consumo; visualizar datos remotamente; generar gráficos y descargas en Excel; y operar con energía renovable \cite{Chavarria2021}. Debido al contexto de pandemia, el levantamiento se apoyó en reuniones virtuales con CIEDES, y el prototipo se probó en condiciones similares a las de Abangares, incluyendo cobertura celular.
+
+La solución separó tres subsistemas: adquisición de datos, visualización y potencia. Se utilizaron Arduino Nano, sensor ultrasónico impermeable AJ-SR04, RTC DS3231, módulo celular SIM7600CE, transmisión HTTP hacia un servidor con PHP y MariaDB, visualización web con Bootstrap y Google Charts, panel solar de 20 W, regulador PWM y batería sellada de 12 V. Las verificaciones incluyeron calibración del sensor por regresión lineal, validación de comandos AT, pruebas de transmisión y simulación energética anual con PVSyst/PVGis. El costo final reportado fue cercano a 497 USD \cite{Chavarria2021}.
+
+Este caso introdujo una primera descomposición modular del problema: sensor, cómputo local, comunicaciones, almacenamiento, interfaz y energía. También mostró que la conectividad y la energía no son detalles secundarios, sino restricciones arquitectónicas que deben levantarse al inicio.
+
+\subsection{Playa Sámara: monitoreo distribuido y control operacional}
+El segundo caso, desarrollado en la ASADA de Playa Sámara, amplió el alcance desde monitoreo de nivel hacia control y monitoreo hídrico distribuido. La ASADA abastece a más de 450 abonados y operaba bombeo con temporizadores configurados manualmente según estimaciones mensuales. Las fluctuaciones de demanda de una comunidad turística provocaban riesgo de vaciamiento, rebalses o encendidos innecesarios. Además, se reportaba un nivel de agua no facturada de 40--50\% \cite{Solorzano2021}.
+
+El proyecto requirió coordinar bombeo con base en nivel de tanque, producción y demanda; adquirir datos de tres macromedidores ultrasónicos Octave; transmitir inalámbricamente entre puntos separados; visualizar datos desde Internet; y operar con autonomía energética y protección frente a humedad y corrosión. A diferencia del caso anterior, se realizaron pruebas e instalación en sitio, validación de red LoRa, capacitación a usuarios y análisis financiero.
+
+La arquitectura se basó en un esquema maestro--esclavo con ESP32 Heltec LoRa 32 V2. El nodo maestro funcionó como gateway y controlador central, comunicándose con Adafruit IO mediante MQTT; los nodos esclavos interpretaron señales de medidores Octave mediante módulos SSR y enviaron caudal/volumen por LoRa. También se diseñó una PCB única, IoT ASADAS V1.0, para reutilizar hardware con firmware distinto por rol, además de alimentación solar con baterías 18650, gabinetes IP65, antenas Yagi y rutinas de mantenimiento \cite{Solorzano2021}.
+
+Las verificaciones fueron más extensas que en el primer caso: pruebas con un medidor Octave trasladado al TEC por falta de banco experimental en la ASADA, validación con medidores instalados en Sámara, simulación de pulsos con generador de señales y osciloscopio, medición de RSSI durante operación, pruebas de PCB y funcionamiento simultáneo de tres dispositivos. Se reportó 0\% de error en volumen y 0,73\% en caudal promedio respecto a los Octave, además de RSSI mínimo dentro del margen recomendado y periodos proyectados de recuperación de inversión menores a un año \cite{Solorzano2021}.
+
+Este caso aportó lecciones críticas: el mismo hardware puede desempeñar roles diferentes; las interfaces con equipos existentes deben verificarse experimentalmente; el control automático exige modos manuales, alertas y capacitación; y el análisis financiero ayuda a justificar la adopción tecnológica.
+
+\subsection{Paso Ancho y Boquerón: ingeniería de sistemas y replicabilidad}
+El tercer caso corresponde a la ASADA Paso Ancho y Boquerón, ubicada en Oreamuno de Cartago. Sus tanques están en zonas de difícil acceso y los operadores podían tardar cerca de una hora o más en desplazarse e inspeccionar niveles. Además, se reportaban porcentajes de agua no facturada entre 10\% y 20\%. El objetivo fue desarrollar un prototipo para supervisión remota en tiempo real del nivel del tanque principal y de macromediciones de flujo \cite{Oviedo2024}.
+
+Este proyecto incorporó explícitamente conceptos de ingeniería de sistemas mediante la clasificación de requerimientos funcionales, de comportamiento, estructura y experiencia. La arquitectura adoptó el patrón dispositivo--puerta de enlace--nube: un nodo con sensor de nivel sumergible 4--20 mA, transmisor de señal, PLC M-Duino 21+LoRa y módulo Modbus para medidores Octave; comunicación LoRa hacia una puerta de enlace; procesamiento en CSV; y publicación por WiFi en ThingSpeak \cite{Oviedo2024}.
+
+El proceso incluyó pruebas en instalaciones de la ASADA para comunicación Modbus con Octave, donde una primera prueba falló y se recurrió a un adaptador RS485 y RealTerm antes de validar la lectura de caudal y volumen. Las pruebas finales integraron sensor de nivel, PLC, LoRa, gateway, WiFi y ThingSpeak, verificando flujo continuo de datos hasta la nube. El alcance fue exploratorio: algunos valores de caudal y volumen fueron supuestos con base en pruebas previas, y se formularon recomendaciones para instalación completa en los tanques \cite{Oviedo2024}.
+
+La lección principal fue la replicabilidad: los nodos de medición se diseñaron como unidades iguales que podrían copiarse para los tanques restantes. Esta idea conecta directamente con la arquitectura modular, pues exige definir interfaces estables, variabilidades por sitio y criterios de verificación reutilizables.
+
+\begin{table*}[t]
+\caption{Evolución de aprendizajes de ingeniería en tres casos de ASADAS.}
+\label{tab:casos}
+\centering
+\scriptsize
+\begin{tabular}{L{2.6cm} L{3.0cm} L{3.2cm} L{3.5cm} L{3.5cm}}
+\hline
+Caso & Necesidad principal & Limitaciones relevantes & Verificaciones realizadas & Aprendizaje reusable \\
+\hline
+Las Juntas de Abangares \cite{Chavarria2021} & Sustituir medición manual quincenal de nivel por datos remotos para modelar demanda y suministro. & Sin energía cercana; sin WiFi; dependencia de red celular; contexto de pandemia. & Calibración del sensor; pruebas de comandos AT y HTTP; transmisión a base de datos; simulación fotovoltaica anual; pruebas en condiciones similares. & Separar adquisición, visualización y potencia; levantar conectividad y energía desde el inicio; usar calibración como artefacto de verificación. \\
+Playa Sámara \cite{Solorzano2021} & Monitorear caudal/volumen y automatizar bombeo para reducir rebalses, vaciamiento y agua no facturada. & Puntos separados; ambiente húmedo/corrosivo; medidores existentes; necesidad de control seguro; baja disponibilidad eléctrica. & Validación Octave en laboratorio y campo; RSSI en sitio; pruebas de PCB; operación simultánea de tres nodos; capacitación y análisis financiero. & Hardware común con firmware por rol; interfaces verificadas; modos manual/automático; alertas; mantenimiento y transferencia operativa. \\
+Paso Ancho y Boquerón \cite{Oviedo2024} & Supervisión remota de nivel, caudal y volumen en tanques de difícil acceso. & Alcance exploratorio; compatibilidad Octave/Modbus; necesidad de instalación futura en varios tanques; visualización clara para usuarios. & Pruebas Modbus en ASADA; integración PLC--LoRa--gateway--WiFi--ThingSpeak; pruebas finales de flujo de datos; recomendaciones de instalación. & Nodos replicables por tanque; requisitos funcionales/de comportamiento/estructura/experiencia; variabilidades explícitas por sitio. \\
+\hline
+\end{tabular}
+\end{table*}
+
+\section{De casos puntuales a una arquitectura modular}
+Los tres casos muestran una evolución clara del proceso de ingeniería. En Abangares, el problema se formuló como digitalización de una variable específica: nivel de tanque. En Sámara, el alcance creció hacia una red distribuida que además ejecutaba control operacional. En Paso Ancho y Boquerón, el énfasis se desplazó hacia una arquitectura de nodos replicables y una definición más explícita de requisitos. La arquitectura modular sintetiza esta trayectoria al separar necesidades, funciones, componentes lógicos e implementación física.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{phases_arcadia.png}
+    \caption{Fases del método ARCADIA usadas para organizar el proceso de ingeniería \cite{Arcadia_phases}.}
+    \label{fig:arcadia}
+\end{figure}
+
+En el análisis operacional, la ASADA se modela sin asumir una tecnología particular. Esto permite capturar capacidades como proveer agua de calidad, cumplir normativa, mitigar pérdidas, compartir datos, conocer suministro/demanda o ejecutar distribución. En el análisis de necesidades del sistema, algunas actividades se delegan a un sistema IoT: medir, almacenar, procesar, notificar, visualizar o enviar comandos. La arquitectura lógica agrupa esas funciones en componentes abstractos, por ejemplo adquisición de datos, procesamiento, detección de eventos, almacenamiento, tablero de visualización y notificador. Finalmente, la arquitectura física instancia esos componentes con tecnologías específicas para cada ASADA.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.95\linewidth]{logical_architecture.jpg}
+    \caption{Arquitectura lógica modular para sistemas IoT en ASADAS. La separación entre adquisición, procesamiento, almacenamiento, visualización y notificación permite instanciar soluciones distintas sin rediseñar el sistema completo.}
+    \label{fig:logical}
+\end{figure*}
+
+La modularidad surge de cuatro decisiones. Primero, separar componentes que interactúan con el ambiente físico de aquellos que interactúan con usuarios. Segundo, definir interfaces estables: buses de sensores, colas de mediciones, canales de publicación/suscripción y consultas a almacenamiento. Tercero, tratar la conectividad y la energía como módulos configurables, no como suposiciones. Cuarto, mantener criterios de verificación asociados a cada módulo: calibración de sensores, lectura de medidores, presupuesto de enlace, autonomía energética, trazabilidad de datos, seguridad de acceso y capacitación.
+
+Estas decisiones condensan los aprendizajes de los casos previos sin requerir un segundo cuadro conceptual. En la práctica, el módulo de adquisición hereda las lecciones de calibración y compatibilidad con sensores o medidores existentes; el módulo de comunicación se selecciona según distancia, energía, latencia y disponibilidad de Internet; el módulo de energía incorpora dimensionamiento solar, autonomía, protección ambiental y mantenimiento; y los módulos de procesamiento, visualización y notificación separan el dato crudo de los eventos, alertas y tableros usados por la ASADA. De este modo, las pruebas de laboratorio, las pruebas en sitio, la capacitación y el resguardo de credenciales se integran como parte del proceso de transferencia, no como actividades posteriores al diseño.
+
+\section{Proceso propuesto para abordar una nueva ASADA}
+Con base en los casos anteriores y en la arquitectura modular, se propone el siguiente proceso de ingeniería para una ASADA nueva.
+
+\subsection{Pre-diagnóstico y preparación}
+Antes de visitar el sitio, el equipo recopila información mínima: ubicación de tanques, nacientes, pozos y oficinas; número de abonados; variables actualmente medidas; existencia de macromedidores; disponibilidad eléctrica; cobertura celular o Internet; reportes de rebalses, desabastecimiento, pérdidas o problemas de calidad; y personas responsables de operación. El resultado es una hipótesis inicial de módulos candidatos, no una solución cerrada.
+
+\subsection{Visita de levantamiento y verificación contextual}
+La visita debe confirmar la topología hidráulica, distancias, línea de vista, condiciones ambientales, espacios de instalación, gabinetes existentes, seguridad física, rutas de cableado, fuentes de energía y rutina real de los operadores. A diferencia de los proyectos iniciales, la visita no se limita a ``ver dónde instalar'', sino que verifica supuestos de arquitectura. Por ejemplo, si se planea LoRa, se registra posibilidad de antenas y pruebas preliminares de señal; si se planea Modbus, se identifica versión del medidor; si se planea energía solar, se revisan sombras y acceso para mantenimiento.
+
+\subsection{Modelado operacional}
+El equipo traduce las necesidades de la ASADA a actividades y capacidades: monitorear nivel, evitar rebalse, estimar agua no facturada, registrar caudal, identificar fallas, controlar bombeo, compartir datos o documentar cumplimiento. Esta etapa evita sobredimensionar la solución, porque no todas las ASADAS requieren los mismos módulos. Una ASADA puede necesitar solo nivel y alertas; otra puede requerir control de bombeo; otra, calidad de agua y reportes regulatorios.
+
+\subsection{Configuración de arquitectura lógica}
+A partir del modelo operacional se seleccionan módulos de la arquitectura lógica. Cada módulo se instancia con interfaces conocidas. Por ejemplo, el módulo de adquisición puede incluir sensor ultrasónico, sensor de presión o medidor Octave; el módulo de comunicación puede usar LoRa, celular, WiFi o una combinación; el módulo de visualización puede ser una plataforma IoT existente o una aplicación web propia. La decisión se documenta como trazabilidad necesidad--función--componente.
+
+\subsection{Arquitectura física y plan de verificación}
+La arquitectura física define dispositivos, firmware, energía, gabinetes, antenas, plataformas, protocolos y responsabilidades de mantenimiento. En paralelo se crea el plan de verificación. Las pruebas mínimas deben cubrir: calibración o comparación de medición; lectura de interfaces industriales; transmisión local; publicación en nube; persistencia de datos; visualización; notificaciones; autonomía energética; recuperación ante fallas; y capacitación del personal.
+
+\subsection{Implementación, transferencia y operación}
+La entrega no concluye cuando el prototipo envía datos. Debe incluir capacitación, credenciales, manual de alertas, rutina de mantenimiento, procedimiento para descarga o retención de datos y plan de escalamiento a nuevos tanques. Esta última etapa transforma un proyecto académico en una capacidad operativa de la ASADA.
+
+\section{Discusión}
+El proceso propuesto mejora la eficiencia al convertir experiencias previas en activos reutilizables. En lugar de comenzar cada ASADA desde una hoja en blanco, el equipo parte de modelos de necesidades, módulos tecnológicos, listas de verificación e interfaces ya conocidas. Esto permite dedicar la visita de campo a validar variabilidades del sitio y no a descubrir desde cero qué debe hacer un sistema IoT rural.
+
+La eficiencia no debe entenderse como estandarización rígida. Las ASADAS difieren en fuentes de agua, topografía, cobertura, antigüedad de infraestructura, disponibilidad de macromedidores, recursos humanos y prioridades. Por ello, la arquitectura modular separa lo común de lo variable. Lo común es la necesidad de medir, almacenar, visualizar, alertar y mantener trazabilidad. Lo variable es la combinación de sensores, protocolos, energía, frecuencia de muestreo, plataforma y nivel de automatización.
+
+Los casos también muestran que la verificación debe avanzar junto con el diseño. En Abangares, la calibración y la simulación energética fueron esenciales para confiar en un prototipo autónomo. En Sámara, la validación de señales Octave y del enlace LoRa evitó suposiciones erróneas en un sistema de control. En Paso Ancho, las pruebas Modbus en sitio revelaron problemas de hardware y obligaron a diagnosticar la interfaz antes de integrarla. Por tanto, el nuevo proceso debe exigir verificaciones tempranas de las interfaces críticas.
+
+Existen limitaciones. Esta síntesis se basa en documentos de proyectos y en una arquitectura en desarrollo; todavía no cuantifica, con métricas longitudinales, cuánto se reduce el tiempo de abordaje de una ASADA nueva. Como trabajo futuro, se recomienda medir tiempo hasta primera adquisición de datos, número de iteraciones de rediseño, porcentaje de requisitos reutilizados, costo por módulo, esfuerzo de capacitación y disponibilidad operativa posterior a la instalación.
+
+\section{Conclusiones}
+Los proyectos en Las Juntas de Abangares, Playa Sámara y Paso Ancho y Boquerón muestran una evolución desde prototipos IoT específicos hasta un proceso de ingeniería modular y trazable para ASADAS. Cada caso aportó lecciones complementarias: autonomía y visualización remota, control distribuido y verificación en campo, y replicabilidad mediante nodos y requisitos explícitos.
+
+Al organizar estas lecciones con MBSE y ARCADIA, es posible abordar nuevas ASADAS con mayor rapidez: primero se modelan necesidades operacionales, luego se seleccionan módulos lógicos y finalmente se instancian componentes físicos verificados. Este enfoque reduce el riesgo de sobrediseño, facilita la transferencia tecnológica estudiantil y permite que cada implementación contribuya a una arquitectura reutilizable para acueductos rurales.
+
+\bibliographystyle{IEEEtran}
+\bibliography{../paper/references, ../paper/autorefs}
+
+\end{document}
