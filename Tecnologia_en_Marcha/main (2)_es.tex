@@ -1,0 +1,279 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\graphicspath{{main_2_images/}{Tecnologia_en_Marcha/main_2_images/}}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{url}
+\usepackage{cite}
+
+\renewcommand{\IEEEkeywordsname}{Palabras clave}
+
+\urlstyle{same}
+
+\title{Digitalización de acueductos rurales gestionados por comunidades en Costa Rica}
+
+\author{
+\IEEEauthorblockN{María José Angulo Campos}
+\IEEEauthorblockA{
+\textit{Tecnológico de Costa Rica}\\
+Cartago, Costa Rica \\
+https://orcid.org/0009-0005-5842-1101}
+\and
+\IEEEauthorblockN{Carlos Montoya Marín}
+\IEEEauthorblockA{
+\textit{Tecnológico de Costa Rica}\\
+Cartago, Costa Rica \\
+https://orcid.org/0009-0001-1561-9768}
+\and
+\IEEEauthorblockN{Juan José Montero-Jiménez}
+\IEEEauthorblockA{
+\textit{Tecnológico de Costa Rica}\\
+Cartago, Costa Rica \\
+https://orcid.org/0000-0002-3215-3736}
+\and
+\IEEEauthorblockN{Juan José Rojas-Hernández}
+\IEEEauthorblockA{
+\textit{Tecnológico de Costa Rica}\\
+Cartago, Costa Rica \\
+https://orcid.org/0000-0002-3261-5005}
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+En los acueductos rurales, la distancia a los tanques, la falta de energía eléctrica y la conectividad irregular dificultan obtener información oportuna para tomar decisiones operativas. Este artículo recopila y analiza tres experiencias de monitoreo digital desarrolladas en ASADAS costarricenses para documentar las actividades, decisiones y pruebas que conformaron su proceso de ingeniería. Se realizó una síntesis comparativa de los casos de Las Juntas de Abangares, Playa Sámara y Paso Ancho--Boquerón, con una extracción común de requisitos, procesos de diseño, implementaciones, pruebas y limitaciones. Las experiencias utilizaron tecnologías diferentes y compartieron necesidades relacionadas con la observabilidad remota, la integración de activos existentes, la autonomía energética, la comunicación desde sitios aislados, el apoyo operativo y la mantenibilidad. La evidencia recopilada permite reconocer actividades recurrentes, decisiones condicionadas por cada sitio y puntos que requirieron pruebas o revisiones durante el desarrollo. El conjunto de casos constituye una base documental para estudiar si la reutilización de estas experiencias mejora el proceso de ingeniería y facilita futuros proyectos de digitalización en otras ASADAS. La evidencia disponible todavía no permite cuantificar desempeño sostenido, reducción de pérdidas, continuidad del servicio o costos de operación. Estos efectos deben evaluarse mediante despliegues de campo prolongados.
+\end{abstract}
+
+\begin{IEEEkeywords}
+acueductos rurales, sistemas comunitarios de agua, ASADA, Internet de las cosas, monitoreo remoto, ingeniería de sistemas basada en modelos, arquitectura modular
+\end{IEEEkeywords}
+
+\section{Introducción}
+La transformación digital de la infraestructura hídrica integra la medición, las comunicaciones, la gestión de datos y la automatización dentro de un sistema operativo \cite{arnell2023making,zulkifli2022iot,velayudhan2022iot}. Esta integración es especialmente importante en los acueductos rurales, donde los activos están dispersos y el acceso a personal, mantenimiento, energía y conectividad puede ser limitado. En Costa Rica, más de 2000 organizaciones comunitarias de agua, conocidas como ASADAS, operan estos sistemas \cite{direccion2025asadas}. Estudios previos han documentado limitaciones en infraestructura, mantenimiento y capacidad técnica \cite{soto2016situacion,gaviria2020risk}.
+
+La digitalización de un acueducto rural requiere adaptar la medición y los servicios de datos a la energía limitada, la conectividad intermitente, la instrumentación existente, las rutinas manuales y las necesidades de información para planificar el suministro. El desafío de ingeniería consiste en convertir mediciones dispersas en información operativa confiable, accesible y útil.
+
+Este artículo sintetiza tres experiencias de prototipado en ASADAS costarricenses. Las Juntas de Abangares pasó de la medición manual discreta a la adquisición autónoma de nivel, la comunicación celular, el almacenamiento y la visualización \cite{chavarria2021implementacion}. Playa Sámara amplió el alcance hacia el monitoreo distribuido, los enlaces LoRa, los servicios IoT, las alarmas y el diseño orientado al control \cite{solorzano2021sistema}. Paso Ancho--Boquerón exploró interfaces industriales, Modbus, sensores de 4--20~mA, telemetría remota y replicabilidad \cite{oviedo2024desarrollo}. Parte de este aprendizaje se formalizó posteriormente como una arquitectura modular mediante MBSE \cite{arguedas2025towards}.
+
+El alcance se delimita con respecto al artículo de ISSE 2025, que se concentra en una arquitectura genérica y modular para sistemas IoT en acueductos rurales mediante ARCADIA/MBSE \cite{arguedas2025towards}. Este manuscrito reconstruye la trayectoria técnica precedente, incluye Las Juntas de Abangares y compara la evidencia de los prototipos, las capacidades generalizadas y las decisiones del diseño actual.
+
+Las contribuciones son:
+\begin{enumerate}
+\item Comparar los requisitos, procesos de diseño, implementaciones y evidencias de prueba de tres desarrollos de digitalización de ASADAS.
+\item Identificar necesidades operativas recurrentes e implicaciones arquitectónicas.
+\item Distinguir las funciones probadas, las capacidades formalizadas mediante MBSE y los elementos actuales de Paso Ancho que aún están sujetos a implementación.
+\item Establecer una base documental para futuras evaluaciones de mejora del proceso de ingeniería y para el desarrollo de proyectos en otras ASADAS.
+\end{enumerate}
+
+\section{Método}
+Se utilizó una síntesis comparativa cualitativa de casos para integrar evidencia heterogénea de prototipos. Los casos fueron seleccionados porque forman una secuencia documentada del Laboratorio Delta/TEC con ASADAS costarricenses, abarcan la adquisición de nivel de tanque, el monitoreo distribuido con medidores existentes y las interfaces industriales, y cuentan con fuentes técnicas disponibles. La muestra se limita a estos tres desarrollos.
+
+Las fuentes primarias fueron los informes técnicos y proyectos finales de graduación de Las Juntas de Abangares, Playa Sámara y Paso Ancho--Boquerón \cite{chavarria2021implementacion,solorzano2021sistema,oviedo2024desarrollo}. Se aplicaron las mismas categorías de extracción a cada informe:
+\begin{enumerate}
+\item Problema operativo y requisitos, incluidas las necesidades de los usuarios, los activos existentes y las limitaciones del sitio.
+\item Proceso de diseño, incluida la descomposición funcional, las alternativas consideradas, los criterios de selección, las etapas de integración y las revisiones motivadas por las pruebas.
+\item Implementación, incluidas las variables hidráulicas, los sensores y las interfaces, el controlador, el suministro de energía, la comunicación y los servicios digitales.
+\item Evidencia y límites, incluida la función probada, el entorno de prueba, la medición de referencia, el resultado informado y la verificación pendiente.
+\end{enumerate}
+Las descripciones de los casos siguen este orden y citan las secciones que documentan las decisiones de diseño y las pruebas. Los detalles ausentes en una fuente se dejaron sin informar. La comparación conserva las diferencias entre los métodos utilizados por los autores originales.
+
+Dos fuentes complementarias cumplieron funciones distintas. El artículo de ISSE 2025 aportó la arquitectura ARCADIA/MBSE publicada que se utilizó para interpretar los casos \cite{arguedas2025towards}. Para la aplicación actual de Paso Ancho se analizaron el firmware, los requisitos, la lista de materiales, el documento de versión funcional y el plan de integración, verificación y validación \cite{deltalabo2026repo}. Los hallazgos sobre esta aplicación se limitan a esa versión y documentan el diseño y la integración planificada. El desempeño en campo aún debe establecerse.
+
+Una necesidad se clasificó como recurrente cuando el mismo propósito operativo apareció en al menos dos casos. Los requisitos específicos de un caso se conservaron como limitaciones del sitio, y las capacidades adicionales de la arquitectura MBSE se identificaron por separado. Luego, la síntesis relacionó estas necesidades con capacidades, funciones lógicas e implementaciones físicas.
+
+Para cada función, la extracción distinguió el estado de implementación de la evidencia de verificación: pruebas de banco o laboratorio, pruebas de campo limitadas, operación sostenida informada, cálculos o simulaciones y verificación planificada. La Tabla~\ref{tab:cases} resume la evidencia de los tres prototipos. El término LoRa describe los enlaces de radio de largo alcance documentados. El uso de LoRaWAN en los informes originales se señala cuando corresponde, con una interpretación de red limitada a la puerta de enlace y al manejo de paquetes documentados. Este estudio produjo una síntesis técnica de las experiencias y una base de referencia para futuras evaluaciones del proceso de ingeniería. No incluyó mediciones nuevas, pruebas prolongadas ni análisis estadísticos de pérdidas de agua.
+
+\section{Necesidades recurrentes de digitalización}
+En las tres experiencias surgieron necesidades operativas recurrentes a partir de los requisitos de los usuarios, las limitaciones del sitio, las pruebas de sensores, las estimaciones energéticas y las decisiones de comunicación y visualización. La Tabla~\ref{tab:needs} resume su relación con las decisiones arquitectónicas.
+
+\subsection{De las mediciones manuales a la observabilidad remota}
+La primera necesidad consistió en convertir registros intermitentes en observabilidad remota. En Las Juntas de Abangares, el nivel del tanque se medía aproximadamente cada quince días con una escala y se registraba en un cuaderno. Esta práctica impedía observar las variaciones diarias o estacionales y modelar la demanda y el suministro \cite{chavarria2021implementacion}. El prototipo probó mediciones automáticas cada hora o cada 20 minutos, con fecha y hora, gráficos y descarga de datos. Estas funciones hicieron posible consultar los registros de forma remota. Su desempeño durante una operación sostenida aún no ha sido informado.
+
+Sámara y Paso Ancho--Boquerón ampliaron el monitoreo más allá del nivel del tanque e incorporaron variables como caudal, volumen, estado de comunicación y condiciones de operación \cite{solorzano2021sistema,oviedo2024desarrollo}. Esto muestra que una sola medición no es suficiente para comprender el funcionamiento del acueducto. Para apoyar la toma de decisiones, el sistema debe integrar varias mediciones que describan el estado hidráulico y operativo con una frecuencia y confiabilidad adecuadas.
+
+\subsection{Interoperabilidad con la infraestructura existente}
+Las ASADAS no parten de una misma base tecnológica: algunas cuentan con medidores aprovechables, mientras que otras requieren sensores simples o interfaces industriales. En Sámara se conservaron los medidores ARAD Octave y se desarrollaron interfaces para registrar caudal y volumen \cite{solorzano2021sistema}. En Paso Ancho--Boquerón, la compatibilidad se amplió mediante señales de 4--20~mA y comunicación Modbus \cite{oviedo2024desarrollo}. Por ello, la arquitectura debe ser flexible y admitir, según las condiciones de cada sitio, sensores simples, medidores existentes, señales analógicas, pulsos o buses industriales.
+
+\subsection{Operación remota, energía y comunicaciones}
+Las condiciones de campo condicionaron las soluciones de energía y comunicación en todos los casos. En Las Juntas, la ausencia de electricidad y WiFi llevó a combinar un módem SIM7600, solicitudes HTTP, panel solar, batería, regulador y pruebas de cobertura 2G/3G/4G \cite{chavarria2021implementacion}. En Sámara, la dispersión de los puntos de monitoreo se atendió con enlaces LoRa, una puerta de enlace y alimentación solar \cite{solorzano2021sistema}. En diseños posteriores se consideran esquemas con LTE directo y monitoreo del estado energético. En consecuencia, la energía y la comunicación deben diseñarse como módulos seleccionables, pero siempre con una ruta verificable desde la medición en campo hasta la información disponible para el usuario final.
+
+\subsection{Apoyo operativo y mantenibilidad}
+El valor del monitoreo no se limita a recopilar mediciones, sino a convertirlas en información útil para operar el acueducto. En Las Juntas, esto se reflejó en funciones de consulta, visualización gráfica y descarga de registros \cite{chavarria2021implementacion}. En Sámara, el sistema incorporó alarmas y lógica asociada al bombeo \cite{solorzano2021sistema}. La arquitectura presentada en ISSE 2025 propone ampliar estas capacidades mediante detección de eventos, notificaciones, análisis de oferta y demanda, intercambio de datos, respaldo y seguimiento del estado del sistema; sin embargo, la verificación de estas funciones aún está pendiente \cite{arguedas2025towards}. En conjunto, estas capacidades orientan el uso de los datos hacia la toma de decisiones operativas y las tareas de mantenimiento.
+
+\begin{table*}[t]
+\caption{Necesidades recurrentes e implicaciones arquitectónicas}
+\label{tab:needs}
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.05}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{0.18\textwidth}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+\hline
+\textbf{Necesidad} & \textbf{Evidencia en los desarrollos} & \textbf{Implicación arquitectónica} \\
+\hline
+Observabilidad remota & De un cuaderno quincenal a mediciones automáticas, seguidas por caudal, volumen, nivel y estado operativo. & Datos persistentes, trazables y accesibles de forma remota. \\
+\hline
+Interoperabilidad & Sensores ultrasónicos, medidores Octave, señales de 4--20~mA, Modbus, RS-485 y opciones de comunicación según el sitio. & Interfaces de campo adaptables que complementen los activos útiles. \\
+\hline
+Operación remota & Ausencia de electricidad o Internet, cobertura variable y necesidad de reducir las visitas presenciales. & Energía y comunicación como módulos configurables y verificables. \\
+\hline
+Apoyo operativo & De gráficos y descargas a alarmas, lógica de bombeo, eventos, notificaciones y análisis. & Apoyar las decisiones y el mantenimiento. Incorporar control cuando haya sido verificado. \\
+\hline
+Confiabilidad y mantenibilidad & Pruebas de sensores e interfaces en los casos, con respaldo, estado del sistema y acceso controlado desarrollados posteriormente en la arquitectura MBSE. El desempeño sostenido aún no ha sido informado. & Trazabilidad, verificación, seguridad, recuperabilidad y desempeño documentado. \\
+\hline
+\end{tabularx}
+\end{table*}
+
+\section{Experiencias de prototipado}
+Los tres informes documentan requisitos, decisiones de diseño, implementación y pruebas con diferentes niveles de detalle. Las descripciones siguientes utilizan estas categorías comunes. La Tabla~\ref{tab:cases} resume el estado de la evidencia y los límites considerados para interpretar cada caso.
+
+\subsection{Las Juntas de Abangares: de la medición manual a un prototipo autónomo}
+\textit{Problema y requisitos.} CIEDES necesitaba registros del nivel del tanque para estudios de balance hídrico, demanda y capacidad de suministro. Las reuniones con su director establecieron mediciones con fecha y hora cada hora o cada 20 minutos, consultas remotas, gráficos y registros descargables. La falta de electricidad y WiFi en el tanque condicionó la solución \cite[Seccs.~4.1--4.3]{chavarria2021implementacion}.
+
+\textit{Proceso de diseño.} El informe dividió la solución en subsistemas de adquisición, visualización y potencia. Comparó configuraciones con HTTP y MQTT, además de alternativas de sensores, controladores y componentes de potencia. El costo, el consumo, la impermeabilidad y la instalación influyeron en la selección de componentes. Se eligió HTTP por su integración más sencilla con el servicio web y por su adecuación a la frecuencia de muestreo requerida. Las pruebas con un SIM900 revelaron demoras de conexión y fallas en los comandos, lo que motivó su sustitución por un SIM7600. El diseño también incorporó un interruptor temporizado para reducir el consumo \cite[Seccs.~4.4--4.6 y 5.1]{chavarria2021implementacion}.
+
+\textit{Implementación.} El prototipo combinó un sensor ultrasónico AJ-SR04 calibrado mediante regresión lineal, un Arduino Nano, un reloj de tiempo real y un módem SIM7600. Las solicitudes HTTP almacenaron las mediciones en una base de datos web con funciones de consulta, generación de gráficos y descarga. Un panel solar, un regulador y una batería suministraron la energía \cite[Seccs.~5.2--5.6]{chavarria2021implementacion}.
+
+\textit{Evidencia y límites.} Las comprobaciones del sensor compararon las lecturas calibradas con distancias medidas mediante cinta métrica. Las pruebas de transmisión y del servicio web demostraron el almacenamiento, las consultas y las descargas. La autonomía energética se evaluó mediante cálculos de dimensionamiento y simulaciones fotovoltaicas, junto con comprobaciones funcionales del hardware de potencia. El caso muestra cómo la frecuencia de muestreo, la calibración, la cobertura y el dimensionamiento energético afectan la cadena entre la medición y la visualización.
+
+\subsection{Playa Sámara: monitoreo distribuido y lógica orientada al control}
+\textit{Problema y requisitos.} La ASADA buscaba información hidráulica remota y coordinación del bombeo para evitar el rebalse o el vaciamiento del tanque. Los requisitos incluían reutilizar los medidores Octave, establecer comunicación inalámbrica entre activos dispersos, disponer de autonomía energética y proteger los equipos frente a condiciones húmedas y corrosivas. El intervalo de reporte se ajustó durante el desarrollo para adaptarse al servicio MQTT seleccionado \cite[Seccs.~1.3 y 2.1]{solorzano2021sistema}.
+
+\textit{Proceso de diseño.} La solución se dividió en comunicación, control de bombeo y medición hidráulica. Se seleccionaron dispositivos basados en ESP32 por su programación accesible, tamaño, consumo y costo. Se diseñó un circuito común para las ubicaciones de monitoreo, con firmware y capacidad de batería adaptados a cada función. La integración incluyó el dimensionamiento de la energía solar, pruebas del esquemático, fabricación de PCB e instalación en el sitio. Las pruebas de los medidores motivaron cambios en la lógica de interpretación de pulsos y en la resolución de pulsos antes de las comprobaciones finales. El diseño eléctrico del bombeo y los escenarios financieros se desarrollaron como tareas separadas \cite[Caps.~5--8]{solorzano2021sistema}.
+
+\textit{Implementación.} Tres dispositivos IoT ASADAS V1.0 con Heltec LoRa 32 V2 adquirieron pulsos SSR de los medidores Octave y combinaron energía solar, enlaces LoRa, una puerta de enlace, MQTT y Adafruit IO. El firmware incluyó alarmas y lógica orientada al control. El informe utiliza la terminología LoRaWAN, mientras que la implementación documentada permite interpretarla como enlaces LoRa con una puerta de enlace y paquetes de aplicación \cite[Caps.~4--6]{solorzano2021sistema}.
+
+\textit{Evidencia y límites.} Las pruebas compararon el caudal y el volumen interpretados con las pantallas de los medidores, probaron el firmware con un generador de señales y comprobaron los enlaces de radio en la ASADA. El informe presenta una diferencia de 0\% en el volumen acumulado. Para el caudal promedio, la Secc.~5.2.2 presenta 0,72\%, mientras que el resumen y las conclusiones presentan 0,73\% \cite{solorzano2021sistema}. Se trata de comparaciones con la lectura de pantalla y existe una discrepancia interna en el informe. La exactitud absoluta del sistema y el desempeño sostenido aún no han sido establecidos. La modificación eléctrica de bombeo propuesta no fue instalada \cite[Cap.~7]{solorzano2021sistema}. Este caso muestra la importancia de probar el comportamiento de los medidores durante la integración y verificar por separado el monitoreo, la lógica de decisión y la actuación.
+
+\subsection{Paso Ancho--Boquerón: compatibilidad industrial y replicabilidad}
+\textit{Problema y requisitos.} El acceso difícil a los tanques hacía que las inspecciones locales del nivel requirieran mucho tiempo. El proyecto buscó obtener información remota del nivel, el caudal y el volumen, conservando los medidores Octave compatibles. Sus objetivos separaron la definición de la arquitectura, la integración del nodo de medición, la integración de la puerta de enlace y la visualización en la nube \cite[Seccs.~1.3--1.5 y 2.1]{oviedo2024desarrollo}.
+
+\textit{Proceso de diseño.} La arquitectura organizó los requisitos por función, comportamiento, estructura y experiencia, y definió un nodo común para su posterior replicación. Se seleccionó un controlador M-Duino por su compatibilidad con el sensor y las interfaces Modbus, así como por su comunicación LoRa integrada. La integración del nodo requirió acondicionamiento de la señal de corriente a voltaje, comprobación de la versión de los medidores y configuración inicial de Modbus mediante el software del fabricante y una interfaz NFC. Una prueba inicial de comunicación no tuvo éxito. Esto llevó a realizar comprobaciones con un adaptador RS-485 y RealTerm antes de volver al firmware del PLC. Luego, la recepción en la puerta de enlace, el procesamiento de datos y la visualización se abordaron en etapas de integración separadas \cite[Caps.~4--6 y Anexo~9.2]{oviedo2024desarrollo}.
+
+\textit{Implementación.} El M-Duino 21+LoRa leyó un sensor de nivel sumergible de 4--20~mA mediante un convertidor de señal de 0--10~V y adquirió el caudal y el volumen de los medidores Octave mediante Modbus. Un sistema de batería alimentado por energía solar suministró energía al nodo. La comunicación LoRa lo conectó con una puerta de enlace, y se utilizó WiFi para transmitir los datos a ThingSpeak \cite[Caps.~5--7 y Anexo~9.4]{oviedo2024desarrollo}.
+
+\textit{Evidencia y límites.} Las pruebas de campo en la ASADA verificaron la adquisición mediante Modbus. Las pruebas posteriores de integración utilizaron un tanque del TEC para la medición de nivel y la comunicación entre el nodo y la puerta de enlace. En ese lugar no había un medidor Octave compatible. Por esta razón, los valores de caudal y volumen se basaron en lecturas de campo anteriores, y la demostración en la nube incluyó valores supuestos. El informe respalda una integración parcial. La operación sostenida de extremo a extremo aún no ha sido informada \cite[Secc.~6.2 y Anexos~9.2--9.3]{oviedo2024desarrollo}. Este caso destaca la compatibilidad de interfaces, la configuración y la verificación por etapas como condiciones para replicar un nodo.
+
+\begin{table*}[t]
+\caption{Casos utilizados en la síntesis y estado de la evidencia}
+\label{tab:cases}
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.05}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{0.17\textwidth}|>{\raggedright\arraybackslash}p{0.22\textwidth}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+\hline
+\textbf{Caso} & \textbf{Estado de la evidencia} & \textbf{Funciones respaldadas} & \textbf{Límite considerado en la síntesis} \\
+\hline
+Las Juntas de Abangares \cite{chavarria2021implementacion} & Prototipo implementado con calibración del sensor y pruebas funcionales. Dimensionamiento y simulación de la energía. & Adquisición de nivel, HTTP celular, base de datos web, consultas, descargas y hardware de potencia. & El desempeño sostenido en campo y la autonomía energética medida a largo plazo aún no han sido informados. \\
+\hline
+Playa Sámara \cite{solorzano2021sistema} & Pruebas de banco y de campo limitadas de dispositivos, enlaces de radio y servicios de datos. Modificación eléctrica del bombeo diseñada. & Adquisición de pulsos SSR de Octave, nodos LoRa con puerta de enlace, MQTT/Adafruit IO y lógica de alarmas. & Comparaciones con lecturas de pantalla. La fuente presenta 0,72\% y 0,73\% para la diferencia del caudal promedio. La modificación del bombeo no fue instalada. El desempeño sostenido no ha sido informado. \\
+\hline
+Paso Ancho--Boquerón 2024 \cite{oviedo2024desarrollo} & Pruebas de campo de Modbus y pruebas parciales de integración en el TEC. & Entrada de nivel acondicionada de 4--20~mA, adquisición mediante Modbus, recepción LoRa y demostración con ThingSpeak. & La integración utilizó valores representativos o supuestos de caudal y volumen. La operación sostenida de extremo a extremo no ha sido informada. \\
+\hline
+\end{tabularx}
+\end{table*}
+
+La Fig.~\ref{fig:hardware} muestra hardware representativo de dos casos documentados y se incluye como apoyo visual para la comparación.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figure-000.png}
+\caption{Hardware representativo documentado para (a) Paso Ancho--Boquerón y (b) Playa Sámara \cite{solorzano2021sistema,oviedo2024desarrollo}.}
+\label{fig:hardware}
+\end{figure*}
+
+\section{Formalización mediante MBSE}
+Las experiencias revelan una estructura funcional recurrente: medición $\rightarrow$ adquisición $\rightarrow$ comunicación $\rightarrow$ servicio digital $\rightarrow$ información para el operador. Los sensores, controladores, enlaces, plataformas, configuraciones energéticas y el grado de apoyo operativo pueden cambiar.
+
+En este trabajo, MBSE proporciona un marco conceptual para la síntesis. ARCADIA se refiere al método de ingeniería de sistemas y arquitectura basada en modelos documentado por Voirin \cite{voirin2018arcadia}. La arquitectura genérica de ARCADIA fue desarrollada en el trabajo de ISSE 2025 \cite{arguedas2025towards}. Este artículo utiliza su separación entre necesidades operativas, funciones lógicas e implementaciones físicas para interpretar los tres casos. Los informes originales emplearon sus propios enfoques de diseño, incluida la clasificación por función, comportamiento, estructura y experiencia en Paso Ancho--Boquerón. Sus procesos se comparan retrospectivamente mediante el marco MBSE.
+
+Esta separación permite pasar de HTTP a MQTT, de LoRa a LTE, de un sensor ultrasónico a 4--20~mA o de una plataforma externa a una plataforma administrada sin perder la lógica del sistema.
+
+\section{Estructura funcional observada}
+La comparación de los casos muestra una cadena funcional recurrente cuyos componentes fueron seleccionados según las condiciones de cada sitio. Esta estructura se utiliza como marco descriptivo para ordenar las actividades documentadas. No constituye una arquitectura nueva ni prescribe componentes para futuras implementaciones. En los casos analizados, la adquisición de datos, la validación local, la energía, la comunicación, la ingestión, el almacenamiento, la visualización, las notificaciones, el respaldo y el estado del sistema requirieron decisiones y criterios de verificación específicos.
+
+\subsection{Nodo de campo}
+El nodo de campo interactúa con la infraestructura hidráulica. Puede medir el nivel con un sensor ultrasónico, leer un sensor de 4--20~mA, adquirir registros de Octave mediante Modbus o incorporar otros sensores. Su función estable consiste en transformar variables físicas en datos con fecha y hora, aplicar validaciones básicas y preparar la comunicación. La calibración, la protección ambiental, el consumo y la mantenibilidad deben diseñarse desde el inicio.
+
+\subsection{Energía y comunicación}
+La energía y la comunicación dependen del sitio. Las Juntas combinó energía solar con comunicación celular. Sámara utilizó dispositivos LoRa alimentados con energía solar y una puerta de enlace, y Paso Ancho--Boquerón integró un nodo industrial alimentado con energía solar y comunicación LoRa y WiFi. Por tanto, estos elementos deben tratarse como módulos reemplazables con requisitos verificables de frecuencia, disponibilidad, autonomía, recuperación, consumo y protección ambiental.
+
+\subsection{Servicios digitales y operación}
+La capa digital debe almacenar los datos, hacerlos accesibles y convertirlos en información operativa. La visualización web, los servicios IoT, los servicios en la nube, los tableros, las notificaciones, los respaldos y el control de acceso son instancias de funciones generales: persistencia, consulta, visualización, generación de alertas, análisis y mantenimiento.
+
+\section{Aplicación actual en Paso Ancho}
+La aplicación actual de Paso Ancho adapta la arquitectura modular para un despliegue en desarrollo \cite{deltalabo2026repo}. La documentación de definición de la misión enumera requisitos de monitoreo móvil, alertas por rebalse y suministro insuficiente, adquisición de datos de un medidor Octave y un sensor de nivel, operación sin energía fija ni Internet, protección ambiental, mantenibilidad, disponibilidad y ciberseguridad.
+
+El firmware ESP32 revisado inicializa RS-485, lee el caudal y el volumen del medidor Octave mediante Modbus, lee una entrada analógica de altura, la escala de 0 a 5~m y emite los resultados mediante un puerto serial. El envoltorio de SIM7600 está comentado. La transmisión LTE, la carga remota y la integración de extremo a extremo siguen pendientes en esta versión. La interfaz del sensor también requiere resolución: la documentación describe un sensor de profundidad One-Wire de 24~V, mientras que el firmware implementa una entrada analógica. La versión desplegada necesitará una interfaz física, eléctrica y de datos documentada y verificada.
+
+Los artefactos restantes describen requisitos de diseño y pruebas planificadas. La verificación de la plataforma remota, la ciberseguridad, la disponibilidad, los respaldos, el estado del nodo, las notificaciones y la operación de extremo a extremo queda como trabajo futuro. Las decisiones de comunicación deberán satisfacer el requisito de transferir datos desde un sitio sin Internet fija. Las afirmaciones de desempeño requerirán documentos de control de interfaces, el firmware y la configuración desplegados, datos sin procesar y protocolos de prueba.
+
+\section{Discusión: lecciones aprendidas y transferibilidad}
+Los tres casos muestran cómo el prototipado abordó la incertidumbre de diseño bajo diferentes limitaciones del sitio. Las Juntas comparó alternativas de componentes y comunicación, y luego revisó la disposición del módem y del interruptor de potencia. Sámara utilizó pruebas de medidores para revisar la interpretación de pulsos y desarrolló un circuito común para nodos distribuidos. Paso Ancho--Boquerón organizó los requisitos por función, comportamiento, estructura y experiencia, y resolvió la configuración de las interfaces industriales mediante pruebas por etapas. En los informes, la definición de requisitos, la selección de componentes, la integración, las pruebas y la revisión formaron un proceso de diseño recurrente. Esta secuencia sugiere que la digitalización de una ASADA puede avanzar de forma incremental, comenzando con la disponibilidad de información y agregando capacidades a medida que se aclaran las limitaciones del sitio.
+
+Una lección importante es el valor de la modernización incremental. Conservar los medidores Octave y otros activos funcionales puede reducir el reemplazo de infraestructura, los costos iniciales y las alteraciones operativas. Sin embargo, esta estrategia también traslada complejidad a las interfaces de adquisición, la interpretación de protocolos, la calibración y el diagnóstico de fallas. Por tanto, la interoperabilidad requiere conexiones compatibles y la conservación del significado, la calidad y la trazabilidad de los datos a lo largo de toda la cadena.
+
+La comparación también muestra que no existe una opción universal para la energía y la comunicación. LoRa, la comunicación celular, WiFi y las diferentes configuraciones de energía solar responden a condiciones específicas de cobertura, distancia, disponibilidad eléctrica, consumo y mantenimiento. La selección tecnológica debe seguir requisitos verificables de frecuencia de medición, autonomía, disponibilidad, recuperación ante fallas y protección ambiental. La modularidad ofrece una ventaja cuando las interfaces y los criterios de verificación se definen con suficiente precisión.
+
+Desde esta perspectiva, MBSE funciona como un marco para relacionar necesidades operativas, funciones del sistema e implementaciones físicas. En este artículo, se utiliza para organizar y comparar las experiencias, tomando como referencia la arquitectura presentada en ISSE 2025. Esta lectura permite identificar qué decisiones dependieron del sitio y qué funciones aparecieron en varios casos, información que puede servir como base para estudiar mejoras en futuros procesos de ingeniería.
+
+El alcance del análisis corresponde a tres experiencias desarrolladas en ASADAS costarricenses y no pretende representar a todas las organizaciones comunitarias de agua del país. La comparación aplica categorías comunes de extracción a informes con diferentes métodos de diseño, condiciones de prueba y niveles de detalle. Las Juntas documenta comparaciones explícitas de alternativas, Sámara desarrolla diseños y pruebas específicos para cada subsistema, y Paso Ancho--Boquerón estructura los requisitos y la integración alrededor de un nodo replicable. El esquema de extracción común conserva estas diferencias. Los resultados informados de precisión, comunicación, energía y operación no son adecuados para una comparación numérica directa. Además, todavía no existe evidencia de una operación prolongada que permita cuantificar la disponibilidad, la autonomía energética, el mantenimiento, la aceptación de los operadores o los efectos sobre las pérdidas de agua y la continuidad del servicio. Estos aspectos deben evaluarse mediante futuros despliegues de campo con métricas comunes.
+
+\section{Trabajo futuro: evaluación operativa}
+El trabajo futuro se concentrará en completar la integración de la arquitectura actual y evaluarla en condiciones representativas de operación. La primera etapa verificará la cadena de adquisición, comunicación, almacenamiento, visualización, notificación y monitoreo del estado del nodo. Luego, un despliegue sostenido observará el comportamiento del sistema ante variaciones de conectividad, energía, sensores y condiciones ambientales.
+
+La evaluación debe cuantificar la disponibilidad de los datos, la recuperación ante fallas de comunicación, la autonomía energética, la plausibilidad de las mediciones, el comportamiento de las alertas, las intervenciones de mantenimiento y la aceptación de los operadores. Estos resultados permitirán determinar qué funciones y módulos pueden transferirse directamente a otras ASADAS y cuáles requieren adaptación. Las funciones avanzadas, como el análisis de pérdidas de agua y el control supervisado, deben evaluarse después de demostrar la confiabilidad de la infraestructura básica de monitoreo.
+
+\section{Conclusión}
+Este trabajo sintetizó tres experiencias de digitalización desarrolladas para ASADAS costarricenses: Las Juntas de Abangares, Playa Sámara y Paso Ancho--Boquerón. El análisis comparativo indica que, aunque las tecnologías fueron diferentes, las necesidades relacionadas con la observabilidad remota, la interoperabilidad con la infraestructura existente, la comunicación desde sitios aislados, la autonomía energética y el apoyo operativo se repitieron en los casos.
+
+La principal contribución de la síntesis consiste en documentar las funciones, decisiones y actividades de ingeniería presentes en tres experiencias de digitalización. Esta documentación permite distinguir los elementos que aparecieron en varios casos de aquellos condicionados por cada acueducto, como complemento del trabajo de arquitectura publicado en ISSE 2025. La evidencia disponible respalda la viabilidad inicial de los prototipos y establece una referencia para futuras evaluaciones del proceso de ingeniería. Las afirmaciones sobre desempeño sostenido, reducción de pérdidas de agua, mejora de la continuidad del servicio o beneficios de reutilizar estas experiencias requieren pruebas de campo prolongadas y métricas comunes.
+
+\section*{Declaración sobre el uso de inteligencia artificial}
+Los autores declaran que un modelo de lenguaje de OpenAI se utilizó como herramienta auxiliar para la edición del lenguaje, la revisión de la redacción técnica, la verificación de la consistencia bibliográfica y el formato en LaTeX. La herramienta no se utilizó para generar datos de investigación, crear o manipular figuras, realizar mediciones, efectuar análisis ni producir resultados. Todas las fuentes, interpretaciones, conclusiones y el contenido final del manuscrito fueron revisados, verificados y aprobados por los autores, quienes asumen plena responsabilidad por el trabajo.
+
+\begin{thebibliography}{12}
+
+\bibitem{arnell2023making}
+M. Arnell, M. Miltell, and G. Olsson, ``Making Waves: A Vision for Digital Water Utilities,'' \emph{Water Research X}, vol.~19, p. 100170, 2023, doi: 10.1016/j.wroa.2023.100170.
+
+\bibitem{zulkifli2022iot}
+C. Z. Zulkifli \emph{et al.}, ``IoT-Based Water Monitoring Systems: A Systematic Review,'' \emph{Water}, vol.~14, no.~22, p. 3621, 2022, doi: 10.3390/w14223621.
+
+\bibitem{velayudhan2022iot}
+N. K. Velayudhan, P. Pradeep, S. N. Rao, A. R. Devidas, and M. V. Ramesh, ``IoT-Enabled Water Distribution Systems---A Comparative Technological Review,'' \emph{IEEE Access}, vol.~10, pp. 101042--101070, 2022, doi: 10.1109/ACCESS.2022.3208142.
+
+\bibitem{direccion2025asadas}
+Dirección de Agua de Costa Rica, ``ASADAS,'' 2025. [En línea]. Disponible en: \url{https://da.go.cr/asadas/}
+
+\bibitem{soto2016situacion}
+S. M. Soto-Córdoba, L. Gaviria-Montoya, and M. Pino-Gómez, ``Situación de la gestión del agua potable en las zonas rurales de la provincia de Cartago, Costa Rica,'' [en español], \emph{Revista Tecnología en Marcha}, vol.~29, no.~8, pp. 67--76, 2016, doi: 10.18845/tm.v29i8.2986.
+
+\bibitem{gaviria2020risk}
+L. Gaviria-Montoya, M. Pino-Gómez, and S. M. Soto-Córdoba, ``Risk Associated with the Water Infrastructure in Rural Water Suppliers in Turrialba, Cartago, Costa Rica,'' \emph{Sustainable Water Resources Management}, vol.~6, art. no.~56, 2020, doi: 10.1007/s40899-020-00410-x.
+
+\bibitem{chavarria2021implementacion}
+Y. J. Chavarría Castro, ``Implementación de un sistema prototipo para el monitoreo de la variación de nivel de líquido, en una ASADA ubicada en la comunidad de las Juntas de Abangares,'' [en español], Proyecto final de graduación, Escuela de Ingeniería Electrónica, Instituto Tecnológico de Costa Rica, Costa Rica, 2021. [En línea]. Disponible en: \url{https://hdl.handle.net/2238/15115}
+
+\bibitem{solorzano2021sistema}
+S. Solórzano Alfaro, ``Sistema de control y monitoreo hídrico, basado en LoRaWAN, para el acueducto principal de la Asociación Administradora del Acueducto Rural de Playa Sámara de Nicoya,'' [en español], Informe de práctica de especialidad, Escuela de Ingeniería Electromecánica, Instituto Tecnológico de Costa Rica, Costa Rica, 2021. [En línea]. Disponible en: \url{https://hdl.handle.net/2238/13234}
+
+\bibitem{oviedo2024desarrollo}
+A. Oviedo Muñoz, ``Desarrollo de un prototipo para recopilación y monitoreo remoto de datos hídricos de los tanques, basado en dispositivos IoT, en la ASADA Paso Ancho y Boquerón,'' [en español], Informe de práctica de especialidad, Escuela de Ingeniería Electromecánica, Instituto Tecnológico de Costa Rica, Cartago, Costa Rica, 2024. [En línea]. Disponible en: \url{https://github.com/DeltaLabo/ASADA_Paso_Ancho/blob/b791b87/TFG_Alejandra.pdf}
+
+\bibitem{arguedas2025towards}
+A. J. Arguedas-Rodríguez, M. J. Angulo-Campos, J. J. Montero-Jiménez, and J. J. Rojas-Hernández, ``Towards a Modular IoT System Architecture for Rural Aqueducts Using Model-Based Systems Engineering,'' in \emph{2025 IEEE International Symposium on Systems Engineering (ISSE)}, 2025, doi: 10.1109/ISSE65546.2025.11369985.
+
+\bibitem{deltalabo2026repo}
+DeltaLabo, ``ASADA\_Paso\_Ancho: documentation and code for the design under development,'' GitHub, 2026, revisión examinada b791b87. [En línea]. Disponible en: \url{https://github.com/DeltaLabo/ASADA_Paso_Ancho/tree/b791b87}
+
+\bibitem{voirin2018arcadia}
+J.-L. Voirin, \emph{Model-Based System and Architecture Engineering with the Arcadia Method}. ISTE Press--Elsevier, 2018, doi: 10.1016/C2016-0-00862-8.
+
+\end{thebibliography}
+
+\end{document}
