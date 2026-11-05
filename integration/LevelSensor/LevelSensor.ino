@@ -421,6 +421,7 @@ void loop() {
           avgWaterHeight = WaterHeightArr.int16avg;
         }
 
+
         Serial.print("\nCaudal promedio (x100): ");
         if (flowValid) Serial.print(avgSignedCurrentFlow);
         else Serial.print("N/A");

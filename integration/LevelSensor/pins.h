@@ -10,6 +10,6 @@
 #define LTE_TX_PIN 43
 #define LTE_RX_PIN 44
 
-#define SD_CS_PIN 6  // XIAO ESP32-S3 D5 (GPIO6)
+#define SD_CS_PIN 6 // XIAO ESP32-S3 D5 (GPIO6)
 
 #endif
